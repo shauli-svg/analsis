@@ -2,6 +2,11 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import OpenAI from "openai";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -9,7 +14,10 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// OpenAI client – uses OPENAI_API_KEY from env (Render)
+// להגיש קבצים סטטיים מתוך public (index.html, CSS, JS וכו')
+app.use(express.static(path.join(__dirname, "public")));
+
+// OpenAI client – משתמש ב-OPENAI_API_KEY מה-ENV (Render)
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -164,11 +172,14 @@ Currency=ILS | FX Base=ILS/USD @ {תאריך/שער} | Units={אלפים/מ׳/מ
 אינני יועץ השקעות מורשה, וכל האמור אינו מהווה ייעוץ השקעות, שיווק השקעות או תחליף לייעוץ המתחשב בנתונים, בצרכים ובמאפיינים הייחודיים של כל אדם. לפני קבלת החלטת השקעה או פעולה פיננסית, מומלץ להיוועץ בבעל רישיון מתאים ולוודא מידע עדכני ממקורות רשמיים.
 `;
 
-// ===== Health endpoints (שלא תראה שוב "Cannot GET /chat") =====
+// ===== Routes =====
+
+// דף הבית – מגיש את index.html מהתיקייה public
 app.get("/", (req, res) => {
-  res.send("DraffIQ API is alive. Use POST /chat");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Health check (אופציונלי)
 app.get("/health", (req, res) => {
   res.json({ ok: true, status: "healthy" });
 });
