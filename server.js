@@ -5,16 +5,13 @@ import OpenAI from "openai";
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 const SYSTEM_PROMPT = "אתה עוזר חכם, עונה בעברית, מסביר ברור וקצר.";
-
-app.get("/", (req, res) => {
-  res.send("GPT chat API is running");
-});
 
 app.post("/chat", async (req, res) => {
   try {
