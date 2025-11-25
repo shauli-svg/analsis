@@ -1,14 +1,16 @@
 {
-  "name": "gpt-chat-api",
+  "name": "draffiq-api",
   "version": "1.0.0",
-  "type": "module",
+  "description": "DraffIQ AI – TASE research API",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.0",
+    "body-parser": "^1.20.3",
     "cors": "^2.8.5",
+    "express": "^4.19.2",
     "openai": "^4.0.0"
   }
 }
