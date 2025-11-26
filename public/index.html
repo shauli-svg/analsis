@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 
 <head>
@@ -29,8 +29,14 @@
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #f3f4f6 0, #e5e7eb 45%, #d4d4d4 100%);
       color: var(--text-main);
@@ -113,7 +119,8 @@
       flex: 1;
       display: flex;
       justify-content: center;
-      padding: 18px 16px 16px;
+      padding: 12px 16px 12px;
+      min-height: 0;
     }
 
     .chat-wrapper {
@@ -202,13 +209,13 @@
     }
 
     .avatar-circle {
-      width: 25px;
-      height: 25px;
+      width: 33px;
+      height: 33px;
       border-radius: 999px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.5rem;
+      font-size: 0.7rem;
       font-weight: 700;
       letter-spacing: 0.05em;
       text-transform: uppercase;
@@ -263,18 +270,6 @@
       text-align: center;
       border: 1px dashed rgba(148, 163, 184, 0.9);
       color: var(--text-main);
-    }
-
-    .system-line-main {
-      font-size: 0.9rem;
-      margin-bottom: 4px;
-      color: var(--text-main);
-    }
-
-    .system-brand {
-      font-size: 1.01rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
     }
 
     .system-line-sub {
@@ -412,13 +407,6 @@
       background: #e5e7eb;
     }
 
-    footer {
-      padding: 10px 16px 16px;
-      text-align: center;
-      font-size: 0.7rem;
-      color: var(--text-muted);
-    }
-
     /* Thinking dots */
     .thinking-dots {
       display: inline-flex;
@@ -464,7 +452,7 @@
       }
 
       .app-shell {
-        padding: 12px 10px 10px;
+        padding: 8px 10px 8px;
       }
 
       .panel {
@@ -485,12 +473,10 @@
       }
     }
 
-    /* ===== הדפסה נקייה ===== */
     @media print {
 
       .top-bar,
-      .input-shell,
-      footer {
+      .input-shell {
         display: none !important;
       }
 
@@ -537,7 +523,6 @@
       <div class="panel">
         <div id="messages">
           <div class="message system">
-            <!-- הורדנו את "ברוך הבא ל־DRAFFIQ AI." ומשאירים רק את הפרומפט -->
             <div class="system-line-sub">
               כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
               נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
@@ -549,7 +534,8 @@
           <form id="chat-form">
             <div class="input-inner">
               <div class="input-textarea-wrap">
-                <textarea id="query" name="query" rows="1" placeholder="לדוגמה: שופרסל – דוח רבעוני אחרון, ניתוח עומק עם דגש על חוב, Free Float ותחרות ענפית בישראל."></textarea>
+                <textarea id="query" name="query" rows="1"
+                  placeholder="לדוגמה: שופרסל – דוח רבעוני אחרון, ניתוח עומק עם דגש על חוב, Free Float ותחרות ענפית בישראל."></textarea>
               </div>
               <button type="submit" id="send-btn">
                 <span class="icon">➤</span>
@@ -575,14 +561,24 @@
         </div>
       </div>
 
-      <footer>
-        DRAFFIQ AI – מחקר ותובנות בלבד. אינו מהווה ייעוץ השקעות, שיווק השקעות
-        או תחליף לייעוץ המתחשב בצרכים ובמאפיינים האישיים.
-      </footer>
     </div>
   </div>
 
   <script>
+    // Fix for iPhone keyboard jumping: dynamic vh based on visualViewport/innerHeight
+    function setViewportHeight() {
+      const vhSource = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const vh = vhSource * 0.01;
+      document.documentElement.style.setProperty("--vh", vh + "px");
+    }
+
+    setViewportHeight();
+    window.addEventListener("resize", setViewportHeight);
+    window.addEventListener("orientationchange", setViewportHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", setViewportHeight);
+    }
+
     const STORAGE_KEY = "draffiq-chat-v1";
     const form = document.getElementById("chat-form");
     const textarea = document.getElementById("query");
@@ -594,263 +590,9 @@
     const newBtn = document.getElementById("new-btn");
     let chatHistory = [];
 
-    function setViewportHeight() {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--vh", vh + "px");
-    }
-    window.addEventListener("load", setViewportHeight);
-    window.addEventListener("resize", setViewportHeight);
-    window.addEventListener("orientationchange", setViewportHeight);
-
     function autoResizeTextarea(el) {
       el.style.height = "auto";
       el.style.height = Math.min(el.scrollHeight, 120) + "px";
     }
     textarea.addEventListener("input", () => autoResizeTextarea(textarea));
-    textarea.addEventListener("focus", () => {
-      setTimeout(() => {
-        messages.scrollTop = messages.scrollHeight;
-      }, 50);
-    });
-
-    // הופך טקסט רגיל ללינקים לחיצים (עם escape בסיסי)
-    function renderTextWithLinks(text) {
-      if (!text) return "";
-      let escaped = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-      const urlRegex = /(https?:\/\/[^\s)]+)/g;
-      escaped = escaped.replace(urlRegex, (url) => {
-        let clean = url;
-        let trailing = "";
-        while (/[),.!?]$/.test(clean)) {
-          trailing = clean.slice(0, -1);
-          trailing = clean.slice(-1) + trailing;
-        }
-        return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trailing}`;
-      });
-      return escaped;
-    }
-
-    function saveHistory() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
-      } catch (e) {
-        // לא קריטי אם נכשל – ממשיכים בלי להפיל את ה־UI
-      }
-    }
-
-    function appendMessage(text, role, options = {}) {
-      const {
-        persist = true
-      } = options;
-      const row = document.createElement("div");
-      row.className = "message-row " + role;
-      const avatarWrap = document.createElement("div");
-      avatarWrap.className = "message-avatar";
-      const avatar = document.createElement("div");
-      avatar.className =
-        "avatar-circle " + (role === "user" ? "avatar-user" : "avatar-assistant");
-      avatar.textContent = role === "user" ? "YOU" : "";
-      avatarWrap.appendChild(avatar);
-      const contentWrap = document.createElement("div");
-      contentWrap.className = "message-content";
-      const meta = document.createElement("div");
-      meta.className = "message-meta";
-      meta.textContent = role === "user" ? "משתמש" : "DRAFFIQ AI";
-      const body = document.createElement("div");
-      body.innerHTML = renderTextWithLinks(text);
-      contentWrap.appendChild(meta);
-      contentWrap.appendChild(body);
-      row.appendChild(contentWrap);
-      row.appendChild(avatarWrap);
-      messages.appendChild(row);
-      messages.scrollTop = messages.scrollHeight;
-      if (persist) {
-        chatHistory.push({
-          role,
-          text
-        });
-        saveHistory();
-      }
-    }
-
-    function appendThinking() {
-      const row = document.createElement("div");
-      row.className = "message-row assistant";
-      row.dataset.thinking = "true";
-      const avatarWrap = document.createElement("div");
-      avatarWrap.className = "message-avatar";
-      const avatar = document.createElement("div");
-      avatar.className = "avatar-circle avatar-assistant";
-      avatar.textContent = "";
-      avatarWrap.appendChild(avatar);
-      const contentWrap = document.createElement("div");
-      contentWrap.className = "message-content";
-      const meta = document.createElement("div");
-      meta.className = "message-meta";
-      meta.textContent = "DRAFFIQ AI";
-      const dots = document.createElement("div");
-      dots.className = "thinking-dots";
-      dots.innerHTML = `
-        <span class="thinking-dot"></span>
-        <span class="thinking-dot"></span>
-        <span class="thinking-dot"></span>
-      `;
-      contentWrap.appendChild(meta);
-      contentWrap.appendChild(dots);
-      row.appendChild(contentWrap);
-      row.appendChild(avatarWrap);
-      messages.appendChild(row);
-      messages.scrollTop = messages.scrollHeight;
-      return row;
-    }
-    async function callApi(query) {
-      const response = await fetch("/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          query
-        })
-      });
-      if (!response.ok) {
-        let err;
-        try {
-          err = await response.json();
-        } catch {
-          err = {};
-        }
-        throw new Error(err.error || "אירעה תקלה בצד השרת.");
-      }
-      const data = await response.json();
-      if (!data.ok) {
-        throw new Error(data.error || "אירעה תקלה בצד השרת.");
-      }
-      return data.answer;
-    }
-    // מוציא את כל השיחה כטקסט פשוט (למייל/שיתוף)
-    function getConversationPlainText() {
-      if (chatHistory.length > 0) {
-        return chatHistory
-          .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
-          .join("\n\n");
-      }
-      const rows = messages.querySelectorAll(".message-row");
-      const parts = [];
-      rows.forEach((row) => {
-        const isUser = row.classList.contains("user");
-        const label = isUser ? "YOU" : "DRAFFIQ";
-        const contentEl = row.querySelector(".message-content");
-        if (!contentEl) return;
-        const text = contentEl.innerText.trim();
-        if (!text) return;
-        parts.push(label + ":\n" + text);
-      });
-      return parts.join("\n\n");
-    }
-    // הדפסה / PDF
-    printBtn.addEventListener("click", () => {
-      window.print();
-    });
-    // שליחה במייל
-    emailBtn.addEventListener("click", () => {
-      const body = getConversationPlainText() || " ";
-      const subject = "DRAFFIQ – שיחת מחקר";
-      const mailto =
-        "mailto:?" +
-        "subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-      window.location.href = mailto;
-    });
-    // שיתוף לסלולאר (Web Share API + fallback)
-    if (shareBtn) {
-      shareBtn.addEventListener("click", async () => {
-        const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
-        const title = "DRAFFIQ – שיחת מחקר";
-        const url = window.location.href;
-        if (navigator.share) {
-          try {
-            await navigator.share({
-              title,
-              text,
-              url
-            });
-          } catch (e) {
-            // אם המשתמש ביטל – מתעלמים
-          }
-        } else {
-          try {
-            await navigator.clipboard.writeText(text + "\n\n" + url);
-            alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק ידנית באפליקציית שיתוף.");
-          } catch {
-            alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
-          }
-        }
-      });
-    }
-
-    if (newBtn) {
-      newBtn.addEventListener("click", () => {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch (e) { }
-        window.location.reload();
-      });
-    }
-
-    // טעינת היסטוריה משמורה
-    function loadHistory() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return;
-        chatHistory = parsed;
-        chatHistory.forEach((m) => {
-          if (!m || !m.role || !m.text) return;
-          appendMessage(m.text, m.role, {
-            persist: false
-          });
-        });
-      } catch (e) {
-        // אם נכשל – פשוט מתחילים מאפס
-        chatHistory = [];
-      }
-    }
-    window.addEventListener("DOMContentLoaded", () => {
-      loadHistory();
-    });
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const query = textarea.value.trim();
-      if (!query) return;
-      appendMessage(query, "user");
-      textarea.value = "";
-      autoResizeTextarea(textarea);
-      textarea.focus();
-      sendBtn.disabled = true;
-      const originalLabel = sendBtn.querySelector(".label").textContent;
-      sendBtn.querySelector(".label").textContent = "מעבד...";
-      const thinkingRow = appendThinking();
-      try {
-        const answer = await callApi(query);
-        thinkingRow.remove();
-        appendMessage(answer, "assistant");
-      } catch (err) {
-        thinkingRow.remove();
-        appendMessage(
-          "הייתה בעיה בעיבוד הבקשה: " + (err.message || "שגיאה לא ידועה."),
-          "assistant"
-        );
-      } finally {
-        sendBtn.disabled = false;
-        sendBtn.querySelector(".label").textContent = originalLabel;
-      }
-    });
-  </script>
-</body>
-
-</html>
+    textarea.addEventListener("focus"
