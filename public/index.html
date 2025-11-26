@@ -1,5 +1,6 @@
 <!DOCTYPE html> 
 <html lang="he" dir="rtl">
+
 <head>
   <meta charset="UTF-8" />
   <title>DRAFFIQ AI – TASE Chat</title>
@@ -48,11 +49,9 @@
       top: 0;
       z-index: 10;
       backdrop-filter: blur(12px);
-      background: linear-gradient(
-        to bottom,
-        rgba(249, 250, 251, 0.92),
-        rgba(249, 250, 251, 0.86)
-      );
+      background: linear-gradient(to bottom,
+          rgba(249, 250, 251, 0.92),
+          rgba(249, 250, 251, 0.86));
       border-bottom: 1px solid rgba(209, 213, 219, 0.9);
     }
 
@@ -77,13 +76,13 @@
       width: 26px;
       height: 26px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #f9fafb, #d1d5db 55%, #9ca3af 100%);
+      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 20%, #9ca3af 100%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.78rem;
+      font-size: 0.65rem;
       font-weight: 700;
-      color: #111827;
+      color: #F5F5F5;
       text-transform: uppercase;
       box-shadow:
         0 0 0 1px rgba(148, 163, 184, 0.6),
@@ -91,9 +90,9 @@
     }
 
     .brand-title {
-      font-weight: 600;
-      font-size: 0.95rem;
-      letter-spacing: 0.05em;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
       text-transform: uppercase;
     }
 
@@ -165,6 +164,7 @@
         opacity: 0;
         transform: translateY(4px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -200,13 +200,13 @@
     }
 
     .avatar-circle {
-      width: 30px;
-      height: 30px;
+      width: 33px;
+      height: 33px;
       border-radius: 999px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       font-weight: 700;
       letter-spacing: 0.05em;
       text-transform: uppercase;
@@ -219,16 +219,12 @@
       background: #ffffff;
     }
 
-    /* 👇 כאן שינוי הצבע של אוואטר DQ עם הצללה פנימית */
     .avatar-assistant {
-      background: radial-gradient(
-        circle at 30% 20%,
-        #ffe5e8 0,
-        #ff6675 45%,
-        #FF0E22 100%
-      );
-      color: #ffffff;
-      border-color: rgba(255, 14, 34, 0.65);
+      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 20%, #9ca3af 100%);
+      color: transparent;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.6),
+        0 4px 8px rgba(148, 163, 184, 0.4);
     }
 
     .message-content {
@@ -274,7 +270,7 @@
     }
 
     .system-brand {
-      font-size: 1.05rem;
+      font-size: 1.01rem;
       font-weight: 700;
       letter-spacing: 0.04em;
     }
@@ -447,10 +443,13 @@
     }
 
     @keyframes pulse {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateY(0);
         opacity: 0.4;
       }
+
       50% {
         transform: translateY(-2px);
         opacity: 1;
@@ -461,15 +460,19 @@
       .top-bar-inner {
         padding: 0 12px;
       }
+
       .app-shell {
         padding: 12px 10px 10px;
       }
+
       .panel {
         border-radius: 18px;
       }
+
       .top-status {
         display: none;
       }
+
       .status-secondary {
         display: none;
       }
@@ -477,22 +480,27 @@
 
     /* ===== הדפסה נקייה ===== */
     @media print {
+
       .top-bar,
       .input-shell,
       footer {
         display: none !important;
       }
+
       body {
         background: #ffffff !important;
       }
+
       .app-shell {
         padding: 0;
       }
+
       .panel {
         box-shadow: none;
         border: none;
         border-radius: 0;
       }
+
       #messages {
         border: none;
         background: #ffffff;
@@ -500,11 +508,12 @@
     }
   </style>
 </head>
+
 <body>
   <div class="top-bar">
     <div class="top-bar-inner">
       <div class="brand">
-        <div class="brand-icon">DQ</div>
+        <div class="brand-icon"></div>
         <div>
           <div class="brand-title">DRAFFIQ AI</div>
           <div class="brand-subtitle">מחקר וניתוח לשוק ההון הישראלי</div>
@@ -521,6 +530,7 @@
       <div class="panel">
         <div id="messages">
           <div class="message system">
+            <!-- הורדנו את "ברוך הבא ל־DRAFFIQ AI." ומשאירים רק את הפרומפט -->
             <div class="system-line-sub">
               כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
               נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
@@ -532,12 +542,7 @@
           <form id="chat-form">
             <div class="input-inner">
               <div class="input-textarea-wrap">
-                <textarea
-                  id="query"
-                  name="query"
-                  rows="1"
-                  placeholder="לדוגמה: שופרסל – דוח רבעוני אחרון, ניתוח עומק עם דגש על חוב, Free Float ותחרות ענפית בישראל."
-                ></textarea>
+                <textarea id="query" name="query" rows="1" placeholder="לדוגמה: שופרסל – דוח רבעוני אחרון, ניתוח עומק עם דגש על חוב, Free Float ותחרות ענפית בישראל."></textarea>
               </div>
               <button type="submit" id="send-btn">
                 <span class="icon">➤</span>
@@ -553,6 +558,7 @@
                 התשובות נכתבות ע״י <strong>DRAFFIQ AI</strong> ואינן מחוברות לתיק ההשקעות שלך.
               </div>
               <div class="status-actions">
+                <button type="button" id="new-btn">שיחה חדשה</button>
                 <button type="button" id="print-btn">הדפס / PDF</button>
                 <button type="button" id="email-btn">שלח במייל</button>
                 <button type="button" id="share-btn">שיתוף</button>
@@ -571,7 +577,6 @@
 
   <script>
     const STORAGE_KEY = "draffiq-chat-v1";
-
     const form = document.getElementById("chat-form");
     const textarea = document.getElementById("query");
     const messages = document.getElementById("messages");
@@ -579,16 +584,14 @@
     const printBtn = document.getElementById("print-btn");
     const emailBtn = document.getElementById("email-btn");
     const shareBtn = document.getElementById("share-btn");
-
+    const newBtn = document.getElementById("new-btn");
     let chatHistory = [];
 
     function autoResizeTextarea(el) {
       el.style.height = "auto";
       el.style.height = Math.min(el.scrollHeight, 120) + "px";
     }
-
     textarea.addEventListener("input", () => autoResizeTextarea(textarea));
-
     // הופך טקסט רגיל ללינקים לחיצים (עם escape בסיסי)
     function renderTextWithLinks(text) {
       if (!text) return "";
@@ -596,9 +599,7 @@
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
-
       const urlRegex = /(https?:\/\/[^\s)]+)/g;
-
       escaped = escaped.replace(urlRegex, (url) => {
         let clean = url;
         let trailing = "";
@@ -608,7 +609,6 @@
         }
         return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trailing}`;
       });
-
       return escaped;
     }
 
@@ -621,42 +621,36 @@
     }
 
     function appendMessage(text, role, options = {}) {
-      const { persist = true } = options;
-
+      const {
+        persist = true
+      } = options;
       const row = document.createElement("div");
       row.className = "message-row " + role;
-
       const avatarWrap = document.createElement("div");
       avatarWrap.className = "message-avatar";
-
       const avatar = document.createElement("div");
       avatar.className =
         "avatar-circle " + (role === "user" ? "avatar-user" : "avatar-assistant");
-      avatar.textContent = role === "user" ? "YOU" : "DQ";
-
+      avatar.textContent = role === "user" ? "YOU" : "";
       avatarWrap.appendChild(avatar);
-
       const contentWrap = document.createElement("div");
       contentWrap.className = "message-content";
-
       const meta = document.createElement("div");
       meta.className = "message-meta";
       meta.textContent = role === "user" ? "משתמש" : "DRAFFIQ AI";
-
       const body = document.createElement("div");
       body.innerHTML = renderTextWithLinks(text);
-
       contentWrap.appendChild(meta);
       contentWrap.appendChild(body);
-
       row.appendChild(contentWrap);
       row.appendChild(avatarWrap);
-
       messages.appendChild(row);
       messages.scrollTop = messages.scrollHeight;
-
       if (persist) {
-        chatHistory.push({ role, text });
+        chatHistory.push({
+          role,
+          text
+        });
         saveHistory();
       }
     }
@@ -665,22 +659,17 @@
       const row = document.createElement("div");
       row.className = "message-row assistant";
       row.dataset.thinking = "true";
-
       const avatarWrap = document.createElement("div");
       avatarWrap.className = "message-avatar";
-
       const avatar = document.createElement("div");
       avatar.className = "avatar-circle avatar-assistant";
-      avatar.textContent = "DQ";
+      avatar.textContent = "";
       avatarWrap.appendChild(avatar);
-
       const contentWrap = document.createElement("div");
       contentWrap.className = "message-content";
-
       const meta = document.createElement("div");
       meta.className = "message-meta";
       meta.textContent = "DRAFFIQ AI";
-
       const dots = document.createElement("div");
       dots.className = "thinking-dots";
       dots.innerHTML = `
@@ -688,28 +677,24 @@
         <span class="thinking-dot"></span>
         <span class="thinking-dot"></span>
       `;
-
       contentWrap.appendChild(meta);
       contentWrap.appendChild(dots);
-
       row.appendChild(contentWrap);
       row.appendChild(avatarWrap);
-
       messages.appendChild(row);
       messages.scrollTop = messages.scrollHeight;
-
       return row;
     }
-
     async function callApi(query) {
       const response = await fetch("/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({
+          query
+        })
       });
-
       if (!response.ok) {
         let err;
         try {
@@ -719,14 +704,12 @@
         }
         throw new Error(err.error || "אירעה תקלה בצד השרת.");
       }
-
       const data = await response.json();
       if (!data.ok) {
         throw new Error(data.error || "אירעה תקלה בצד השרת.");
       }
       return data.answer;
     }
-
     // מוציא את כל השיחה כטקסט פשוט (למייל/שיתוף)
     function getConversationPlainText() {
       if (chatHistory.length > 0) {
@@ -734,10 +717,8 @@
           .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
           .join("\n\n");
       }
-
       const rows = messages.querySelectorAll(".message-row");
       const parts = [];
-
       rows.forEach((row) => {
         const isUser = row.classList.contains("user");
         const label = isUser ? "YOU" : "DRAFFIQ";
@@ -747,15 +728,12 @@
         if (!text) return;
         parts.push(label + ":\n" + text);
       });
-
       return parts.join("\n\n");
     }
-
     // הדפסה / PDF
     printBtn.addEventListener("click", () => {
       window.print();
     });
-
     // שליחה במייל
     emailBtn.addEventListener("click", () => {
       const body = getConversationPlainText() || " ";
@@ -766,17 +744,19 @@
         "&body=" + encodeURIComponent(body);
       window.location.href = mailto;
     });
-
     // שיתוף לסלולאר (Web Share API + fallback)
     if (shareBtn) {
       shareBtn.addEventListener("click", async () => {
         const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
         const title = "DRAFFIQ – שיחת מחקר";
         const url = window.location.href;
-
         if (navigator.share) {
           try {
-            await navigator.share({ title, text, url });
+            await navigator.share({
+              title,
+              text,
+              url
+            });
           } catch (e) {
             // אם המשתמש ביטל – מתעלמים
           }
@@ -791,6 +771,15 @@
       });
     }
 
+    if (newBtn) {
+      newBtn.addEventListener("click", () => {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) { }
+        window.location.reload();
+      });
+    }
+
     // טעינת היסטוריה משמורה
     function loadHistory() {
       try {
@@ -801,33 +790,30 @@
         chatHistory = parsed;
         chatHistory.forEach((m) => {
           if (!m || !m.role || !m.text) return;
-          appendMessage(m.text, m.role, { persist: false });
+          appendMessage(m.text, m.role, {
+            persist: false
+          });
         });
       } catch (e) {
+        // אם נכשל – פשוט מתחילים מאפס
         chatHistory = [];
       }
     }
-
     window.addEventListener("DOMContentLoaded", () => {
       loadHistory();
     });
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const query = textarea.value.trim();
       if (!query) return;
-
       appendMessage(query, "user");
       textarea.value = "";
       autoResizeTextarea(textarea);
       textarea.focus();
-
       sendBtn.disabled = true;
       const originalLabel = sendBtn.querySelector(".label").textContent;
       sendBtn.querySelector(".label").textContent = "מעבד...";
-
       const thinkingRow = appendThinking();
-
       try {
         const answer = await callApi(query);
         thinkingRow.remove();
@@ -845,4 +831,5 @@
     });
   </script>
 </body>
+
 </html>
