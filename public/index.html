@@ -5,214 +5,423 @@
   <title>DraffIQ AI – TASE Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      color-scheme: dark;
+      --bg-main: #050816;
+      --bg-panel: #0c101c;
+      --bg-input: #101320;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --accent: #10a37f;
+      --accent-soft: rgba(16, 163, 127, 0.18);
+      --text-main: #f7f7f8;
+      --text-muted: #a1a7c2;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 0 0 1px rgba(255,255,255,0.02),
+                     0 18px 50px rgba(0,0,0,0.65);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0b1020;
-      color: #f5f5f5;
-      display: flex;
-      flex-direction: column;
+      background: radial-gradient(circle at top, #10152a 0, #050816 40%, #02030a 100%);
+      color: var(--text-main);
       min-height: 100vh;
-    }
-
-    header {
-      padding: 16px 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      background: radial-gradient(circle at top left, #293b7a, #050814);
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.2rem;
-    }
-
-    header p {
-      margin: 4px 0 0;
-      font-size: 0.85rem;
-      color: #a9b3d9;
-    }
-
-    .container {
-      flex: 1;
       display: flex;
       flex-direction: column;
-      max-width: 900px;
+      align-items: stretch;
+    }
+
+    /* Top bar – דומה ל־ChatGPT אבל לא זהה */
+    .top-bar {
+      height: 56px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(
+        to bottom,
+        rgba(4, 7, 18, 0.95),
+        rgba(4, 7, 18, 0.85)
+      );
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .top-bar-inner {
       width: 100%;
-      margin: 0 auto;
-      padding: 12px;
-      box-sizing: border-box;
+      max-width: 960px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
     }
 
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
+    .brand-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #4ee6c5, #10a37f 55%, #0a6048 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #02040a;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+    }
+
+    .brand-title {
+      font-weight: 600;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .top-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Main layout */
+    .app-shell {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .chat-wrapper {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel {
+      flex: 1;
+      min-height: 0;
+      background: rgba(4, 7, 18, 0.92);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Messages area */
     #messages {
       flex: 1;
       overflow-y: auto;
-      padding: 12px;
-      border-radius: 12px;
-      background: linear-gradient(145deg, #050814, #11172a);
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+      padding: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.2) transparent;
     }
 
-    .message {
-      margin-bottom: 12px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      max-width: 100%;
+    #messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 999px;
+    }
+
+    .message-row {
+      display: flex;
+      gap: 10px;
+      padding: 10px 8px;
+      border-radius: var(--radius-md);
+      margin-bottom: 4px;
+    }
+
+    .message-row.user {
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .message-row.assistant {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .message-avatar {
+      flex: 0 0 28px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .avatar-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .avatar-user {
+      background: radial-gradient(circle at 20% 0, #60a5fa, #1d4ed8);
+      color: #e5efff;
+    }
+
+    .avatar-assistant {
+      background: radial-gradient(circle at 20% 0, #4ee6c5, #10a37f);
+      color: #020617;
+    }
+
+    .message-content {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
       white-space: pre-wrap;
       word-wrap: break-word;
-      font-size: 0.9rem;
+      color: var(--text-main);
     }
 
-    .message.user {
-      background: rgba(77, 171, 245, 0.12);
-      border: 1px solid rgba(77, 171, 245, 0.3);
-      text-align: right;
-    }
-
-    .message.assistant {
-      background: rgba(71, 255, 184, 0.06);
-      border: 1px solid rgba(71, 255, 184, 0.25);
-      text-align: right;
+    .message-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
     }
 
     .message.system {
-      background: transparent;
-      color: #a0a6c0;
+      margin: 8px 0 16px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text-muted);
       font-size: 0.8rem;
       text-align: center;
+      border: 1px dashed rgba(148, 163, 184, 0.5);
     }
 
-    form {
+    /* Input panel */
+    .input-shell {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border-subtle);
+      background: linear-gradient(
+        to top,
+        rgba(10, 12, 25, 0.98),
+        rgba(10, 12, 25, 0.94)
+      );
+    }
+
+    .input-inner {
+      border-radius: 999px;
+      background: var(--bg-input);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-textarea-wrap {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    label {
-      font-size: 0.8rem;
-      color: #a9b3d9;
     }
 
     textarea {
-      resize: vertical;
-      min-height: 70px;
-      max-height: 200px;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(3, 7, 18, 0.8);
-      color: #f5f5f5;
+      resize: none;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text-main);
       font-family: inherit;
       font-size: 0.9rem;
+      max-height: 120px;
+      min-height: 24px;
+      padding: 4px 8px 4px 0;
     }
 
-    textarea:focus {
-      outline: none;
-      border-color: rgba(77, 171, 245, 0.8);
-      box-shadow: 0 0 0 1px rgba(77, 171, 245, 0.4);
+    textarea::placeholder {
+      color: #6b7280;
     }
 
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .hint {
-      font-size: 0.75rem;
-      color: #7e86a8;
+    .input-hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding-inline: 10px;
+      padding-top: 3px;
     }
 
     button {
       border: none;
       border-radius: 999px;
-      padding: 8px 18px;
-      font-size: 0.9rem;
+      padding: 8px 14px;
+      font-size: 0.85rem;
       cursor: pointer;
-      background: linear-gradient(135deg, #4dabf5, #47ffb8);
-      color: #050814;
+      background: var(--accent);
+      color: #020617;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
       white-space: nowrap;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+
+    button span.icon {
+      font-size: 1rem;
+    }
+
+    button:hover:not(:disabled) {
+      background: #1ad1a0;
+      transform: translateY(-0.5px);
     }
 
     button:disabled {
       opacity: 0.5;
       cursor: default;
-      box-shadow: none;
+      transform: none;
     }
 
+    .status-line {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .status-pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+    }
+
+    .status-pill span.dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      margin-left: 4px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+    }
+
+    /* Footer */
     footer {
-      padding: 8px 16px;
+      padding: 10px 16px 14px;
       text-align: center;
       font-size: 0.7rem;
-      color: #646b8a;
+      color: var(--text-muted);
     }
 
-    @media (max-width: 600px) {
-      header {
-        padding: 12px 14px;
+    @media (max-width: 720px) {
+      .top-bar-inner {
+        padding: 0 12px;
       }
-      .container {
-        padding: 8px;
-      }
-      #messages {
+      .app-shell {
         padding: 10px;
+      }
+      .panel {
+        border-radius: 12px;
+      }
+      .input-inner {
+        align-items: flex-end;
+      }
+      button {
+        padding-inline: 10px;
+      }
+      .top-status {
+        display: none;
       }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>DraffIQ AI – TASE Research Chat</h1>
-    <p>מצב עבודה: Quick-Scan / Deep-Dive · שוק ההון הישראלי · תובנות בלבד, לא ייעוץ</p>
-  </header>
-
-  <main class="container">
-    <div id="messages">
-      <div class="message system">
-        ברוך הבא ל־DraffIQ AI. הזן בפרומפט את ה־Scope המלא שלך
-        (למשל: Quick-Scan לשופרסל, דוח רבעוני אחרון, דגש על חוב ו-Free Float).
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <div class="brand">
+        <div class="brand-icon">DQ</div>
+        <div>
+          <div class="brand-title">DraffIQ AI</div>
+          <div class="brand-subtitle">TASE · Quick-Scan / Deep-Dive · מחקר בלבד</div>
+        </div>
+      </div>
+      <div class="top-status">
+        מודל: GPT-5.1 · שרת: Asia/Jerusalem
       </div>
     </div>
+  </div>
 
-    <form id="chat-form">
-      <div>
-        <label for="query">
-          פרומפט מלא ל־DraffIQ (כולל מצב עבודה, נכס, Scope, דגשים):
-        </label>
-        <textarea
-          id="query"
-          name="query"
-          placeholder="לדוגמה:
-מצב עבודה: Quick-Scan
-נכס: שופרסל (Ticker: 777012)
-Scope: סקירה על בסיס הדוח הרבעוני האחרון וקאטליסטים ל-12 חודשים קדימה.
-דגשים מיוחדים: להתמקד במינוף, Free Float, ותחרות ענפית בישראל."
-        ></textarea>
-      </div>
-
-      <div class="controls">
-        <div class="hint">
-          הבקשה תישלח ל־/chat באותו דומיין.
+  <div class="app-shell">
+    <div class="chat-wrapper">
+      <div class="panel">
+        <div id="messages">
+          <div class="message system">
+            ברוך הבא ל־DraffIQ AI.  
+            כתוב פרומפט מלא (מצב עבודה, נכס, Scope, דגשים) כמו שהיית מנסח לאנליסט בכיר,
+            למשל: Quick-Scan לשופרסל עם דגש על מינוף, Free Float ותחרות ענפית בישראל.
+          </div>
         </div>
-        <button type="submit" id="send-btn">
-          שלח ל־DraffIQ
-          <span>🛰</span>
-        </button>
-      </div>
-    </form>
-  </main>
 
-  <footer>
-    DraffIQ AI – מחקר ותובנות בלבד. אינו מהווה ייעוץ השקעות או תחליף לייעוץ המתחשב בצרכים האישיים.
-  </footer>
+        <div class="input-shell">
+          <form id="chat-form">
+            <div class="input-inner">
+              <div class="input-textarea-wrap">
+                <textarea
+                  id="query"
+                  name="query"
+                  rows="1"
+                  placeholder="שאל כל דבר על חברה / אג&quot;ח / סקטור בשוק ההון הישראלי..."
+                ></textarea>
+              </div>
+              <button type="submit" id="send-btn">
+                <span class="icon">➤</span>
+                <span class="label">שלח</span>
+              </button>
+            </div>
+            <div class="status-line">
+              <div class="status-pill">
+                <span class="dot"></span>
+                מצב: מחקר בלבד · לא ייעוץ השקעות
+              </div>
+              <div>
+                תשובות נשמרות בצד הלקוח בלבד (Frontend). אין ל-DraffIQ גישה לתיק ההשקעות שלך.
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <footer>
+        DraffIQ AI – מחקר ותובנות בלבד. אינו מהווה ייעוץ השקעות, שיווק השקעות
+        או תחליף לייעוץ המתחשב בצרכים ובמאפיינים האישיים.
+      </footer>
+    </div>
+  </div>
 
   <script>
     const form = document.getElementById("chat-form");
@@ -220,12 +429,81 @@ Scope: סקירה על בסיס הדוח הרבעוני האחרון וקאטל�
     const messages = document.getElementById("messages");
     const sendBtn = document.getElementById("send-btn");
 
+    function autoResizeTextarea(el) {
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 120) + "px";
+    }
+
+    textarea.addEventListener("input", () => autoResizeTextarea(textarea));
+
     function appendMessage(text, role) {
-      const div = document.createElement("div");
-      div.className = "message " + role;
-      div.textContent = text;
-      messages.appendChild(div);
+      const row = document.createElement("div");
+      row.className = "message-row " + role;
+
+      const avatarWrap = document.createElement("div");
+      avatarWrap.className = "message-avatar";
+
+      const avatar = document.createElement("div");
+      avatar.className =
+        "avatar-circle " + (role === "user" ? "avatar-user" : "avatar-assistant");
+      avatar.textContent = role === "user" ? "אתה" : "AI";
+
+      avatarWrap.appendChild(avatar);
+
+      const contentWrap = document.createElement("div");
+      contentWrap.className = "message-content";
+
+      const meta = document.createElement("div");
+      meta.className = "message-meta";
+      meta.textContent = role === "user" ? "משתמש" : "DraffIQ AI";
+
+      const body = document.createElement("div");
+      body.textContent = text;
+
+      contentWrap.appendChild(meta);
+      contentWrap.appendChild(body);
+
+      row.appendChild(contentWrap);
+      row.appendChild(avatarWrap);
+
+      messages.appendChild(row);
       messages.scrollTop = messages.scrollHeight;
+    }
+
+    function appendThinking() {
+      const row = document.createElement("div");
+      row.className = "message-row assistant";
+      row.dataset.thinking = "true";
+
+      const avatarWrap = document.createElement("div");
+      avatarWrap.className = "message-avatar";
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar-circle avatar-assistant";
+      avatar.textContent = "AI";
+      avatarWrap.appendChild(avatar);
+
+      const contentWrap = document.createElement("div");
+      contentWrap.className = "message-content";
+
+      const meta = document.createElement("div");
+      meta.className = "message-meta";
+      meta.textContent = "DraffIQ AI";
+
+      const dots = document.createElement("div");
+      dots.textContent = "חושב...";
+      dots.style.opacity = "0.8";
+
+      contentWrap.appendChild(meta);
+      contentWrap.appendChild(dots);
+
+      row.appendChild(contentWrap);
+      row.appendChild(avatarWrap);
+
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+
+      return row;
     }
 
     async function callApi(query) {
@@ -238,7 +516,12 @@ Scope: סקירה על בסיס הדוח הרבעוני האחרון וקאטל�
       });
 
       if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
+        let err;
+        try {
+          err = await response.json();
+        } catch {
+          err = {};
+        }
         throw new Error(err.error || "שגיאה מהשרת");
       }
 
@@ -256,19 +539,25 @@ Scope: סקירה על בסיס הדוח הרבעוני האחרון וקאטל�
 
       appendMessage(query, "user");
       textarea.value = "";
+      autoResizeTextarea(textarea);
       textarea.focus();
 
       sendBtn.disabled = true;
-      sendBtn.textContent = "מעבד...";
+      const originalLabel = sendBtn.querySelector(".label").textContent;
+      sendBtn.querySelector(".label").textContent = "מעבד...";
+
+      const thinkingRow = appendThinking();
 
       try {
         const answer = await callApi(query);
+        thinkingRow.remove();
         appendMessage(answer, "assistant");
       } catch (err) {
+        thinkingRow.remove();
         appendMessage("שגיאה: " + err.message, "assistant");
       } finally {
         sendBtn.disabled = false;
-        sendBtn.textContent = "שלח ל־DraffIQ 🛰";
+        sendBtn.querySelector(".label").textContent = originalLabel;
       }
     });
   </script>
