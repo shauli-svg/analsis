@@ -207,7 +207,8 @@
       align-items: center;
       justify-content: center;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;           /* חיזוק – כמו DQ */
+      letter-spacing: 0.05em;     /* טיפוגרפיה דומה ל־DQ */
       text-transform: uppercase;
       background: #e5e7eb;
       color: #111827;
@@ -512,9 +513,7 @@
       <div class="panel">
         <div id="messages">
           <div class="message system">
-            <div class="system-line-main">
-              ברוך הבא ל־<span class="system-brand">DRAFFIQ AI</span>.
-            </div>
+            <!-- הורדנו את "ברוך הבא ל־DRAFFIQ AI." ומשאירים רק את הפרומפט -->
             <div class="system-line-sub">
               כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
               נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
@@ -549,6 +548,7 @@
               <div class="status-actions">
                 <button type="button" id="print-btn">הדפס / PDF</button>
                 <button type="button" id="email-btn">שלח במייל</button>
+                <button type="button" id="share-btn">שיתוף</button>
               </div>
             </div>
           </form>
@@ -563,12 +563,17 @@
   </div>
 
   <script>
+    const STORAGE_KEY = "draffiq-chat-v1";
+
     const form = document.getElementById("chat-form");
     const textarea = document.getElementById("query");
     const messages = document.getElementById("messages");
     const sendBtn = document.getElementById("send-btn");
     const printBtn = document.getElementById("print-btn");
     const emailBtn = document.getElementById("email-btn");
+    const shareBtn = document.getElementById("share-btn");
+
+    let chatHistory = [];
 
     function autoResizeTextarea(el) {
       el.style.height = "auto";
@@ -600,7 +605,17 @@
       return escaped;
     }
 
-    function appendMessage(text, role) {
+    function saveHistory() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+      } catch (e) {
+        // לא קריטי אם נכשל – ממשיכים בלי להפיל את ה־UI
+      }
+    }
+
+    function appendMessage(text, role, options = {}) {
+      const { persist = true } = options;
+
       const row = document.createElement("div");
       row.className = "message-row " + role;
 
@@ -632,6 +647,11 @@
 
       messages.appendChild(row);
       messages.scrollTop = messages.scrollHeight;
+
+      if (persist) {
+        chatHistory.push({ role, text });
+        saveHistory();
+      }
     }
 
     function appendThinking() {
@@ -700,8 +720,14 @@
       return data.answer;
     }
 
-    // מוציא את כל השיחה כטקסט פשוט
+    // מוציא את כל השיחה כטקסט פשוט (למייל/שיתוף)
     function getConversationPlainText() {
+      if (chatHistory.length > 0) {
+        return chatHistory
+          .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
+          .join("\n\n");
+      }
+
       const rows = messages.querySelectorAll(".message-row");
       const parts = [];
 
@@ -732,6 +758,52 @@
         "subject=" + encodeURIComponent(subject) +
         "&body=" + encodeURIComponent(body);
       window.location.href = mailto;
+    });
+
+    // שיתוף לסלולאר (Web Share API + fallback)
+    if (shareBtn) {
+      shareBtn.addEventListener("click", async () => {
+        const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
+        const title = "DRAFFIQ – שיחת מחקר";
+        const url = window.location.href;
+
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, text, url });
+          } catch (e) {
+            // אם המשתמש ביטל – מתעלמים
+          }
+        } else {
+          try {
+            await navigator.clipboard.writeText(text + "\n\n" + url);
+            alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק ידנית באפליקציית שיתוף.");
+          } catch {
+            alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
+          }
+        }
+      });
+    }
+
+    // טעינת היסטוריה משמורה
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return;
+        chatHistory = parsed;
+        chatHistory.forEach((m) => {
+          if (!m || !m.role || !m.text) return;
+          appendMessage(m.text, m.role, { persist: false });
+        });
+      } catch (e) {
+        // אם נכשל – פשוט מתחילים מאפס
+        chatHistory = [];
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadHistory();
     });
 
     form.addEventListener("submit", async (e) => {
