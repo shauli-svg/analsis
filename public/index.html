@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -366,6 +366,7 @@
       justify-content: space-between;
       gap: 6px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .status-pill {
@@ -388,6 +389,20 @@
 
     .status-secondary {
       text-align: left;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .status-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .status-actions button {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      background: #e5e7eb;
     }
 
     footer {
@@ -427,7 +442,7 @@
         transform: translateY(0);
         opacity: 0.4;
       }
-      50 {
+      50% {
         transform: translateY(-2px);
         opacity: 1;
       }
@@ -448,6 +463,30 @@
       }
       .status-secondary {
         display: none;
+      }
+    }
+
+    /* ===== הדפסה נקייה ===== */
+    @media print {
+      .top-bar,
+      .input-shell,
+      footer {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+      }
+      .app-shell {
+        padding: 0;
+      }
+      .panel {
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+      }
+      #messages {
+        border: none;
+        background: #ffffff;
       }
     }
   </style>
@@ -507,6 +546,10 @@
               <div class="status-secondary">
                 התשובות נכתבות ע״י <strong>DRAFFIQ AI</strong> ואינן מחוברות לתיק ההשקעות שלך.
               </div>
+              <div class="status-actions">
+                <button type="button" id="print-btn">הדפס / PDF</button>
+                <button type="button" id="email-btn">שלח במייל</button>
+              </div>
             </div>
           </form>
         </div>
@@ -524,6 +567,8 @@
     const textarea = document.getElementById("query");
     const messages = document.getElementById("messages");
     const sendBtn = document.getElementById("send-btn");
+    const printBtn = document.getElementById("print-btn");
+    const emailBtn = document.getElementById("email-btn");
 
     function autoResizeTextarea(el) {
       el.style.height = "auto";
@@ -654,6 +699,40 @@
       }
       return data.answer;
     }
+
+    // מוציא את כל השיחה כטקסט פשוט
+    function getConversationPlainText() {
+      const rows = messages.querySelectorAll(".message-row");
+      const parts = [];
+
+      rows.forEach((row) => {
+        const isUser = row.classList.contains("user");
+        const label = isUser ? "YOU" : "DRAFFIQ";
+        const contentEl = row.querySelector(".message-content");
+        if (!contentEl) return;
+        const text = contentEl.innerText.trim();
+        if (!text) return;
+        parts.push(label + ":\n" + text);
+      });
+
+      return parts.join("\n\n");
+    }
+
+    // הדפסה / PDF
+    printBtn.addEventListener("click", () => {
+      window.print();
+    });
+
+    // שליחה במייל
+    emailBtn.addEventListener("click", () => {
+      const body = getConversationPlainText() || " ";
+      const subject = "DRAFFIQ – שיחת מחקר";
+      const mailto =
+        "mailto:?" +
+        "subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+      window.location.href = mailto;
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
