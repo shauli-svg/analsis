@@ -20,8 +20,7 @@
       --radius-xl: 22px;
       --radius-lg: 18px;
       --radius-md: 12px;
-      --shadow-soft:
-        0 12px 30px rgba(15, 23, 42, 0.12);
+      --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
     }
 
     * {
@@ -253,10 +252,27 @@
       padding: 10px 12px;
       border-radius: var(--radius-lg);
       background: #f9fafb;
-      color: var(--text-muted);
       font-size: 0.8rem;
       text-align: center;
       border: 1px dashed rgba(148, 163, 184, 0.9);
+      color: var(--text-main);
+    }
+
+    .system-line-main {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .system-brand {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .system-line-sub {
+      font-size: 0.8rem;
+      color: var(--text-main);
     }
 
     /* Input panel */
@@ -411,7 +427,7 @@
         transform: translateY(0);
         opacity: 0.4;
       }
-      50% {
+      50 {
         transform: translateY(-2px);
         opacity: 1;
       }
@@ -457,9 +473,13 @@
       <div class="panel">
         <div id="messages">
           <div class="message system">
-            ברוך הבא ל־<strong>DRAFFIQ AI</strong>.<br />
-            כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
-            נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
+            <div class="system-line-main">
+              ברוך הבא ל־<span class="system-brand">DRAFFIQ AI</span>.
+            </div>
+            <div class="system-line-sub">
+              כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
+              נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
+            </div>
           </div>
         </div>
 
@@ -526,8 +546,8 @@
         let clean = url;
         let trailing = "";
         while (/[),.!?]$/.test(clean)) {
+          trailing = clean.slice(0, -1);
           trailing = clean.slice(-1) + trailing;
-          clean = clean.slice(0, -1);
         }
         return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trailing}`;
       });
@@ -545,7 +565,7 @@
       const avatar = document.createElement("div");
       avatar.className =
         "avatar-circle " + (role === "user" ? "avatar-user" : "avatar-assistant");
-      avatar.textContent = role === "user" ? "אתה" : "DQ";
+      avatar.textContent = role === "user" ? "YOU" : "DQ";
 
       avatarWrap.appendChild(avatar);
 
