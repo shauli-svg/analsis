@@ -69,22 +69,37 @@
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       font-size: 0.95rem;
     }
 
-    /* 🔴 כאן הלוגו החדש */
-    .brand-logo {
-      height: 30px;           /* גובה קבוע, רוחב יחסי */
-      max-width: 180px;
-      display: block;
-      object-fit: contain;
+    .brand-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #f9fafb, #d1d5db 55%, #9ca3af 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #111827;
+      text-transform: uppercase;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.6),
+        0 4px 8px rgba(148, 163, 184, 0.4);
+    }
+
+    .brand-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
     .brand-subtitle {
       font-size: 0.75rem;
       color: var(--text-muted);
-      white-space: nowrap;
     }
 
     .top-status {
@@ -204,12 +219,16 @@
       background: #ffffff;
     }
 
-    /* אם תרצה גם כאן אדום כמו Q – תשנה לפה את FF0E22 */
+    /* 👇 כאן שינוי הצבע של אוואטר DQ עם הצללה פנימית */
     .avatar-assistant {
-      background: #ff0e22;
+      background: radial-gradient(
+        circle at 30% 20%,
+        #ffe5e8 0,
+        #ff6675 45%,
+        #FF0E22 100%
+      );
       color: #ffffff;
-      box-shadow: 0 0 0 2px #fee2e2;
-      border-color: #b91c1c;
+      border-color: rgba(255, 14, 34, 0.65);
     }
 
     .message-content {
@@ -246,6 +265,18 @@
       text-align: center;
       border: 1px dashed rgba(148, 163, 184, 0.9);
       color: var(--text-main);
+    }
+
+    .system-line-main {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .system-brand {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
 
     .system-line-sub {
@@ -473,9 +504,11 @@
   <div class="top-bar">
     <div class="top-bar-inner">
       <div class="brand">
-        <!-- 🔴 לוגו DRAFFIQ – שים את הקובץ בתיקייה public ושנה את השם אם צריך -->
-        <img src="draffiq-logo.png" alt="DRAFFIQ AI logo" class="brand-logo" />
-        <div class="brand-subtitle">מחקר וניתוח לשוק ההון הישראלי</div>
+        <div class="brand-icon">DQ</div>
+        <div>
+          <div class="brand-title">DRAFFIQ AI</div>
+          <div class="brand-subtitle">מחקר וניתוח לשוק ההון הישראלי</div>
+        </div>
       </div>
       <div class="top-status">
         ENGINE: DRAFFIQ · SCOPE: TASE · FINANCE ONLY
@@ -520,7 +553,6 @@
                 התשובות נכתבות ע״י <strong>DRAFFIQ AI</strong> ואינן מחוברות לתיק ההשקעות שלך.
               </div>
               <div class="status-actions">
-                <button type="button" id="new-chat-btn">שיחה חדשה</button>
                 <button type="button" id="print-btn">הדפס / PDF</button>
                 <button type="button" id="email-btn">שלח במייל</button>
                 <button type="button" id="share-btn">שיתוף</button>
@@ -547,7 +579,6 @@
     const printBtn = document.getElementById("print-btn");
     const emailBtn = document.getElementById("email-btn");
     const shareBtn = document.getElementById("share-btn");
-    const newChatBtn = document.getElementById("new-chat-btn");
 
     let chatHistory = [];
 
@@ -558,6 +589,7 @@
 
     textarea.addEventListener("input", () => autoResizeTextarea(textarea));
 
+    // הופך טקסט רגיל ללינקים לחיצים (עם escape בסיסי)
     function renderTextWithLinks(text) {
       if (!text) return "";
       let escaped = text
@@ -583,7 +615,9 @@
     function saveHistory() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
-      } catch (e) {}
+      } catch (e) {
+        // לא קריטי אם נכשל – ממשיכים בלי להפיל את ה־UI
+      }
     }
 
     function appendMessage(text, role, options = {}) {
@@ -693,6 +727,7 @@
       return data.answer;
     }
 
+    // מוציא את כל השיחה כטקסט פשוט (למייל/שיתוף)
     function getConversationPlainText() {
       if (chatHistory.length > 0) {
         return chatHistory
@@ -716,10 +751,12 @@
       return parts.join("\n\n");
     }
 
+    // הדפסה / PDF
     printBtn.addEventListener("click", () => {
       window.print();
     });
 
+    // שליחה במייל
     emailBtn.addEventListener("click", () => {
       const body = getConversationPlainText() || " ";
       const subject = "DRAFFIQ – שיחת מחקר";
@@ -730,6 +767,7 @@
       window.location.href = mailto;
     });
 
+    // שיתוף לסלולאר (Web Share API + fallback)
     if (shareBtn) {
       shareBtn.addEventListener("click", async () => {
         const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
@@ -739,7 +777,9 @@
         if (navigator.share) {
           try {
             await navigator.share({ title, text, url });
-          } catch (e) {}
+          } catch (e) {
+            // אם המשתמש ביטל – מתעלמים
+          }
         } else {
           try {
             await navigator.clipboard.writeText(text + "\n\n" + url);
@@ -751,29 +791,7 @@
       });
     }
 
-    function clearChat() {
-      chatHistory = [];
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {}
-
-      messages.innerHTML = `
-        <div class="message system">
-          <div class="system-line-sub">
-            כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
-            נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
-          </div>
-        </div>
-      `;
-      textarea.value = "";
-      autoResizeTextarea(textarea);
-      textarea.focus();
-    }
-
-    if (newChatBtn) {
-      newChatBtn.addEventListener("click", clearChat);
-    }
-
+    // טעינת היסטוריה משמורה
     function loadHistory() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
