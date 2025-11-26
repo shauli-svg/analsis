@@ -6,20 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      color-scheme: dark;
-      --bg-main: #050608;
-      --bg-panel: #111214;
-      --bg-input: #16171a;
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --accent: #e5e7eb;
-      --accent-soft: rgba(229, 231, 235, 0.15);
-      --text-main: #f9fafb;
-      --text-muted: #9ca3af;
+      color-scheme: light;
+      --bg-page: #e5e7eb;
+      --bg-card: #f9fafb;
+      --bg-messages: #f3f4f6;
+      --bg-user: #ffffff;
+      --bg-assistant: #f1f5f9;
+      --border-subtle: rgba(148, 163, 184, 0.4);
+      --border-soft: rgba(148, 163, 184, 0.3);
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --accent-soft: #d1d5db;
+      --radius-xl: 22px;
       --radius-lg: 18px;
       --radius-md: 12px;
       --shadow-soft:
-        0 0 0 1px rgba(255, 255, 255, 0.02),
-        0 18px 50px rgba(0, 0, 0, 0.65);
+        0 12px 30px rgba(15, 23, 42, 0.12);
     }
 
     * {
@@ -29,7 +31,7 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1f2933 0, #050608 45%, #020203 100%);
+      background: radial-gradient(circle at top, #f3f4f6 0, #e5e7eb 45%, #d4d4d4 100%);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -39,20 +41,20 @@
 
     /* Top bar */
     .top-bar {
-      height: 56px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(16px);
-      background: linear-gradient(
-        to bottom,
-        rgba(10, 10, 12, 0.96),
-        rgba(10, 10, 12, 0.9)
-      );
       position: sticky;
       top: 0;
       z-index: 10;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(
+        to bottom,
+        rgba(249, 250, 251, 0.92),
+        rgba(249, 250, 251, 0.86)
+      );
+      border-bottom: 1px solid rgba(209, 213, 219, 0.9);
     }
 
     .top-bar-inner {
@@ -68,27 +70,31 @@
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 0.95rem;
     }
 
     .brand-icon {
-      width: 22px;
-      height: 22px;
+      width: 26px;
+      height: 26px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #f3f4f6, #9ca3af 55%, #4b5563 100%);
+      background: radial-gradient(circle at 30% 20%, #f9fafb, #d1d5db 55%, #9ca3af 100%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      color: #020203;
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+      color: #111827;
       text-transform: uppercase;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.6),
+        0 4px 8px rgba(148, 163, 184, 0.4);
     }
 
     .brand-title {
       font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
     }
 
@@ -108,7 +114,7 @@
       flex: 1;
       display: flex;
       justify-content: center;
-      padding: 16px;
+      padding: 18px 16px 16px;
     }
 
     .chat-wrapper {
@@ -122,8 +128,8 @@
     .panel {
       flex: 1;
       min-height: 0;
-      background: rgba(8, 9, 11, 0.96);
-      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-subtle);
       display: flex;
@@ -135,9 +141,11 @@
     #messages {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 16px 18px;
+      background: var(--bg-messages);
+      border-bottom: 1px solid rgba(209, 213, 219, 0.9);
       scrollbar-width: thin;
-      scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+      scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
     }
 
     #messages::-webkit-scrollbar {
@@ -149,54 +157,70 @@
     }
 
     #messages::-webkit-scrollbar-thumb {
-      background: rgba(156, 163, 175, 0.4);
+      background: rgba(148, 163, 184, 0.7);
       border-radius: 999px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .message-row {
       display: flex;
       gap: 10px;
-      padding: 10px 8px;
-      border-radius: var(--radius-md);
-      margin-bottom: 4px;
+      padding: 10px 10px;
+      border-radius: var(--radius-lg);
+      margin-bottom: 6px;
+      opacity: 0;
+      animation: fadeUp 0.18s ease-out forwards;
     }
 
     .message-row.user {
-      background: rgba(31, 32, 35, 0.9);
+      background: var(--bg-user);
+      border: 1px solid rgba(209, 213, 219, 0.9);
     }
 
     .message-row.assistant {
-      background: rgba(20, 21, 24, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.02);
+      background: var(--bg-assistant);
+      border: 1px solid rgba(209, 213, 219, 0.8);
     }
 
     .message-avatar {
-      flex: 0 0 28px;
+      flex: 0 0 30px;
       display: flex;
       align-items: flex-start;
       justify-content: center;
+      padding-top: 2px;
     }
 
     .avatar-circle {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 999px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 600;
       text-transform: uppercase;
+      background: #e5e7eb;
+      color: #111827;
+      border: 1px solid rgba(148, 163, 184, 0.8);
     }
 
     .avatar-user {
-      background: radial-gradient(circle at 20% 0, #d1d5db, #6b7280);
-      color: #111827;
+      background: #ffffff;
     }
 
     .avatar-assistant {
-      background: radial-gradient(circle at 20% 0, #f3f4f6, #9ca3af);
-      color: #111827;
+      background: #e5e7eb;
     }
 
     .message-content {
@@ -210,7 +234,7 @@
     }
 
     .message-content a {
-      color: #e5e7eb;
+      color: #374151;
       text-decoration: underline;
       text-decoration-thickness: 1px;
       text-underline-offset: 2px;
@@ -219,40 +243,44 @@
     .message-meta {
       font-size: 0.7rem;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
     .message.system {
-      margin: 8px 0 16px;
+      margin: 6px 0 14px;
       padding: 10px 12px;
-      border-radius: var(--radius-md);
-      background: rgba(17, 24, 39, 0.75);
+      border-radius: var(--radius-lg);
+      background: #f9fafb;
       color: var(--text-muted);
       font-size: 0.8rem;
       text-align: center;
-      border: 1px dashed rgba(156, 163, 175, 0.7);
+      border: 1px dashed rgba(148, 163, 184, 0.9);
     }
 
     /* Input panel */
     .input-shell {
-      padding: 10px 12px;
-      border-top: 1px solid var(--border-subtle);
-      background: linear-gradient(
-        to top,
-        rgba(12, 12, 14, 0.98),
-        rgba(12, 12, 14, 0.94)
-      );
+      padding: 10px 14px 14px;
+      background: #f9fafb;
     }
 
     .input-inner {
       border-radius: 999px;
-      background: var(--bg-input);
-      border: 1px solid rgba(75, 85, 99, 0.7);
+      background: #f3f4f6;
+      border: 1px solid var(--border-soft);
       padding: 6px 8px;
       display: flex;
       align-items: center;
       gap: 8px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .input-inner:focus-within {
+      border-color: rgba(107, 114, 128, 0.9);
+      box-shadow:
+        0 0 0 1px rgba(156, 163, 175, 0.7),
+        0 8px 18px rgba(148, 163, 184, 0.3);
     }
 
     .input-textarea-wrap {
@@ -275,7 +303,7 @@
     }
 
     textarea::placeholder {
-      color: #6b7280;
+      color: #9ca3af;
     }
 
     button {
@@ -284,15 +312,17 @@
       padding: 8px 14px;
       font-size: 0.85rem;
       cursor: pointer;
-      background: var(--accent);
-      color: #020203;
-      font-weight: 600;
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 500;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       white-space: nowrap;
-      transition: background 0.15s ease, transform 0.05s ease;
-      text-transform: uppercase;
+      transition:
+        background-color 0.15s ease,
+        transform 0.08s ease,
+        box-shadow 0.15s ease;
     }
 
     button span.icon {
@@ -300,14 +330,16 @@
     }
 
     button:hover:not(:disabled) {
-      background: #ffffff;
+      background: #d4d4d4;
       transform: translateY(-0.5px);
+      box-shadow: 0 3px 8px rgba(107, 114, 128, 0.3);
     }
 
     button:disabled {
-      opacity: 0.5;
+      opacity: 0.65;
       cursor: default;
       transform: none;
+      box-shadow: none;
     }
 
     .status-line {
@@ -317,31 +349,72 @@
       display: flex;
       justify-content: space-between;
       gap: 6px;
+      align-items: center;
     }
 
     .status-pill {
-      padding: 3px 9px;
+      padding: 4px 10px;
       border-radius: 999px;
-      background: rgba(17, 24, 39, 0.9);
-      border: 1px solid rgba(75, 85, 99, 0.8);
+      background: #f3f4f6;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .status-pill span.dot {
-      display: inline-block;
+    .status-dot {
       width: 7px;
       height: 7px;
       border-radius: 999px;
-      margin-left: 4px;
-      background: #ef4444; /* אדום */
-      box-shadow: 0 0 0 4px rgba(248, 250, 252, 0.4); /* הילה לבנה עדינה */
+      background: #9ca3af;
+      box-shadow: 0 0 0 3px rgba(229, 231, 235, 1);
     }
 
-    /* Footer */
+    .status-secondary {
+      text-align: left;
+    }
+
     footer {
-      padding: 10px 16px 14px;
+      padding: 10px 16px 16px;
       text-align: center;
       font-size: 0.7rem;
       color: var(--text-muted);
+    }
+
+    /* Thinking dots */
+    .thinking-dots {
+      display: inline-flex;
+      gap: 3px;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .thinking-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: #9ca3af;
+      opacity: 0.4;
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    .thinking-dot:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .thinking-dot:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+      50% {
+        transform: translateY(-2px);
+        opacity: 1;
+      }
     }
 
     @media (max-width: 720px) {
@@ -349,18 +422,15 @@
         padding: 0 12px;
       }
       .app-shell {
-        padding: 10px;
+        padding: 12px 10px 10px;
       }
       .panel {
-        border-radius: 12px;
-      }
-      .input-inner {
-        align-items: flex-end;
-      }
-      button {
-        padding-inline: 10px;
+        border-radius: 18px;
       }
       .top-status {
+        display: none;
+      }
+      .status-secondary {
         display: none;
       }
     }
@@ -373,11 +443,11 @@
         <div class="brand-icon">DQ</div>
         <div>
           <div class="brand-title">DRAFFIQ AI</div>
-          <div class="brand-subtitle">TASE · QUICK-SCAN / DEEP-DIVE · מחקר בלבד</div>
+          <div class="brand-subtitle">מחקר וניתוח לשוק ההון הישראלי</div>
         </div>
       </div>
       <div class="top-status">
-        ENGINE: DRAFFIQ CORE · SERVER: ASIA/JERUSALEM
+        ENGINE: DRAFFIQ · SCOPE: TASE · FINANCE ONLY
       </div>
     </div>
   </div>
@@ -388,8 +458,8 @@
         <div id="messages">
           <div class="message system">
             ברוך הבא ל־<strong>DRAFFIQ AI</strong>.<br />
-            כתוב פרומפט מלא (מצב עבודה, נכס, Scope, דגשים) כמו שהיית מנסח לאנליסט בכיר,
-            למשל: Quick-Scan לשופרסל עם דגש על מינוף, Free Float ותחרות ענפית בישראל.
+            כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
+            נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
           </div>
         </div>
 
@@ -401,7 +471,7 @@
                   id="query"
                   name="query"
                   rows="1"
-                  placeholder="שאל כל דבר על חברה / אג&quot;ח / סקטור בשוק ההון הישראלי..."
+                  placeholder="לדוגמה: שופרסל – דוח רבעוני אחרון, ניתוח עומק עם דגש על חוב, Free Float ותחרות ענפית בישראל."
                 ></textarea>
               </div>
               <button type="submit" id="send-btn">
@@ -411,11 +481,11 @@
             </div>
             <div class="status-line">
               <div class="status-pill">
-                <span class="dot"></span>
-                מצב: מחקר בלבד · לא ייעוץ השקעות
+                <span class="status-dot"></span>
+                <span>מצב: מחקר פיננסי בלבד · לא ייעוץ השקעות</span>
               </div>
-              <div>
-                תשובות נוצרות ע&quot;י <strong>DRAFFIQ AI</strong>. אין גישה לתיק ההשקעות שלך.
+              <div class="status-secondary">
+                התשובות נכתבות ע״י <strong>DRAFFIQ AI</strong> ואינן מחוברות לתיק ההשקעות שלך.
               </div>
             </div>
           </form>
@@ -442,20 +512,17 @@
 
     textarea.addEventListener("input", () => autoResizeTextarea(textarea));
 
-    // הופך טקסט פשוט ללינקים לחיצים, עם escape נגד HTML
+    // הופך טקסט רגיל ללינקים לחיצים (עם escape בסיסי)
     function renderTextWithLinks(text) {
       if (!text) return "";
-      // Escape HTML בסיסי
       let escaped = text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
-      // זיהוי URLים (http/https)
       const urlRegex = /(https?:\/\/[^\s)]+)/g;
 
       escaped = escaped.replace(urlRegex, (url) => {
-        // הסרה עדינה של סימני פיסוק סופיים כמו , . )
         let clean = url;
         let trailing = "";
         while (/[),.!?]$/.test(clean)) {
@@ -523,8 +590,12 @@
       meta.textContent = "DRAFFIQ AI";
 
       const dots = document.createElement("div");
-      dots.textContent = "חושב...";
-      dots.style.opacity = "0.8";
+      dots.className = "thinking-dots";
+      dots.innerHTML = `
+        <span class="thinking-dot"></span>
+        <span class="thinking-dot"></span>
+        <span class="thinking-dot"></span>
+      `;
 
       contentWrap.appendChild(meta);
       contentWrap.appendChild(dots);
@@ -554,12 +625,12 @@
         } catch {
           err = {};
         }
-        throw new Error(err.error || "שגיאה מהשרת");
+        throw new Error(err.error || "אירעה תקלה בצד השרת.");
       }
 
       const data = await response.json();
       if (!data.ok) {
-        throw new Error(data.error || "שגיאה מהשרת");
+        throw new Error(data.error || "אירעה תקלה בצד השרת.");
       }
       return data.answer;
     }
@@ -586,7 +657,10 @@
         appendMessage(answer, "assistant");
       } catch (err) {
         thinkingRow.remove();
-        appendMessage("שגיאה: " + err.message, "assistant");
+        appendMessage(
+          "הייתה בעיה בעיבוד הבקשה: " + (err.message || "שגיאה לא ידועה."),
+          "assistant"
+        );
       } finally {
         sendBtn.disabled = false;
         sendBtn.querySelector(".label").textContent = originalLabel;
