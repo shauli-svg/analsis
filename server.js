@@ -10,14 +10,14 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Middlewares
+// ===== Middlewares =====
 app.use(cors());
 app.use(bodyParser.json());
 
-// להגיש קבצים סטטיים מתוך public (index.html, CSS, JS וכו')
+// להגיש קבצים סטטיים מתוך public (index.html וכו')
 app.use(express.static(path.join(__dirname, "public")));
 
-// OpenAI client – משתמש ב-OPENAI_API_KEY מה-ENV (Render)
+// ===== OpenAI client =====
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -174,12 +174,12 @@ Currency=ILS | FX Base=ILS/USD @ {תאריך/שער} | Units={אלפים/מ׳/מ
 
 // ===== Routes =====
 
-// דף הבית – מגיש את index.html מהתיקייה public
+// דף הבית – מגיש את index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Health check (אופציונלי)
+// Health check
 app.get("/health", (req, res) => {
   res.json({ ok: true, status: "healthy" });
 });
@@ -197,25 +197,15 @@ app.post("/chat", async (req, res) => {
     }
 
     const apiResponse = await client.responses.create({
-      model: "gpt-5.1-thinking",
+      model: "gpt-5.1-chat-latest",
       instructions: DRAFFIQ_INSTRUCTIONS,
-      input: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: userQuery,
-            },
-          ],
-        },
-      ],
+      input: userQuery,
       max_output_tokens: 2000,
     });
 
     const text =
-      apiResponse.output?.[0]?.content?.[0]?.text ||
-      "[שגיאה בקריאת הפלט מהמודל]";
+      apiResponse.output_text ||
+      "[שגיאה בקריאת הפלט מהמודל – output_text ריק]";
 
     res.json({
       ok: true,
