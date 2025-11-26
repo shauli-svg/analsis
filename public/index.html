@@ -207,8 +207,8 @@
       align-items: center;
       justify-content: center;
       font-size: 0.8rem;
-      font-weight: 700;           /* חיזוק – כמו DQ */
-      letter-spacing: 0.05em;     /* טיפוגרפיה דומה ל־DQ */
+      font-weight: 700;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
       background: #e5e7eb;
       color: #111827;
@@ -513,7 +513,6 @@
       <div class="panel">
         <div id="messages">
           <div class="message system">
-            <!-- הורדנו את "ברוך הבא ל־DRAFFIQ AI." ומשאירים רק את הפרומפט -->
             <div class="system-line-sub">
               כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
               נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
@@ -546,6 +545,7 @@
                 התשובות נכתבות ע״י <strong>DRAFFIQ AI</strong> ואינן מחוברות לתיק ההשקעות שלך.
               </div>
               <div class="status-actions">
+                <button type="button" id="new-chat-btn">שיחה חדשה</button>
                 <button type="button" id="print-btn">הדפס / PDF</button>
                 <button type="button" id="email-btn">שלח במייל</button>
                 <button type="button" id="share-btn">שיתוף</button>
@@ -572,6 +572,7 @@
     const printBtn = document.getElementById("print-btn");
     const emailBtn = document.getElementById("email-btn");
     const shareBtn = document.getElementById("share-btn");
+    const newChatBtn = document.getElementById("new-chat-btn");
 
     let chatHistory = [];
 
@@ -784,6 +785,32 @@
       });
     }
 
+    // 🔹 איפוס שיחה – מנקה לוקאל-סטורג' ומחזיר רק את הודעת המערכת
+    function clearChat() {
+      chatHistory = [];
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {
+        // מתעלמים משגיאה
+      }
+
+      messages.innerHTML = `
+        <div class="message system">
+          <div class="system-line-sub">
+            כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
+            נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
+          </div>
+        </div>
+      `;
+      textarea.value = "";
+      autoResizeTextarea(textarea);
+      textarea.focus();
+    }
+
+    if (newChatBtn) {
+      newChatBtn.addEventListener("click", clearChat);
+    }
+
     // טעינת היסטוריה משמורה
     function loadHistory() {
       try {
@@ -797,7 +824,6 @@
           appendMessage(m.text, m.role, { persist: false });
         });
       } catch (e) {
-        // אם נכשל – פשוט מתחילים מאפס
         chatHistory = [];
       }
     }
