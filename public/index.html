@@ -2,25 +2,25 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>DRAFFIQ AI – TASE Chat</title>
+  <title>DRAFFIQ AI – TASE Research Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- פונט נעים (אפשר להסיר אם לא רוצים) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap">
+
   <style>
     :root {
-      color-scheme: light;
-      --bg-page: #e5e7eb;
-      --bg-card: #f9fafb;
-      --bg-messages: #f3f4f6;
-      --bg-user: #ffffff;
-      --bg-assistant: #f1f5f9;
-      --border-subtle: rgba(148, 163, 184, 0.4);
-      --border-soft: rgba(148, 163, 184, 0.3);
+      --bg-main: #f4f4f5;
+      --bg-card: #ffffff;
+      --bg-panel: #f3f4f6;
+      --bg-bubble-user: #e5e7eb;
+      --bg-bubble-assistant: #f9fafb;
+      --border-soft: #d4d4d8;
       --text-main: #111827;
       --text-muted: #6b7280;
-      --accent-soft: #d1d5db;
-      --radius-xl: 22px;
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
+      --accent-dark: #111827;
+      --accent-light: #f4f4f5;
+      --accent-border: #9ca3af;
+      --accent-dot: #dc2626; /* אדום לנקודה */
     }
 
     * {
@@ -29,8 +29,8 @@
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Impact", sans-serif;
-      background: radial-gradient(circle at top, #f3f4f6 0, #e5e7eb 45%, #d4d4d4 100%);
+      font-family: "Rubik", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #f9fafb 0, #e5e7eb 45%, #d4d4d8 100%);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -38,587 +38,427 @@
       align-items: stretch;
     }
 
-    /* Top bar */
-    .top-bar {
-      height: 60px;
+    .page {
+      max-width: 980px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 12px 12px 16px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(12px);
-      background: linear-gradient(
-        to bottom,
-        rgba(249, 250, 251, 0.92),
-        rgba(249, 250, 251, 0.86)
-      );
-      border-bottom: 1px solid rgba(209, 213, 219, 0.9);
+      flex-direction: column;
+      min-height: 100vh;
+      gap: 10px;
     }
 
-    .top-bar-inner {
-      width: 100%;
-      max-width: 960px;
-      padding: 0 16px;
+    /* Top Bar */
+    .top-bar {
+      border-radius: 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.95rem;
-    }
-
-    .brand-icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #f9fafb, #d1d5db 55%, #9ca3af 100%);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #111827;
-      text-transform: uppercase;
-      box-shadow:
-        0 0 0 1px rgba(148, 163, 184, 0.6),
-        0 4px 8px rgba(148, 163, 184, 0.4);
-    }
-
-    .brand-title {
-      font-weight: 600;
-      font-size: 0.95rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .brand-subtitle {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .top-status {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    /* Main layout */
-    .app-shell {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 18px 16px 16px;
-    }
-
-    .chat-wrapper {
-      width: 100%;
-      max-width: 960px;
-      display: flex;
-      flex-direction: column;
       gap: 12px;
     }
 
-    .panel {
+    .top-bar-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--accent-dark);
+      border: 2px solid var(--accent-dot);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--accent-light);
+    }
+
+    .brand-text-main {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+    }
+
+    .brand-text-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .top-bar-right {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    /* Chat Card */
+    .chat-card {
       flex: 1;
-      min-height: 0;
       background: var(--bg-card);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-soft);
-      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      border: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      min-height: 0;
     }
 
-    /* Messages area */
-    #messages {
+    .chat-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: #f9fafb;
+    }
+
+    .chat-header-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #000000;
+    }
+
+    .chat-header-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .chat-body {
       flex: 1;
+      background: var(--bg-panel);
+      padding: 12px;
       overflow-y: auto;
-      padding: 16px 18px;
-      background: var(--bg-messages);
-      border-bottom: 1px solid rgba(209, 213, 219, 0.9);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
     }
 
-    #messages::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    #messages::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    #messages::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.7);
-      border-radius: 999px;
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .message-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .message-row {
       display: flex;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: var(--radius-lg);
-      margin-bottom: 6px;
-      opacity: 0;
-      animation: fadeUp 0.18s ease-out forwards;
+      gap: 8px;
+      align-items: flex-end;
     }
 
     .message-row.user {
-      background: var(--bg-user);
-      border: 1px solid rgba(209, 213, 219, 0.9);
+      flex-direction: row-reverse; /* YOU בימין, טקסט משמאל */
     }
 
     .message-row.assistant {
-      background: var(--bg-assistant);
-      border: 1px solid rgba(209, 213, 219, 0.8);
+      flex-direction: row-reverse; /* גם DQ בימין בשביל RTL מסודר */
     }
 
     .message-avatar {
-      flex: 0 0 30px;
+      flex: 0 0 auto;
       display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 2px;
+      align-items: flex-end;
     }
 
     .avatar-circle {
-      width: 30px;
-      height: 30px;
+      width: 26px;
+      height: 26px;
       border-radius: 999px;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       font-weight: 600;
-      text-transform: uppercase;
-      background: #e5e7eb;
-      color: #111827;
-      border: 1px solid rgba(148, 163, 184, 0.8);
+      letter-spacing: 0.05em;
+      border: 1px solid var(--accent-border);
     }
 
     .avatar-user {
-      background: #ffffff;
+      background: #e5e7eb;
+      color: #111827;
     }
 
     .avatar-assistant {
-      background: #e5e7eb;
+      background: #111827;
+      color: #f9fafb;
     }
 
-    .message-content {
-      flex: 1;
-      min-width: 0;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      color: var(--text-main);
-    }
-
-    .message-content a {
-      color: #374151;
-      text-decoration: underline;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 2px;
+    .message-content-wrap {
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .message-meta {
       font-size: 0.7rem;
       color: var(--text-muted);
-      margin-bottom: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+    }
+
+    .message-bubble {
+      padding: 8px 10px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .message-row.user .message-bubble {
+      background: var(--bg-bubble-user);
+      border: 1px solid #d4d4d8;
+    }
+
+    .message-row.assistant .message-bubble {
+      background: var(--bg-bubble-assistant);
+      border: 1px solid #e5e7eb;
     }
 
     .message.system {
-      margin: 6px 0 14px;
-      padding: 10px 12px;
-      border-radius: var(--radius-lg);
-      background: #f9fafb;
       font-size: 0.8rem;
+      color: var(--text-muted);
       text-align: center;
-      border: 1px dashed rgba(148, 163, 184, 0.9);
-      color: var(--text-main);
+      padding: 6px 4px 10px;
     }
 
-    .system-line-main {
-      font-size: 0.9rem;
-      margin-bottom: 4px;
-      color: var(--text-main);
+    .message-bubble a {
+      color: #1d4ed8;
+      text-decoration: underline;
     }
 
-    .system-brand {
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
-    .system-line-sub {
-      font-size: 0.8rem;
-      color: var(--text-main);
-    }
-
-    /* Input panel */
-    .input-shell {
-      padding: 10px 14px 14px;
+    /* Form */
+    .chat-footer {
+      border-top: 1px solid var(--border-soft);
+      padding: 10px 12px;
       background: #f9fafb;
     }
 
-    .input-inner {
-      border-radius: 999px;
-      background: #f3f4f6;
-      border: 1px solid var(--border-soft);
-      padding: 6px 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .input-inner:focus-within {
-      border-color: rgba(107, 114, 128, 0.9);
-      box-shadow:
-        0 0 0 1px rgba(156, 163, 175, 0.7),
-        0 8px 18px rgba(148, 163, 184, 0.3);
-    }
-
-    .input-textarea-wrap {
-      flex: 1;
+    .chat-form {
       display: flex;
       flex-direction: column;
+      gap: 8px;
     }
 
-    textarea {
-      resize: none;
-      border: none;
-      outline: none;
-      background: transparent;
+    .chat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .chat-textarea {
+      resize: vertical;
+      min-height: 70px;
+      max-height: 200px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: #f9fafb;
       color: var(--text-main);
       font-family: inherit;
       font-size: 0.9rem;
-      max-height: 120px;
-      min-height: 24px;
-      padding: 4px 8px 4px 0;
     }
 
-    textarea::placeholder {
-      color: #9ca3af;
+    .chat-textarea:focus {
+      outline: none;
+      border-color: #9ca3af;
+      box-shadow: 0 0 0 1px #e5e7eb;
     }
 
-    button {
+    .chat-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .submit-btn {
       border: none;
       border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 0.85rem;
+      padding: 8px 18px;
+      font-size: 0.9rem;
       cursor: pointer;
-      background: #e5e7eb;
-      color: #111827;
+      background: #111827;
+      color: #f9fafb;
       font-weight: 500;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
       white-space: nowrap;
-      transition:
-        background-color 0.15s ease,
-        transform 0.08s ease,
-        box-shadow 0.15s ease;
     }
 
-    button span.icon {
-      font-size: 1rem;
-    }
-
-    button:hover:not(:disabled) {
-      background: #d4d4d4;
-      transform: translateY(-0.5px);
-      box-shadow: 0 3px 8px rgba(107, 114, 128, 0.3);
-    }
-
-    button:disabled {
-      opacity: 0.65;
+    .submit-btn:disabled {
+      opacity: 0.5;
       cursor: default;
-      transform: none;
       box-shadow: none;
     }
 
-    .status-line {
-      margin-top: 6px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .status-pill {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #f3f4f6;
-      border: 1px solid rgba(209, 213, 219, 0.9);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #9ca3af;
-      box-shadow: 0 0 0 3px rgba(229, 231, 235, 1);
-    }
-
-    .status-secondary {
-      text-align: left;
-    }
-
     footer {
-      padding: 10px 16px 16px;
-      text-align: center;
+      margin-top: 6px;
       font-size: 0.7rem;
       color: var(--text-muted);
+      text-align: center;
     }
 
-    /* Thinking dots */
-    .thinking-dots {
-      display: inline-flex;
-      gap: 3px;
-      align-items: center;
-      margin-top: 2px;
-    }
+    @media (max-width: 640px) {
+      .page {
+        padding: 8px;
+      }
 
-    .thinking-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 999px;
-      background: #9ca3af;
-      opacity: 0.4;
-      animation: pulse 1s infinite ease-in-out;
-    }
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-    .thinking-dot:nth-child(2) {
-      animation-delay: 0.15s;
-    }
-
-    .thinking-dot:nth-child(3) {
-      animation-delay: 0.3s;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        transform: translateY(0);
-        opacity: 0.4;
-      }
-      50 {
-        transform: translateY(-2px);
-        opacity: 1;
-      }
-    }
-
-    @media (max-width: 720px) {
-      .top-bar-inner {
-        padding: 0 12px;
-      }
-      .app-shell {
-        padding: 12px 10px 10px;
-      }
-      .panel {
-        border-radius: 18px;
-      }
-      .top-status {
-        display: none;
-      }
-      .status-secondary {
-        display: none;
+      .top-bar-right {
+        text-align: right;
       }
     }
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <div class="top-bar-inner">
-      <div class="brand">
+  <div class="page">
+    <div class="top-bar">
+      <div class="top-bar-left">
         <div class="brand-icon">DQ</div>
         <div>
-          <div class="brand-title">DRAFFIQ AI</div>
-          <div class="brand-subtitle">מחקר וניתוח לשוק ההון הישראלי</div>
+          <div class="brand-text-main">DRAFFIQ</div>
+          <div class="brand-text-sub">מחקר וניתוח לשוק ההון הישראלי</div>
         </div>
       </div>
-      <div class="top-status">
+      <div class="top-bar-right">
         ENGINE: DRAFFIQ · SCOPE: TASE · FINANCE ONLY
       </div>
     </div>
-  </div>
 
-  <div class="app-shell">
-    <div class="chat-wrapper">
-      <div class="panel">
-        <div id="messages">
-          <div class="message system">
-            <div class="system-line-main">
-              ברוך הבא ל־<span class="system-brand">DRAFFIQ AI</span>.
-            </div>
-            <div class="system-line-sub">
-              כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
-              נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
-            </div>
-          </div>
+    <div class="chat-card">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          ברוך הבא ל־<strong>DRAFFIQ AI</strong>.
         </div>
-
-        <div class="input-shell">
-          <form id="chat-form">
-            <div class="input-inner">
-              <div class="input-textarea-wrap">
-                <textarea
-                  id="query"
-                  name="query"
-                  rows="1"
-                  placeholder="לדוגמה: שופרסל – דוח רבעוני אחרון, ניתוח עומק עם דגש על חוב, Free Float ותחרות ענפית בישראל."
-                ></textarea>
-              </div>
-              <button type="submit" id="send-btn">
-                <span class="icon">➤</span>
-                <span class="label">שלח</span>
-              </button>
-            </div>
-            <div class="status-line">
-              <div class="status-pill">
-                <span class="status-dot"></span>
-                <span>מצב: מחקר פיננסי בלבד · לא ייעוץ השקעות</span>
-              </div>
-              <div class="status-secondary">
-                התשובות נכתבות ע״י <strong>DRAFFIQ AI</strong> ואינן מחוברות לתיק ההשקעות שלך.
-              </div>
-            </div>
-          </form>
+        <div class="chat-header-sub">
+          כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר – כולל מצב עבודה (Quick-Scan / Deep-Dive),
+          נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
         </div>
       </div>
 
-      <footer>
-        DRAFFIQ AI – מחקר ותובנות בלבד. אינו מהווה ייעוץ השקעות, שיווק השקעות
-        או תחליף לייעוץ המתחשב בצרכים ובמאפיינים האישיים.
-      </footer>
+      <div class="chat-body">
+        <div id="messages" class="message-list">
+          <!-- היסטוריה נטענת כאן -->
+        </div>
+      </div>
+
+      <div class="chat-footer">
+        <form id="chat-form" class="chat-form">
+          <label for="query" class="chat-label">
+            פרומפט מלא ל־DRAFFIQ:
+          </label>
+          <textarea
+            id="query"
+            name="query"
+            class="chat-textarea"
+            placeholder="לדוגמה:
+מצב עבודה: Quick-Scan
+נכס: שופרסל (Ticker: 777012)
+Scope: סקירה על בסיס הדוח הרבעוני האחרון וקאטליסטים ל-12 חודשים קדימה.
+דגשים מיוחדים: להתמקד בחוב, Free Float ותחרות ענפית בישראל."
+          ></textarea>
+
+          <div class="chat-footer-row">
+            <div class="hint">
+              הבקשה נשלחת ל־/chat באותו דומיין. הפלט חוזר כטקסט עם קישורים פעילים.
+            </div>
+            <button type="submit" id="send-btn" class="submit-btn">
+              שלח ל־DRAFFIQ
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
+
+    <footer>
+      DRAFFIQ AI – מחקר ותובנות בלבד. אינו מהווה ייעוץ השקעות או תחליף לייעוץ המתחשב בצרכים האישיים.
+    </footer>
   </div>
 
   <script>
+    const STORAGE_KEY = "draffiq_chat_history_v1";
+
     const form = document.getElementById("chat-form");
     const textarea = document.getElementById("query");
     const messages = document.getElementById("messages");
     const sendBtn = document.getElementById("send-btn");
 
-    function autoResizeTextarea(el) {
-      el.style.height = "auto";
-      el.style.height = Math.min(el.scrollHeight, 120) + "px";
-    }
-
-    textarea.addEventListener("input", () => autoResizeTextarea(textarea));
-
-    // הופך טקסט רגיל ללינקים לחיצים (עם escape בסיסי)
-    function renderTextWithLinks(text) {
-      if (!text) return "";
-      let escaped = text
+    function escapeHtml(text) {
+      return text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
-
-      const urlRegex = /(https?:\/\/[^\s)]+)/g;
-
-      escaped = escaped.replace(urlRegex, (url) => {
-        let clean = url;
-        let trailing = "";
-        while (/[),.!?]$/.test(clean)) {
-          trailing = clean.slice(0, -1);
-          trailing = clean.slice(-1) + trailing;
-        }
-        return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${trailing}`;
-      });
-
-      return escaped;
     }
 
-    function appendMessage(text, role) {
+    function renderTextWithLinks(text) {
+      const escaped = escapeHtml(text);
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return escaped.replace(
+        urlRegex,
+        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+      );
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed;
+      } catch {
+        return [];
+      }
+    }
+
+    let history = loadHistory();
+
+    function appendMessage(text, role, persist = true) {
       const row = document.createElement("div");
-      row.className = "message-row " + role;
+      row.className = "message-row " + (role === "user" ? "user" : "assistant");
 
       const avatarWrap = document.createElement("div");
       avatarWrap.className = "message-avatar";
 
-      const avatar = document.createElement("div");
-      avatar.className =
-        "avatar-circle " + (role === "user" ? "avatar-user" : "avatar-assistant");
-      avatar.textContent = role === "user" ? "YOU" : "DQ";
-
+      const avatar = divWithClass("avatar-circle");
+      if (role === "user") {
+        avatar.classList.add("avatar-user");
+        avatar.textContent = "YOU";
+      } else {
+        avatar.classList.add("avatar-assistant");
+        avatar.textContent = "DQ";
+      }
       avatarWrap.appendChild(avatar);
 
       const contentWrap = document.createElement("div");
-      contentWrap.className = "message-content";
+      contentWrap.className = "message-content-wrap";
 
-      const meta = document.createElement("div");
-      meta.className = "message-meta";
+      const meta = divWithClass("message-meta");
       meta.textContent = role === "user" ? "משתמש" : "DRAFFIQ AI";
 
-      const body = document.createElement("div");
-      body.innerHTML = renderTextWithLinks(text);
+      const bubble = divWithClass("message-bubble");
+      bubble.innerHTML = renderTextWithLinks(text);
 
       contentWrap.appendChild(meta);
-      contentWrap.appendChild(body);
-
-      row.appendChild(contentWrap);
-      row.appendChild(avatarWrap);
-
-      messages.appendChild(row);
-      messages.scrollTop = messages.scrollHeight;
-    }
-
-    function appendThinking() {
-      const row = document.createElement("div");
-      row.className = "message-row assistant";
-      row.dataset.thinking = "true";
-
-      const avatarWrap = document.createElement("div");
-      avatarWrap.className = "message-avatar";
-
-      const avatar = document.createElement("div");
-      avatar.className = "avatar-circle avatar-assistant";
-      avatar.textContent = "DQ";
-      avatarWrap.appendChild(avatar);
-
-      const contentWrap = document.createElement("div");
-      contentWrap.className = "message-content";
-
-      const meta = document.createElement("div");
-      meta.className = "message-meta";
-      meta.textContent = "DRAFFIQ AI";
-
-      const dots = document.createElement("div");
-      dots.className = "thinking-dots";
-      dots.innerHTML = `
-        <span class="thinking-dot"></span>
-        <span class="thinking-dot"></span>
-        <span class="thinking-dot"></span>
-      `;
-
-      contentWrap.appendChild(meta);
-      contentWrap.appendChild(dots);
+      contentWrap.appendChild(bubble);
 
       row.appendChild(contentWrap);
       row.appendChild(avatarWrap);
@@ -626,31 +466,57 @@
       messages.appendChild(row);
       messages.scrollTop = messages.scrollHeight;
 
-      return row;
+      if (persist) {
+        history.push({
+          role,
+          text,
+          ts: Date.now(),
+        });
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        } catch (e) {
+          console.warn("Failed to save chat history:", e);
+        }
+      }
     }
+
+    function divWithClass(cls) {
+      const d = document.createElement("div");
+      d.className = cls;
+      return d;
+    }
+
+    // הודעת פתיחה (רק אם אין היסטוריה)
+    if (history.length === 0) {
+      const intro = document.createElement("div");
+      intro.className = "message system";
+      intro.textContent =
+        "ברוך הבא ל־DRAFFIQ AI. כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה, נכס ודגשים עיקריים.";
+      messages.appendChild(intro);
+    }
+
+    // טעינת היסטוריה קיימת
+    history.forEach((msg) => {
+      appendMessage(msg.text, msg.role, false);
+    });
 
     async function callApi(query) {
       const response = await fetch("/chat", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query }),
       });
 
       if (!response.ok) {
-        let err;
-        try {
-          err = await response.json();
-        } catch {
-          err = {};
-        }
-        throw new Error(err.error || "אירעה תקלה בצד השרת.");
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "שגיאה מהשרת");
       }
 
       const data = await response.json();
       if (!data.ok) {
-        throw new Error(data.error || "אירעה תקלה בצד השרת.");
+        throw new Error(data.error || "שגיאה מהשרת");
       }
       return data.answer;
     }
@@ -662,28 +528,19 @@
 
       appendMessage(query, "user");
       textarea.value = "";
-      autoResizeTextarea(textarea);
       textarea.focus();
 
       sendBtn.disabled = true;
-      const originalLabel = sendBtn.querySelector(".label").textContent;
-      sendBtn.querySelector(".label").textContent = "מעבד...";
-
-      const thinkingRow = appendThinking();
+      sendBtn.textContent = "מעבד...";
 
       try {
         const answer = await callApi(query);
-        thinkingRow.remove();
         appendMessage(answer, "assistant");
       } catch (err) {
-        thinkingRow.remove();
-        appendMessage(
-          "הייתה בעיה בעיבוד הבקשה: " + (err.message || "שגיאה לא ידועה."),
-          "assistant"
-        );
+        appendMessage("שגיאה: " + err.message, "assistant");
       } finally {
         sendBtn.disabled = false;
-        sendBtn.querySelector(".label").textContent = originalLabel;
+        sendBtn.textContent = "שלח ל־DRAFFIQ";
       }
     });
   </script>
