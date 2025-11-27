@@ -121,24 +121,21 @@
     }
 
     .menu-btn {
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: #f3f4f6;
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 0.8rem;
+      border: none;
+      background: transparent;
+      border-radius: 0;
+      padding: 4px 6px;
+      font-size: 1.1rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       transition:
-        background-color 0.15s ease,
-        box-shadow 0.15s ease,
         transform 0.08s ease;
+      box-shadow: none;
     }
 
     .menu-btn:hover {
-      background: #e5e7eb;
-      box-shadow: 0 3px 8px rgba(148, 163, 184, 0.35);
       transform: translateY(-0.5px);
     }
 
@@ -181,6 +178,8 @@
       scrollbar-width: thin;
       scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
       -webkit-overflow-scrolling: touch;
+      margin: 10px 12px 0;
+      border-radius: var(--radius-lg);
     }
 
     #messages::-webkit-scrollbar {
@@ -410,8 +409,9 @@
       gap: 6px;
       align-items: center;
       flex-wrap: wrap;
-      max-width: 720px;
-      margin: 6px auto 0;
+      width: 100%;
+      margin: 6px 0 0;
+      padding: 0 18px;
     }
 
     .actions-row button {
@@ -630,7 +630,7 @@
         <div class="top-status">
           ENGINE: DRAFFIQ · SCOPE: TASE · FINANCE ONLY
         </div>
-        <button type="button" class="menu-btn" id="menu-btn">☰ תפריט</button>
+        <button type="button" class="menu-btn" id="menu-btn">☰</button>
       </div>
     </div>
   </div>
