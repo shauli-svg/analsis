@@ -7,44 +7,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <style>
     :root {
-      color-scheme: light;
-      --bg-page: #e5e7eb;
-      --bg-card: #f9fafb;
-      --bg-messages: #f3f4f6;
-      --bg-user: #ffffff;
-      --bg-assistant: #f1f5f9;
-      --border-subtle: rgba(148, 163, 184, 0.4);
-      --border-soft: rgba(148, 163, 184, 0.3);
-      --text-main: #111827;
-      --text-muted: #6b7280;
-      --accent-soft: #d1d5db;
-      --radius-xl: 22px;
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
-      --vh: 1vh;
-    }
+  color-scheme: light;
 
-    * {
-      box-sizing: border-box;
-    }
+  /* רקע כללי בהיר יותר */
+  --bg-page: #f5f6f8;
+  --bg-card: #fcfcfd;
+  --bg-messages: #f7f8fa;
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+  /* בועות משתמש/מודל בהירות */
+  --bg-user: #ffffff;
+  --bg-assistant: #f3f4f8;
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #f3f4f6 0, #e5e7eb 45%, #d4d4d4 100%);
-      color: var(--text-main);
-      min-height: calc(var(--vh, 1vh) * 100);
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-    }
+  --border-subtle: rgba(148, 163, 184, 0.25);
+  --border-soft: rgba(148, 163, 184, 0.18);
+
+  --text-main: #111827;
+  --text-muted: #6b7280;
+
+  --accent-soft: #e2e4ea;
+
+  --radius-xl: 22px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+
+  --shadow-soft: 0 14px 38px rgba(15, 23, 42, 0.10);
+  --vh: 1vh;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* מעבר טונים מודרני ועדין יותר */
+  background:
+    radial-gradient(circle at top, #ffffff 0, #f3f4f7 38%, #e2e4ea 100%);
+  color: var(--text-main);
+  min-height: calc(var(--vh, 1vh) * 100);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
 
     /* ===== Landing overlay / דף כניסה ===== */
     .landing-overlay {
@@ -328,20 +335,22 @@
 
     /* Main layout */
     .app-shell {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 12px 16px 12px;
-      min-height: 0;
-    }
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  /* קצת מרווח מהקצוות אבל רחב */
+  padding: 16px 24px 20px;
+  min-height: 0;
+}
 
-    .chat-wrapper {
-      width: 100%;
-      max-width: 960px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+.chat-wrapper {
+  width: 100%;
+  /* במקום 960px – כמעט כל המסך */
+  max-width: 1320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
     .chat-layout {
       display: flex;
@@ -439,75 +448,41 @@
     }
 
     .panel {
-      flex: 1;
-      min-height: 0;
-      background: var(--bg-card);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-soft);
-      border: 1px solid var(--border-subtle);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-    /* Messages area */
-    #messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 18px;
-      background: var(--bg-messages);
-      border-bottom: 1px solid rgba(209, 213, 219, 0.9);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
-      -webkit-overflow-scrolling: touch;
-      margin: 10px 12px 0;
-      border-radius: var(--radius-lg);
-    }
+/* אזור ההודעות */
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px;
+  background: var(--bg-messages);
+  border-bottom: 1px solid rgba(209, 213, 219, 0.7);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+  -webkit-overflow-scrolling: touch;
+  margin: 12px 14px 0;
+  border-radius: var(--radius-lg);
+}
 
-    #messages::-webkit-scrollbar {
-      width: 8px;
-    }
+/* בועות */
+.message-row.user {
+  background: var(--bg-user);
+  border: 1px solid rgba(209, 213, 219, 0.6);
+}
 
-    #messages::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    #messages::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.7);
-      border-radius: 999px;
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .message-row {
-      display: flex;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: var(--radius-lg);
-      margin-bottom: 6px;
-      opacity: 0;
-      animation: fadeUp 0.18s ease-out forwards;
-    }
-
-    .message-row.user {
-      background: var(--bg-user);
-      border: 1px solid rgba(209, 213, 219, 0.9);
-    }
-
-    .message-row.assistant {
-      background: var(--bg-assistant);
-      border: 1px solid rgba(209, 213, 219, 0.8);
-    }
+.message-row.assistant {
+  background: var(--bg-assistant);
+  border: 1px solid rgba(209, 213, 219, 0.55);
+}
 
     .message-avatar {
       flex: 0 0 30px;
@@ -597,29 +572,30 @@
 
     /* Input panel */
     .input-shell {
-      padding: 8px 18px 12px;
-      background: #f9fafb;
-    }
+  padding: 10px 20px 14px;
+  background: #f8fafc;
+}
 
-    .input-inner {
-      border-radius: 999px;
-      background: #f3f4f6;
-      border: 1px solid var(--border-soft);
-      padding: 4px 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-      width: 100%;
-      margin: 0;
-    }
+.input-inner {
+  border-radius: 999px;
+  background: #f4f5f9;
+  border: 1px solid var(--border-soft);
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  width: 100%;
+  margin: 0;
+}
 
-    .input-inner:focus-within {
-      border-color: rgba(107, 114, 128, 0.9);
-      box-shadow:
-        0 0 0 1px rgba(156, 163, 175, 0.7),
-        0 8px 18px rgba(148, 163, 184, 0.3);
-    }
+.input-inner:focus-within {
+  border-color: rgba(107, 114, 128, 0.9);
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(156, 163, 175, 0.6),
+    0 10px 22px rgba(148, 163, 184, 0.28);
+}
 
     .input-textarea-wrap {
       flex: 1;
@@ -684,24 +660,25 @@
 
     /* שורת כפתורי פעולה – יישור לימין */
     .actions-row {
-      margin-top: 6px;
-      font-size: 0.75rem;
-      display: flex;
-      justify-content: flex-end;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;
-      width: 100%;
-      margin: 6px 0 0;
-      padding: 0 18px;
-      direction: rtl;
-    }
+  margin-top: 6px;
+  font-size: 0.75rem;
+  display: flex;
+  /* שורה ב־LTR כדי ש-flex-end יהיה ימין */
+  direction: ltr;
+  justify-content: flex-end;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 0 18px;
+}
 
-    .actions-row button {
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      background: #e5e7eb;
-    }
+.actions-row button {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  background: #edf0f4;
+}
 
     /* שורת מצב – למטה */
     .status-line {
