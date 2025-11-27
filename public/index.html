@@ -407,6 +407,35 @@
       background: #e5e7eb;
     }
 
+    /* כפתורי דוגמאות לפרומפטים */
+    .prompt-examples {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .examples-label {
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-inline-start: 4px;
+    }
+
+    .example-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      background: #f9fafb;
+      cursor: pointer;
+    }
+
+    .example-btn:hover {
+      background: #e5e7eb;
+    }
+
     /* Thinking dots */
     .thinking-dots {
       display: inline-flex;
@@ -543,6 +572,10 @@
                 <span class="label">שלח</span>
               </button>
             </div>
+
+            <!-- כאן ייכנסו כפתורי הדוגמאות -->
+            <div id="promptExamplesContainer"></div>
+
             <div class="status-line">
               <div class="status-pill">
                 <span class="status-dot"></span>
@@ -575,6 +608,26 @@
     const shareBtn = document.getElementById("share-btn");
     const newBtn = document.getElementById("new-btn");
     let chatHistory = [];
+
+    // דוגמאות לפרומפטים מוכנים
+    const EXAMPLE_PROMPTS = [
+      {
+        label: "ניתוח עומק – מניה",
+        text: "תן לי ניתוח עומק על מניית ______ עם דגש על מודל עסקי, יתרון תחרותי ומבנה שוק ב-5–10 שנים קדימה."
+      },
+      {
+        label: "השוואה בין שני נכסים",
+        text: "השווה בין מניית ______ לאג\"ח ______ ברמת סיכונים, מודל עסקי, תזרים ותרחיש בסיסי לשנים הקרובות."
+      },
+      {
+        label: "ניתוח סקטור – בנקים",
+        text: "נתח את סקטור הבנקים בישראל: מבנה שוק, רגולציה, רווחיות, חשיפות מרכזיות וסיכונים עיקריים."
+      },
+      {
+        label: "Quick-Scan – דוח רבעוני",
+        text: "בצע Quick-Scan על הדוח הרבעוני האחרון של ______, תוך דגש על צמיחה, רווחיות, חוב ו-Red Flags מהותיים."
+      }
+    ];
 
     function setViewportHeight() {
       const vh = window.innerHeight * 0.01;
@@ -807,9 +860,42 @@
       }
     }
 
+    // רינדור כפתורי הדוגמאות
+    function renderPromptExamples() {
+      const container = document.getElementById("promptExamplesContainer");
+      if (!container || !textarea) return;
+
+      const buttonsHtml = EXAMPLE_PROMPTS.map(
+        (ex, idx) => `
+          <button type="button" class="example-btn" data-idx="${idx}">
+            ${ex.label}
+          </button>
+        `
+      ).join("");
+
+      container.innerHTML = `
+        <div class="prompt-examples">
+          <span class="examples-label">דוגמאות לשאילתות:</span>
+          ${buttonsHtml}
+        </div>
+      `;
+
+      container.addEventListener("click", (e) => {
+        const btn = e.target.closest(".example-btn");
+        if (!btn) return;
+        const idx = btn.getAttribute("data-idx");
+        const example = EXAMPLE_PROMPTS[idx];
+        if (!example) return;
+        textarea.value = example.text;
+        autoResizeTextarea(textarea);
+        textarea.focus();
+      });
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       setViewportHeight();
       loadHistory();
+      renderPromptExamples();
     });
 
     form.addEventListener("submit", async (e) => {
