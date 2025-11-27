@@ -108,10 +108,38 @@
       color: var(--text-muted);
     }
 
+    .top-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .top-status {
       font-size: 0.75rem;
       color: var(--text-muted);
       white-space: nowrap;
+    }
+
+    .menu-btn {
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.08s ease;
+    }
+
+    .menu-btn:hover {
+      background: #e5e7eb;
+      box-shadow: 0 3px 8px rgba(148, 163, 184, 0.35);
+      transform: translateY(-0.5px);
     }
 
     /* Main layout */
@@ -288,7 +316,7 @@
 
     /* Input panel */
     .input-shell {
-      padding: 8px 14px 12px;
+      padding: 8px 18px 12px;
       background: #f9fafb;
     }
 
@@ -301,8 +329,8 @@
       align-items: center;
       gap: 8px;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
-      max-width: 720px;
-      margin: 0 auto;
+      width: 100%;
+      margin: 0;
     }
 
     .input-inner:focus-within {
@@ -373,12 +401,32 @@
       box-shadow: none;
     }
 
+    /* שורת כפתורי פעולה – למעלה */
+    .actions-row {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      max-width: 720px;
+      margin: 6px auto 0;
+    }
+
+    .actions-row button {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      background: #e5e7eb;
+    }
+
+    /* שורת מצב – למטה */
     .status-line {
       margin-top: 6px;
       font-size: 0.75rem;
       color: var(--text-muted);
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 6px;
       align-items: center;
       flex-wrap: wrap;
@@ -402,24 +450,6 @@
       border-radius: 999px;
       background: #9ca3af;
       box-shadow: 0 0 0 3px rgba(229, 231, 235, 1);
-    }
-
-    .status-secondary {
-      text-align: left;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .status-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .status-actions button {
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      background: #e5e7eb;
     }
 
     /* כפתורי דוגמאות לפרומפטים */
@@ -542,16 +572,13 @@
         display: none;
       }
 
-      .status-secondary {
-        display: none;
-      }
-
       textarea,
       button {
         font-size: 1rem;
       }
 
       .input-inner,
+      .actions-row,
       .status-line,
       .mode-toggle,
       .prompt-examples {
@@ -599,8 +626,11 @@
           <div class="brand-subtitle">מחקר וניתוח לשוק ההון הישראלי</div>
         </div>
       </div>
-      <div class="top-status">
-        ENGINE: DRAFFIQ · SCOPE: TASE · FINANCE ONLY
+      <div class="top-right">
+        <div class="top-status">
+          ENGINE: DRAFFIQ · SCOPE: TASE · FINANCE ONLY
+        </div>
+        <button type="button" class="menu-btn" id="menu-btn">☰ תפריט</button>
       </div>
     </div>
   </div>
@@ -629,6 +659,12 @@
               </button>
             </div>
 
+            <div class="actions-row">
+              <button type="button" id="new-btn">שיחה חדשה</button>
+              <button type="button" id="print-btn">הדפס / PDF</button>
+              <button type="button" id="share-btn">שיתוף</button>
+            </div>
+
             <div class="mode-toggle">
               <span class="mode-label">מצב עבודה:</span>
               <button type="button" class="mode-btn active" data-mode="quick">
@@ -647,14 +683,6 @@
                 <span class="status-dot"></span>
                 <span>מצב: מחקר פיננסי בלבד · לא ייעוץ השקעות</span>
               </div>
-              <div class="status-secondary">
-               מערכות <strong>DRAFFIQ AI</strong> אינן מחוברות לתיק ההשקעות שלך.
-              </div>
-              <div class="status-actions">
-                <button type="button" id="new-btn">שיחה חדשה</button>
-                <button type="button" id="print-btn">הדפס / PDF</button>
-                <button type="button" id="share-btn">שיתוף</button>
-              </div>
             </div>
           </form>
         </div>
@@ -671,6 +699,7 @@
     const printBtn = document.getElementById("print-btn");
     const shareBtn = document.getElementById("share-btn");
     const newBtn = document.getElementById("new-btn");
+    const menuBtn = document.getElementById("menu-btn");
     let chatHistory = [];
     let currentMode = "quick"; // quick | deep
 
@@ -750,7 +779,7 @@
     }
 
     function appendMessage(text, role, options = {}) {
-      const { persist = true } = options;
+      const { persist = true, scroll = true } = options;
       const row = document.createElement("div");
       row.className = "message-row " + role;
 
@@ -775,7 +804,10 @@
       row.appendChild(contentWrap);
       row.appendChild(avatarWrap);
       messages.appendChild(row);
-      messages.scrollTop = messages.scrollHeight;
+
+      if (scroll) {
+        messages.scrollTop = messages.scrollHeight;
+      }
 
       if (persist) {
         chatHistory.push({ role, text });
@@ -813,7 +845,7 @@
       row.appendChild(contentWrap);
       row.appendChild(avatarWrap);
       messages.appendChild(row);
-      messages.scrollTop = messages.scrollHeight;
+      // בלי גלילה אוטומטית – המשתמש מחליט
       return row;
     }
 
@@ -899,6 +931,14 @@
       });
     }
 
+    // כפתור תפריט – כרגע placeholder
+    if (menuBtn) {
+      menuBtn.addEventListener("click", () => {
+        // כאן תוסיף בהמשך ניווט לדפים אחרים
+        alert("תפריט ניווט יתווסף כאן בהמשך.");
+      });
+    }
+
     // טעינת היסטוריה משמורה
     function loadHistory() {
       try {
@@ -909,7 +949,7 @@
         chatHistory = parsed;
         chatHistory.forEach((m) => {
           if (!m || !m.role || !m.text) return;
-          appendMessage(m.text, m.role, { persist: false });
+          appendMessage(m.text, m.role, { persist: false, scroll: false });
         });
       } catch (e) {
         chatHistory = [];
@@ -982,7 +1022,7 @@
 
       const finalQuery = modePrefix + rawQuery;
 
-      appendMessage(finalQuery, "user");
+      appendMessage(finalQuery, "user", { scroll: true });
       textarea.value = "";
       autoResizeTextarea(textarea);
       textarea.focus();
@@ -993,12 +1033,14 @@
       try {
         const answer = await callApi(finalQuery);
         thinkingRow.remove();
-        appendMessage(answer, "assistant");
+        // בלי גלילה אוטומטית בתשובת המערכת
+        appendMessage(answer, "assistant", { scroll: false });
       } catch (err) {
         thinkingRow.remove();
         appendMessage(
           "הייתה בעיה בעיבוד הבקשה: " + (err.message || "שגיאה לא ידועה."),
-          "assistant"
+          "assistant",
+          { scroll: false }
         );
       } finally {
         sendBtn.disabled = false;
