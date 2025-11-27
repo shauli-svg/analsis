@@ -90,14 +90,16 @@
         0 0 0 1px rgba(148, 163, 184, 0.8),
         0 8px 20px rgba(15, 23, 42, 0.15);
       animation: iconBounce 0.7s ease-out 1.3s 1;
+      border-radius: 999px;
+      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 20%, #9ca3af 100%);
     }
 
     .landing-title {
       font-weight: 800;
       font-size: 2.1rem;
-      letter-spacing: 0.03em; /* מרווח מצומצם יותר בין אותיות */
+      letter-spacing: 0.03em;
       text-transform: uppercase;
-      color: #111827; /* שחור */
+      color: #111827;
     }
 
     .landing-subtitle {
@@ -136,10 +138,10 @@
     }
 
     .landing-cta:hover {
-      background: #111827;
-      color: #f9fafb;
+      background: #e5e7eb; /* אפור בהיר יותר */
+      color: #111827; /* הכתב נשאר שחור */
       transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.25);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
     }
 
     .landing-curtain {
@@ -339,6 +341,101 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+    }
+
+    .chat-layout {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    /* Sidebar – רשימת שיחות */
+    .sidebar {
+      width: 220px;
+      background: #f9fafb;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-soft);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .sidebar-new-btn {
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      background: #e5e7eb;
+      border-radius: 999px;
+    }
+
+    .sidebar-new-btn:hover {
+      background: #d4d4d4;
+      box-shadow: none;
+      transform: translateY(-0.5px);
+    }
+
+    .session-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
+      padding-inline: 2px;
+    }
+
+    .session-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .session-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .session-list::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.7);
+      border-radius: 999px;
+    }
+
+    .session-item {
+      width: 100%;
+      text-align: right;
+      justify-content: flex-start;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      background: #f9fafb;
+      color: #111827;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+
+    .session-item:hover {
+      background: #e5e7eb;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .session-item.active {
+      background: #111827;
+      color: #f9fafb;
+      border-color: #111827;
     }
 
     .panel {
@@ -741,6 +838,16 @@
       }
     }
 
+    @media (max-width: 900px) {
+      .sidebar {
+        display: none;
+      }
+
+      .chat-layout {
+        flex-direction: column;
+      }
+    }
+
     @media (max-width: 720px) {
       .top-bar-inner {
         padding: 0 12px;
@@ -777,7 +884,8 @@
 
       .landing-overlay,
       .top-bar,
-      .input-shell {
+      .input-shell,
+      .sidebar {
         display: none !important;
       }
 
@@ -849,60 +957,74 @@
 
   <div class="app-shell">
     <div class="chat-wrapper">
-      <div class="panel" id="chat-section">
-        <div id="messages">
-          <div class="message system">
-            <div class="system-line-sub">
-              כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
-              נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
+      <div class="chat-layout">
+        <!-- סרגל שיחות -->
+        <aside class="sidebar" id="session-sidebar">
+          <div class="sidebar-header">
+            <div class="sidebar-title">שיחות</div>
+            <button type="button" id="sidebar-new-btn" class="sidebar-new-btn">+ חדשה</button>
+          </div>
+          <div class="session-list" id="session-list"></div>
+        </aside>
+
+        <!-- איזור הצ׳אט -->
+        <div class="panel" id="chat-section">
+          <div id="messages">
+            <div class="message system">
+              <div class="system-line-sub">
+                כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
+                נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="input-shell">
-          <form id="chat-form">
-            <div class="input-inner">
-              <div class="input-textarea-wrap">
-                <textarea id="query" name="query" rows="3"></textarea>
+          <div class="input-shell">
+            <form id="chat-form">
+              <div class="input-inner">
+                <div class="input-textarea-wrap">
+                  <textarea id="query" name="query" rows="3"></textarea>
+                </div>
+                <button type="submit" id="send-btn">
+                  <span class="icon">➤</span>
+                  <span class="label">שלח</span>
+                </button>
               </div>
-              <button type="submit" id="send-btn">
-                <span class="icon">➤</span>
-                <span class="label">שלח</span>
-              </button>
-            </div>
 
-            <div class="actions-row">
-              <button type="button" id="print-btn">הדפס / PDF</button>
-              <button type="button" id="share-btn">שיתוף</button>
-            </div>
-
-            <div class="mode-toggle">
-              <span class="mode-label">מצב עבודה:</span>
-              <button type="button" class="mode-btn active" data-mode="quick">
-                Quick-Scan
-              </button>
-              <button type="button" class="mode-btn" data-mode="deep">
-                Deep-Dive
-              </button>
-            </div>
-
-            <!-- כאן ייכנסו כפתורי הדוגמאות -->
-            <div id="promptExamplesContainer"></div>
-
-            <div class="status-line">
-              <div class="status-pill">
-                <span class="status-dot"></span>
-                <span>מצב: מחקר פיננסי בלבד · לא ייעוץ השקעות</span>
+              <div class="actions-row">
+                <button type="button" id="print-btn">הדפס / PDF</button>
+                <button type="button" id="share-btn">שיתוף</button>
               </div>
-            </div>
-          </form>
-        </div>
-      </div>
+
+              <div class="mode-toggle">
+                <span class="mode-label">מצב עבודה:</span>
+                <button type="button" class="mode-btn active" data-mode="quick">
+                  Quick-Scan
+                </button>
+                <button type="button" class="mode-btn" data-mode="deep">
+                  Deep-Dive
+                </button>
+              </div>
+
+              <!-- כאן ייכנסו כפתורי הדוגמאות -->
+              <div id="promptExamplesContainer"></div>
+
+              <div class="status-line">
+                <div class="status-pill">
+                  <span class="status-dot"></span>
+                  <span>מצב: מחקר פיננסי בלבד · לא ייעוץ השקעות</span>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div> <!-- /panel -->
+      </div> <!-- /chat-layout -->
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "draffiq-chat-v1";
+    const SESSIONS_KEY = "draffiq-sessions-v2";
+    const OLD_STORAGE_KEY = "draffiq-chat-v1";
+
     const form = document.getElementById("chat-form");
     const textarea = document.getElementById("query");
     const messages = document.getElementById("messages");
@@ -917,7 +1039,11 @@
     const menuDropdown = document.getElementById("menu-dropdown");
     const homeLink = document.getElementById("home-link");
     const chatLink = document.getElementById("chat-link");
-    let chatHistory = [];
+    const sessionListEl = document.getElementById("session-list");
+    const sidebarNewBtn = document.getElementById("sidebar-new-btn");
+
+    let sessions = [];
+    let activeSessionId = null;
     let currentMode = "quick"; // quick | deep
 
     // דוגמאות לפרומפטים מוכנים
@@ -950,7 +1076,7 @@
 
     // שומרים גובה קבוע – אין גדילה עם הטקסט
     function autoResizeTextarea(el) {
-      // no-op
+      // no-op – נשאר בגובה קבוע
     }
 
     if (textarea) {
@@ -987,16 +1113,156 @@
       return escaped;
     }
 
-    function saveHistory() {
+    function saveSessions() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+        const payload = {
+          sessions,
+          activeSessionId
+        };
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(payload));
       } catch (e) {
         // לא קריטי אם נכשל – ממשיכים בלי להפיל את ה-UI
       }
     }
 
+    function getActiveSession() {
+      return sessions.find((s) => s.id === activeSessionId) || null;
+    }
+
+    function renderMessagesForSession(session, options = {}) {
+      const { scroll = true } = options;
+      if (!messages) return;
+
+      // מסיר את כל השורות הדינמיות ומשאיר את הודעת המערכת
+      const rows = messages.querySelectorAll(".message-row");
+      rows.forEach((r) => r.remove());
+
+      if (!session || !Array.isArray(session.messages)) {
+        if (scroll) messages.scrollTop = messages.scrollHeight;
+        return;
+      }
+
+      session.messages.forEach((m) => {
+        appendMessage(m.text, m.role, { persist: false, scroll: false });
+      });
+
+      if (scroll) {
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+
+    function renderSessionList() {
+      if (!sessionListEl) return;
+      sessionListEl.innerHTML = "";
+
+      sessions.forEach((sess) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "session-item" + (sess.id === activeSessionId ? " active" : "");
+        btn.textContent = sess.title || "שיחה ללא כותרת";
+        btn.addEventListener("click", () => {
+          if (sess.id === activeSessionId) return;
+          activeSessionId = sess.id;
+          saveSessions();
+          renderSessionList();
+          renderMessagesForSession(sess, { scroll: false });
+          if (textarea) textarea.focus();
+        });
+        sessionListEl.appendChild(btn);
+      });
+    }
+
+    function createNewSession() {
+      const id = "s_" + Date.now();
+      const session = {
+        id,
+        title: "שיחה חדשה",
+        createdAt: Date.now(),
+        messages: []
+      };
+      sessions.push(session);
+      activeSessionId = id;
+      saveSessions();
+      renderSessionList();
+      renderMessagesForSession(session, { scroll: false });
+      if (textarea) {
+        textarea.value = "";
+        textarea.focus();
+      }
+    }
+
+    function migrateOldHistoryIfNeeded() {
+      try {
+        const raw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || !parsed.length) return;
+
+        const id = "s_" + Date.now();
+        sessions = [
+          {
+            id,
+            title: "שיחה קודמת",
+            createdAt: Date.now(),
+            messages: parsed
+          }
+        ];
+        activeSessionId = id;
+        // אופציונלי – ניקוי הישן
+        // localStorage.removeItem(OLD_STORAGE_KEY);
+      } catch (e) {
+        // מתעלמים
+      }
+    }
+
+    function loadSessions() {
+      try {
+        const raw = localStorage.getItem(SESSIONS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.sessions)) {
+            sessions = parsed.sessions;
+            activeSessionId =
+              parsed.activeSessionId ||
+              (parsed.sessions[0] && parsed.sessions[0].id) ||
+              null;
+          }
+        }
+
+        if (!sessions || !sessions.length) {
+          migrateOldHistoryIfNeeded();
+        }
+
+        if (!sessions || !sessions.length) {
+          const id = "s_" + Date.now();
+          sessions = [
+            {
+              id,
+              title: "שיחה חדשה",
+              createdAt: Date.now(),
+              messages: []
+            }
+          ];
+          activeSessionId = id;
+        }
+      } catch (e) {
+        const id = "s_" + Date.now();
+        sessions = [
+          {
+            id,
+            title: "שיחה חדשה",
+            createdAt: Date.now(),
+            messages: []
+          }
+        ];
+        activeSessionId = id;
+      }
+    }
+
     function appendMessage(text, role, options = {}) {
       const { persist = true, scroll = true } = options;
+      if (!messages) return;
+
       const row = document.createElement("div");
       row.className = "message-row " + role;
 
@@ -1027,8 +1293,28 @@
       }
 
       if (persist) {
-        chatHistory.push({ role, text });
-        saveHistory();
+        const session = getActiveSession();
+        if (session) {
+          // עדכון כותרת שיחה לפי הודעת המשתמש הראשונה
+          if (
+            role === "user" &&
+            Array.isArray(session.messages) &&
+            session.messages.length === 0
+          ) {
+            let title = text.replace(/\s+/g, " ").trim();
+            if (title.length > 28) {
+              title = title.slice(0, 28) + "…";
+            }
+            session.title = title || "שיחה חדשה";
+            renderSessionList();
+          }
+
+          if (!Array.isArray(session.messages)) {
+            session.messages = [];
+          }
+          session.messages.push({ role, text });
+          saveSessions();
+        }
       }
     }
 
@@ -1089,10 +1375,11 @@
       return data.answer;
     }
 
-    // מוציא את כל השיחה כטקסט פשוט (לשיתוף)
+    // מוציא את כל השיחה הנוכחית כטקסט פשוט (לשיתוף)
     function getConversationPlainText() {
-      if (chatHistory.length > 0) {
-        return chatHistory
+      const session = getActiveSession();
+      if (session && Array.isArray(session.messages) && session.messages.length > 0) {
+        return session.messages
           .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
           .join("\n\n");
       }
@@ -1153,13 +1440,17 @@
       landingCta.addEventListener("click", hideLandingOverlay);
     }
 
+    function handleNewChatClick() {
+      createNewSession();
+      if (menuDropdown) menuDropdown.classList.remove("open");
+    }
+
     if (newBtn) {
-      newBtn.addEventListener("click", () => {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch (e) { }
-        window.location.reload();
-      });
+      newBtn.addEventListener("click", handleNewChatClick);
+    }
+
+    if (sidebarNewBtn) {
+      sidebarNewBtn.addEventListener("click", handleNewChatClick);
     }
 
     // תפריט ניווט
@@ -1196,30 +1487,13 @@
       const target = e.target;
       if (
         target === menuBtn ||
-        menuBtn.contains(target) ||
+        (menuBtn && menuBtn.contains(target)) ||
         menuDropdown.contains(target)
       ) {
         return;
       }
       menuDropdown.classList.remove("open");
     });
-
-    // טעינת היסטוריה משמורה
-    function loadHistory() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return;
-        chatHistory = parsed;
-        chatHistory.forEach((m) => {
-          if (!m || !m.role || !m.text) return;
-          appendMessage(m.text, m.role, { persist: false, scroll: false });
-        });
-      } catch (e) {
-        chatHistory = [];
-      }
-    }
 
     // רינדור כפתורי הדוגמאות
     function renderPromptExamples() {
@@ -1270,7 +1544,9 @@
 
     window.addEventListener("DOMContentLoaded", () => {
       setViewportHeight();
-      loadHistory();
+      loadSessions();
+      renderSessionList();
+      renderMessagesForSession(getActiveSession(), { scroll: false });
       renderPromptExamples();
       setupModeToggle();
     });
