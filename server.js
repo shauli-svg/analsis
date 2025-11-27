@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// קבצים סטטיים – public/index.html, CSS, JS וכו'
+// קבצים סטטיים – public/index.html, landing.html, CSS, JS וכו'
 app.use(express.static(path.join(__dirname, "public")));
 
 // ===== OpenAI client – משתמש ב-OPENAI_API_KEY מה-ENV =====
@@ -105,8 +105,13 @@ const DRAFFIQ_INSTRUCTIONS = [
 
 // ===== Routes בסיסיים =====
 
-// דף הבית – מגיש את index.html מהתיקייה public
+// דף כניסה – landing.html
 app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "landing.html"));
+});
+
+// דף האפליקציה – הצ'אט (index.html)
+app.get("/app", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
