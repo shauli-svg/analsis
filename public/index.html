@@ -46,6 +46,82 @@
       align-items: stretch;
     }
 
+    /* ===== Landing overlay / דף כניסה ===== */
+    .landing-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: radial-gradient(circle at top, #020617 0, #020617 45%, #111827 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+      cursor: pointer;
+    }
+
+    .landing-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .landing-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      color: #e5e7eb;
+    }
+
+    .landing-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .landing-icon {
+      width: 76px;
+      height: 76px;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.8),
+        0 8px 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .landing-title {
+      font-weight: 800;
+      font-size: 2.1rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    .landing-subtitle {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-top: 4px;
+    }
+
+    .landing-curtain {
+      position: absolute;
+      inset: 0;
+      background: #0b1120;
+      z-index: 3;
+      transform-origin: left center;
+      animation: curtainOpen 1.4s ease-out forwards;
+    }
+
+    @keyframes curtainOpen {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
     /* Top bar */
     .top-bar {
       height: 60px;
@@ -136,6 +212,21 @@
     }
 
     .menu-btn:hover {
+      transform: translateY(-0.5px);
+    }
+
+    .top-new-btn {
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .top-new-btn:hover:not(:disabled) {
+      background: #020617;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.45);
       transform: translateY(-0.5px);
     }
 
@@ -400,7 +491,7 @@
       box-shadow: none;
     }
 
-    /* שורת כפתורי פעולה – למעלה */
+    /* שורת כפתורי פעולה – יישור לימין */
     .actions-row {
       margin-top: 6px;
       font-size: 0.75rem;
@@ -589,6 +680,7 @@
     /* ===== הדפסה נקייה ===== */
     @media print {
 
+      .landing-overlay,
       .top-bar,
       .input-shell {
         display: none !important;
@@ -617,6 +709,18 @@
 </head>
 
 <body>
+  <!-- דף כניסה / פתיחת וילון -->
+  <div id="landing-overlay" class="landing-overlay">
+    <div class="landing-content">
+      <div class="landing-logo">
+        <div class="brand-icon landing-icon"></div>
+        <div class="landing-title">DRAFFIQ AI</div>
+        <div class="landing-subtitle">TASE · RESEARCH ENGINE</div>
+      </div>
+    </div>
+    <div class="landing-curtain"></div>
+  </div>
+
   <div class="top-bar">
     <div class="top-bar-inner">
       <div class="brand">
@@ -630,6 +734,7 @@
         <div class="top-status">
           ENGINE: DRAFFIQ · SCOPE: TASE · FINANCE ONLY
         </div>
+        <button type="button" id="new-btn" class="top-new-btn">שיחה חדשה</button>
         <button type="button" class="menu-btn" id="menu-btn">☰</button>
       </div>
     </div>
@@ -637,7 +742,7 @@
 
   <div class="app-shell">
     <div class="chat-wrapper">
-      <div class="panel">
+      <div class="panel" id="chat-section">
         <div id="messages">
           <div class="message system">
             <div class="system-line-sub">
@@ -660,7 +765,7 @@
             </div>
 
             <div class="actions-row">
-              <button type="button" id="new-btn">שיחה חדשה</button>
+              <!-- מיושרים לימין – שיתוף + הדפסה -->
               <button type="button" id="print-btn">הדפס / PDF</button>
               <button type="button" id="share-btn">שיתוף</button>
             </div>
@@ -700,6 +805,8 @@
     const shareBtn = document.getElementById("share-btn");
     const newBtn = document.getElementById("new-btn");
     const menuBtn = document.getElementById("menu-btn");
+    const landingOverlay = document.getElementById("landing-overlay");
+    const chatSection = document.getElementById("chat-section");
     let chatHistory = [];
     let currentMode = "quick"; // quick | deep
 
@@ -922,20 +1029,35 @@
       });
     }
 
+    // פונקציות לדף הנחיתה (וילון)
+    function hideLandingOverlay() {
+      if (!landingOverlay || landingOverlay.classList.contains("hidden")) return;
+      landingOverlay.classList.add("hidden");
+      if (chatSection && typeof chatSection.scrollIntoView === "function") {
+        chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    if (landingOverlay) {
+      // סגירה אוטומטית + בלחיצה
+      landingOverlay.addEventListener("click", hideLandingOverlay);
+      setTimeout(hideLandingOverlay, 1700);
+    }
+
     if (newBtn) {
       newBtn.addEventListener("click", () => {
         try {
           localStorage.removeItem(STORAGE_KEY);
         } catch (e) { }
+        // "דפדוף" חדש אל דף הנחיתה – רענון מלא
         window.location.reload();
       });
     }
 
-    // כפתור תפריט – כרגע placeholder
+    // כפתור תפריט – כרגע placeholder לניווט עתידי
     if (menuBtn) {
       menuBtn.addEventListener("click", () => {
-        // כאן תוסיף בהמשך ניווט לדפים אחרים
-        alert("תפריט ניווט יתווסף כאן בהמשך.");
+        alert("כאן יופיע בהמשך תפריט ניווט לדפי נחיתה נוספים של DRAFFIQ.");
       });
     }
 
