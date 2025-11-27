@@ -51,7 +51,7 @@
       position: fixed;
       inset: 0;
       z-index: 50;
-      background: radial-gradient(circle at top, #020617 0, #020617 45%, #111827 100%);
+      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -70,7 +70,7 @@
       position: relative;
       z-index: 2;
       text-align: center;
-      color: #e5e7eb;
+      color: #111827;
     }
 
     .landing-logo {
@@ -85,31 +85,33 @@
       height: 76px;
       box-shadow:
         0 0 0 1px rgba(148, 163, 184, 0.8),
-        0 8px 20px rgba(15, 23, 42, 0.9);
+        0 8px 20px rgba(15, 23, 42, 0.15);
+      animation: iconBounce 0.7s ease-out 1.3s 1;
     }
 
     .landing-title {
       font-weight: 800;
       font-size: 2.1rem;
-      letter-spacing: 0.25em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
+      color: #111827;
     }
 
     .landing-subtitle {
       font-size: 0.9rem;
-      color: #9ca3af;
+      color: #4b5563;
       text-transform: uppercase;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.12em;
       margin-top: 4px;
     }
 
     .landing-curtain {
       position: absolute;
       inset: 0;
-      background: #0b1120;
+      background: #ffffff;
       z-index: 3;
       transform-origin: left center;
-      animation: curtainOpen 1.4s ease-out forwards;
+      animation: curtainOpen 2.4s ease-out forwards;
     }
 
     @keyframes curtainOpen {
@@ -119,6 +121,24 @@
 
       100% {
         transform: translateX(100%);
+      }
+    }
+
+    @keyframes iconBounce {
+      0% {
+        transform: translateY(0);
+      }
+
+      40% {
+        transform: translateY(-10px);
+      }
+
+      70% {
+        transform: translateY(4px);
+      }
+
+      100% {
+        transform: translateY(0);
       }
     }
 
@@ -1041,7 +1061,7 @@
     if (landingOverlay) {
       // סגירה אוטומטית + בלחיצה
       landingOverlay.addEventListener("click", hideLandingOverlay);
-      setTimeout(hideLandingOverlay, 1700);
+      setTimeout(hideLandingOverlay, 2600);
     }
 
     if (newBtn) {
