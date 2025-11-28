@@ -7,51 +7,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <style>
     :root {
-  color-scheme: light;
+      color-scheme: light;
 
-  /* רקע כללי בהיר יותר */
-  --bg-page: #f5f6f8;
-  --bg-card: #fcfcfd;
-  --bg-messages: #f7f8fa;
+      /* רקע כללי בהיר יותר */
+      --bg-page: #f5f6f8;
+      --bg-card: #fcfcfd;
+      --bg-messages: #f7f8fa;
 
-  /* בועות משתמש/מודל בהירות */
-  --bg-user: #ffffff;
-  --bg-assistant: #f3f4f8;
+      /* בועות משתמש/מודל בהירות */
+      --bg-user: #ffffff;
+      --bg-assistant: #f3f4f8;
 
-  --border-subtle: rgba(148, 163, 184, 0.25);
-  --border-soft: rgba(148, 163, 184, 0.18);
+      --border-subtle: rgba(148, 163, 184, 0.25);
+      --border-soft: rgba(148, 163, 184, 0.18);
 
-  --text-main: #111827;
-  --text-muted: #6b7280;
+      --text-main: #111827;
+      --text-muted: #6b7280;
 
-  --accent-soft: #e2e4ea;
+      --accent-soft: #e2e4ea;
 
-  --radius-xl: 22px;
-  --radius-lg: 18px;
-  --radius-md: 12px;
+      --radius-xl: 22px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
 
-  --shadow-soft: 0 14px 38px rgba(15, 23, 42, 0.10);
-  --vh: 1vh;
-}
+      --shadow-soft: 0 14px 38px rgba(15, 23, 42, 0.10);
+      --vh: 1vh;
+    }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  /* מעבר טונים מודרני ועדין יותר */
-  background:
-    radial-gradient(circle at top, #ffffff 0, #f3f4f7 38%, #e2e4ea 100%);
-  color: var(--text-main);
-  min-height: calc(var(--vh, 1vh) * 100);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      /* מעבר טונים מודרני ועדין יותר */
+      background:
+        radial-gradient(circle at top, #ffffff 0, #f3f4f7 38%, #e2e4ea 100%);
+      color: var(--text-main);
+      min-height: calc(var(--vh, 1vh) * 100);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
 
     /* ===== Landing overlay / דף כניסה ===== */
     .landing-overlay {
@@ -145,8 +145,8 @@ body {
     }
 
     .landing-cta:hover {
-      background: #e5e7eb; /* אפור בהיר יותר */
-      color: #111827; /* הכתב נשאר שחור */
+      background: #e5e7eb;
+      color: #111827;
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
     }
@@ -206,7 +206,7 @@ body {
 
     .top-bar-inner {
       width: 100%;
-      max-width: 960px;
+      max-width: 1320px; /* הרחב כמו הצ'אט */
       padding: 0 16px;
       display: flex;
       align-items: center;
@@ -335,22 +335,20 @@ body {
 
     /* Main layout */
     .app-shell {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  /* קצת מרווח מהקצוות אבל רחב */
-  padding: 16px 24px 20px;
-  min-height: 0;
-}
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 16px 24px 20px;
+      min-height: 0;
+    }
 
-.chat-wrapper {
-  width: 100%;
-  /* במקום 960px – כמעט כל המסך */
-  max-width: 1320px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+    .chat-wrapper {
+      width: 100%;
+      max-width: 1320px; /* כמעט כל המסך */
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
     .chat-layout {
       display: flex;
@@ -448,41 +446,41 @@ body {
     }
 
     .panel {
-  flex: 1;
-  min-height: 0;
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+      flex: 1;
+      min-height: 0;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-/* אזור ההודעות */
-#messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 18px 20px;
-  background: var(--bg-messages);
-  border-bottom: 1px solid rgba(209, 213, 219, 0.7);
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
-  -webkit-overflow-scrolling: touch;
-  margin: 12px 14px 0;
-  border-radius: var(--radius-lg);
-}
+    /* אזור ההודעות */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px;
+      background: var(--bg-messages);
+      border-bottom: 1px solid rgba(209, 213, 219, 0.7);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+      -webkit-overflow-scrolling: touch;
+      margin: 12px 14px 0;
+      border-radius: var(--radius-lg);
+    }
 
-/* בועות */
-.message-row.user {
-  background: var(--bg-user);
-  border: 1px solid rgba(209, 213, 219, 0.6);
-}
+    /* בועות */
+    .message-row.user {
+      background: var(--bg-user);
+      border: 1px solid rgba(209, 213, 219, 0.6);
+    }
 
-.message-row.assistant {
-  background: var(--bg-assistant);
-  border: 1px solid rgba(209, 213, 219, 0.55);
-}
+    .message-row.assistant {
+      background: var(--bg-assistant);
+      border: 1px solid rgba(209, 213, 219, 0.55);
+    }
 
     .message-avatar {
       flex: 0 0 30px;
@@ -572,30 +570,30 @@ body {
 
     /* Input panel */
     .input-shell {
-  padding: 10px 20px 14px;
-  background: #f8fafc;
-}
+      padding: 10px 20px 14px;
+      background: #f8fafc;
+    }
 
-.input-inner {
-  border-radius: 999px;
-  background: #f4f5f9;
-  border: 1px solid var(--border-soft);
-  padding: 4px 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-  width: 100%;
-  margin: 0;
-}
+    .input-inner {
+      border-radius: 999px;
+      background: #f4f5f9;
+      border: 1px solid var(--border-soft);
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      width: 100%;
+      margin: 0;
+    }
 
-.input-inner:focus-within {
-  border-color: rgba(107, 114, 128, 0.9);
-  background: #ffffff;
-  box-shadow:
-    0 0 0 1px rgba(156, 163, 175, 0.6),
-    0 10px 22px rgba(148, 163, 184, 0.28);
-}
+    .input-inner:focus-within {
+      border-color: rgba(107, 114, 128, 0.9);
+      background: #ffffff;
+      box-shadow:
+        0 0 0 1px rgba(156, 163, 175, 0.6),
+        0 10px 22px rgba(148, 163, 184, 0.28);
+    }
 
     .input-textarea-wrap {
       flex: 1;
@@ -658,27 +656,26 @@ body {
       box-shadow: none;
     }
 
-    /* שורת כפתורי פעולה – יישור לימין */
+    /* שורת כפתורי פעולה – לשמאל */
     .actions-row {
-  margin-top: 6px;
-  font-size: 0.75rem;
-  display: flex;
-  /* שורה ב־LTR כדי ש-flex-end יהיה ימין */
-  direction: ltr;
-  justify-content: flex-end;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
-  width: 100%;
-  margin: 6px 0 0;
-  padding: 0 18px;
-}
+      margin-top: 6px;
+      font-size: 0.75rem;
+      display: flex;
+      direction: rtl;
+      justify-content: flex-end; /* ב-RTL זה דוחף לשמאל */
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+      margin: 6px 0 0;
+      padding: 0 18px;
+    }
 
-.actions-row button {
-  padding: 4px 10px;
-  font-size: 0.75rem;
-  background: #edf0f4;
-}
+    .actions-row button {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      background: #edf0f4;
+    }
 
     /* שורת מצב – למטה */
     .status-line {
@@ -999,219 +996,231 @@ body {
   </div>
 
   <script>
-  const SESSIONS_KEY = "draffiq-sessions-v2";
-  const OLD_STORAGE_KEY = "draffiq-chat-v1";
+    const SESSIONS_KEY = "draffiq-sessions-v2";
+    const OLD_STORAGE_KEY = "draffiq-chat-v1";
 
-  const form = document.getElementById("chat-form");
-  const textarea = document.getElementById("query");
-  const messages = document.getElementById("messages");
-  const sendBtn = document.getElementById("send-btn");
-  const printBtn = document.getElementById("print-btn");
-  const shareBtn = document.getElementById("share-btn");
-  const newBtn = document.getElementById("new-btn");
-  const menuBtn = document.getElementById("menu-btn");
-  const landingOverlay = document.getElementById("landing-overlay");
-  const landingCta = document.getElementById("landing-cta");
-  const chatSection = document.getElementById("chat-section");
-  const menuDropdown = document.getElementById("menu-dropdown");
-  const homeLink = document.getElementById("home-link");
-  const chatLink = document.getElementById("chat-link");
-  const sessionListEl = document.getElementById("session-list");
-  const sidebarNewBtn = document.getElementById("sidebar-new-btn");
+    const form = document.getElementById("chat-form");
+    const textarea = document.getElementById("query");
+    const messages = document.getElementById("messages");
+    const sendBtn = document.getElementById("send-btn");
+    const printBtn = document.getElementById("print-btn");
+    const shareBtn = document.getElementById("share-btn");
+    const newBtn = document.getElementById("new-btn");
+    const menuBtn = document.getElementById("menu-btn");
+    const landingOverlay = document.getElementById("landing-overlay");
+    const landingCta = document.getElementById("landing-cta");
+    const chatSection = document.getElementById("chat-section");
+    const menuDropdown = document.getElementById("menu-dropdown");
+    const homeLink = document.getElementById("home-link");
+    const chatLink = document.getElementById("chat-link");
+    const sessionListEl = document.getElementById("session-list");
+    const sidebarNewBtn = document.getElementById("sidebar-new-btn");
 
-  let sessions = [];
-  let activeSessionId = null;
-  let currentMode = "quick"; // quick | deep
+    let sessions = [];
+    let activeSessionId = null;
+    let currentMode = "quick"; // quick | deep
 
-  // דוגמאות לפרומפטים מוכנים
-  const EXAMPLE_PROMPTS = [
-    {
-      label: "ניתוח עומק – מניה",
-      text: "תן לי ניתוח עומק על מניית ______ עם דגש על מודל עסקי, יתרון תחרותי ומבנה שוק ב-5–10 שנים קדימה."
-    },
-    {
-      label: "השוואה בין שני נכסים",
-      text: "השווה בין מניית ______ לאג\"ח ______ ברמת סיכונים, מודל עסקי, תזרים ותרחיש בסיסי לשנים הקרובות."
-    },
-    {
-      label: "ניתוח סקטור – בנקים",
-      text: "נתח את סקטור הבנקים בישראל: מבנה שוק, רגולציה, רווחיות, חשיפות מרכזיות וסיכונים עיקריים."
-    },
-    {
-      label: "Quick-Scan – דוח רבעוני",
-      text: "בצע Quick-Scan על הדוח הרבעוני האחרון של ______, תוך דגש על צמיחה, רווחיות, חוב ו-Red Flags מהותיים."
-    }
-  ];
-
-  function setViewportHeight() {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty("--vh", vh + "px");
-  }
-  window.addEventListener("load", setViewportHeight);
-  window.addEventListener("resize", setViewportHeight);
-  window.addEventListener("orientationchange", setViewportHeight);
-
-  // שומרים גובה קבוע – אין גדילה עם הטקסט
-  function autoResizeTextarea(el) {
-    // no-op – נשאר בגובה קבוע
-  }
-
-  if (textarea) {
-    textarea.addEventListener("input", () => autoResizeTextarea(textarea));
-    textarea.addEventListener("focus", () => {
-      setTimeout(() => {
-        messages.scrollTop = messages.scrollHeight;
-      }, 50);
-    });
-  }
-
-  // הופך טקסט רגיל ללינקים לחיצים (עם escape בסיסי)
-  function renderTextWithLinks(text) {
-    if (!text) return "";
-    let escaped = text
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-
-    const urlRegex = /(https?:\/\/[^\s)]+)/g;
-
-    escaped = escaped.replace(urlRegex, (url) => {
-      let clean = url;
-      let trailing = "";
-
-      while (/[),.!?]$/.test(clean)) {
-        trailing = clean.slice(-1) + trailing;
-        clean = clean.slice(0, -1);
+    // דוגמאות לפרומפטים מוכנים
+    const EXAMPLE_PROMPTS = [
+      {
+        label: "ניתוח עומק – מניה",
+        text: "תן לי ניתוח עומק על מניית ______ עם דגש על מודל עסקי, יתרון תחרותי ומבנה שוק ב-5–10 שנים קדימה."
+      },
+      {
+        label: "השוואה בין שני נכסים",
+        text: "השווה בין מניית ______ לאג\"ח ______ ברמת סיכונים, מודל עסקי, תזרים ותרחיש בסיסי לשנים הקרובות."
+      },
+      {
+        label: "ניתוח סקטור – בנקים",
+        text: "נתח את סקטור הבנקים בישראל: מבנה שוק, רגולציה, רווחיות, חשיפות מרכזיות וסיכונים עיקריים."
+      },
+      {
+        label: "Quick-Scan – דוח רבעוני",
+        text: "בצע Quick-Scan על הדוח הרבעוני האחרון של ______, תוך דגש על צמיחה, רווחיות, חוב ו-Red Flags מהותיים."
       }
+    ];
 
-      return `<a href="${clean}" target="_blank" rel="noopener noreferrer" class="inline-link">🔗 קישור</a>${trailing}`;
-    });
-
-    return escaped;
-  }
-
-  function saveSessions() {
-    try {
-      const payload = {
-        sessions,
-        activeSessionId
-      };
-      localStorage.setItem(SESSIONS_KEY, JSON.stringify(payload));
-    } catch (e) {
-      // לא קריטי אם נכשל – ממשיכים בלי להפיל את ה-UI
+    function setViewportHeight() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", vh + "px");
     }
-  }
+    window.addEventListener("load", setViewportHeight);
+    window.addEventListener("resize", setViewportHeight);
+    window.addEventListener("orientationchange", setViewportHeight);
 
-  function getActiveSession() {
-    return sessions.find((s) => s.id === activeSessionId) || null;
-  }
-
-  function renderMessagesForSession(session, options = {}) {
-    const { scroll = true } = options;
-    if (!messages) return;
-
-    // מסיר את כל השורות הדינמיות ומשאיר את הודעת המערכת
-    const rows = messages.querySelectorAll(".message-row");
-    rows.forEach((r) => r.remove());
-
-    if (!session || !Array.isArray(session.messages)) {
-      if (scroll) messages.scrollTop = messages.scrollHeight;
-      return;
+    // שומרים גובה קבוע – אין גדילה עם הטקסט
+    function autoResizeTextarea(el) {
+      // no-op – נשאר בגובה קבוע
     }
 
-    session.messages.forEach((m) => {
-      appendMessage(m.text, m.role, { persist: false, scroll: false });
-    });
-
-    if (scroll) {
-      messages.scrollTop = messages.scrollHeight;
-    }
-  }
-
-  function renderSessionList() {
-    if (!sessionListEl) return;
-    sessionListEl.innerHTML = "";
-
-    sessions.forEach((sess) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className =
-        "session-item" + (sess.id === activeSessionId ? " active" : "");
-      btn.textContent = sess.title || "שיחה ללא כותרת";
-      btn.addEventListener("click", () => {
-        if (sess.id === activeSessionId) return;
-        activeSessionId = sess.id;
-        saveSessions();
-        renderSessionList();
-        renderMessagesForSession(sess, { scroll: false });
-        if (textarea) textarea.focus();
-      });
-      sessionListEl.appendChild(btn);
-    });
-  }
-
-  function createNewSession() {
-    const id = "s_" + Date.now();
-    const session = {
-      id,
-      title: "שיחה חדשה",
-      createdAt: Date.now(),
-      messages: []
-    };
-    sessions.push(session);
-    activeSessionId = id;
-    saveSessions();
-    renderSessionList();
-    renderMessagesForSession(session, { scroll: false });
     if (textarea) {
-      textarea.value = "";
-      textarea.focus();
+      textarea.addEventListener("input", () => autoResizeTextarea(textarea));
+      textarea.addEventListener("focus", () => {
+        setTimeout(() => {
+          messages.scrollTop = messages.scrollHeight;
+        }, 50);
+      });
     }
-  }
 
-  function migrateOldHistoryIfNeeded() {
-    try {
-      const raw = localStorage.getItem(OLD_STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed) || !parsed.length) return;
+    // הופך טקסט רגיל ללינקים לחיצים (עם escape בסיסי)
+    function renderTextWithLinks(text) {
+      if (!text) return "";
+      let escaped = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 
+      const urlRegex = /(https?:\/\/[^\s)]+)/g;
+
+      escaped = escaped.replace(urlRegex, (url) => {
+        let clean = url;
+        let trailing = "";
+
+        while (/[),.!?]$/.test(clean)) {
+          trailing = clean.slice(-1) + trailing;
+          clean = clean.slice(0, -1);
+        }
+
+        return `<a href="${clean}" target="_blank" rel="noopener noreferrer" class="inline-link">🔗 קישור</a>${trailing}`;
+      });
+
+      return escaped;
+    }
+
+    function saveSessions() {
+      try {
+        const payload = {
+          sessions,
+          activeSessionId
+        };
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify(payload));
+      } catch (e) {
+        // לא קריטי אם נכשל – ממשיכים בלי להפיל את ה-UI
+      }
+    }
+
+    function getActiveSession() {
+      return sessions.find((s) => s.id === activeSessionId) || null;
+    }
+
+    function renderMessagesForSession(session, options = {}) {
+      const { scroll = true } = options;
+      if (!messages) return;
+
+      // מסיר את כל השורות הדינמיות ומשאיר את הודעת המערכת
+      const rows = messages.querySelectorAll(".message-row");
+      rows.forEach((r) => r.remove());
+
+      if (!session || !Array.isArray(session.messages)) {
+        if (scroll) messages.scrollTop = messages.scrollHeight;
+        return;
+      }
+
+      session.messages.forEach((m) => {
+        appendMessage(m.text, m.role, { persist: false, scroll: false });
+      });
+
+      if (scroll) {
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+
+    function renderSessionList() {
+      if (!sessionListEl) return;
+      sessionListEl.innerHTML = "";
+
+      sessions.forEach((sess) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className =
+          "session-item" + (sess.id === activeSessionId ? " active" : "");
+        btn.textContent = sess.title || "שיחה ללא כותרת";
+        btn.addEventListener("click", () => {
+          if (sess.id === activeSessionId) return;
+          activeSessionId = sess.id;
+          saveSessions();
+          renderSessionList();
+          renderMessagesForSession(sess, { scroll: false });
+          if (textarea) textarea.focus();
+        });
+        sessionListEl.appendChild(btn);
+      });
+    }
+
+    function createNewSession() {
       const id = "s_" + Date.now();
-      sessions = [
-        {
-          id,
-          title: "שיחה קודמת",
-          createdAt: Date.now(),
-          messages: parsed
-        }
-      ];
+      const session = {
+        id,
+        title: "שיחה חדשה",
+        createdAt: Date.now(),
+        messages: []
+      };
+      sessions.push(session);
       activeSessionId = id;
-      // אופציונלי – ניקוי הישן
-      // localStorage.removeItem(OLD_STORAGE_KEY);
-    } catch (e) {
-      // מתעלמים
+      saveSessions();
+      renderSessionList();
+      renderMessagesForSession(session, { scroll: false });
+      if (textarea) {
+        textarea.value = "";
+        textarea.focus();
+      }
     }
-  }
 
-  function loadSessions() {
-    try {
-      const raw = localStorage.getItem(SESSIONS_KEY);
-      if (raw) {
+    function migrateOldHistoryIfNeeded() {
+      try {
+        const raw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (!raw) return;
         const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.sessions)) {
-          sessions = parsed.sessions;
-          activeSessionId =
-            parsed.activeSessionId ||
-            (parsed.sessions[0] && parsed.sessions[0].id) ||
-            null;
+        if (!Array.isArray(parsed) || !parsed.length) return;
+
+        const id = "s_" + Date.now();
+        sessions = [
+          {
+            id,
+            title: "שיחה קודמת",
+            createdAt: Date.now(),
+            messages: parsed
+          }
+        ];
+        activeSessionId = id;
+        // אופציונלי – ניקוי הישן
+        // localStorage.removeItem(OLD_STORAGE_KEY);
+      } catch (e) {
+        // מתעלמים
+      }
+    }
+
+    function loadSessions() {
+      try {
+        const raw = localStorage.getItem(SESSIONS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.sessions)) {
+            sessions = parsed.sessions;
+            activeSessionId =
+              parsed.activeSessionId ||
+              (parsed.sessions[0] && parsed.sessions[0].id) ||
+              null;
+          }
         }
-      }
 
-      if (!sessions || !sessions.length) {
-        migrateOldHistoryIfNeeded();
-      }
+        if (!sessions || !sessions.length) {
+          migrateOldHistoryIfNeeded();
+        }
 
-      if (!sessions || !sessions.length) {
+        if (!sessions || !sessions.length) {
+          const id = "s_" + Date.now();
+          sessions = [
+            {
+              id,
+              title: "שיחה חדשה",
+              createdAt: Date.now(),
+              messages: []
+            }
+          ];
+          activeSessionId = id;
+        }
+      } catch (e) {
         const id = "s_" + Date.now();
         sessions = [
           {
@@ -1223,351 +1232,339 @@ body {
         ];
         activeSessionId = id;
       }
-    } catch (e) {
-      const id = "s_" + Date.now();
-      sessions = [
-        {
-          id,
-          title: "שיחה חדשה",
-          createdAt: Date.now(),
-          messages: []
-        }
-      ];
-      activeSessionId = id;
-    }
-  }
-
-  function appendMessage(text, role, options = {}) {
-    const { persist = true, scroll = true } = options;
-    if (!messages) return;
-
-    const row = document.createElement("div");
-    row.className = "message-row " + role;
-
-    const avatarWrap = document.createElement("div");
-    avatarWrap.className = "message-avatar";
-    const avatar = document.createElement("div");
-    avatar.className =
-      "avatar-circle " + (role === "user" ? "avatar-user" : "avatar-assistant");
-    avatar.textContent = role === "user" ? "YOU" : "";
-    avatarWrap.appendChild(avatar);
-
-    const contentWrap = document.createElement("div");
-    contentWrap.className = "message-content";
-    const meta = document.createElement("div");
-    meta.className = "message-meta";
-    meta.textContent = role === "user" ? "משתמש" : "DRAFFIQ AI";
-    const body = document.createElement("div");
-    body.innerHTML = renderTextWithLinks(text);
-
-    contentWrap.appendChild(meta);
-    contentWrap.appendChild(body);
-    row.appendChild(contentWrap);
-    row.appendChild(avatarWrap);
-    messages.appendChild(row);
-
-    if (scroll) {
-      messages.scrollTop = messages.scrollHeight;
     }
 
-    if (persist) {
-      const session = getActiveSession();
-      if (session) {
-        // עדכון כותרת שיחה לפי הודעת המשתמש הראשונה
-        if (
-          role === "user" &&
-          Array.isArray(session.messages) &&
-          session.messages.length === 0
-        ) {
-          let title = text.replace(/\s+/g, " ").trim();
-          if (title.length > 28) {
-            title = title.slice(0, 28) + "…";
+    function appendMessage(text, role, options = {}) {
+      const { persist = true, scroll = true } = options;
+      if (!messages) return;
+
+      const row = document.createElement("div");
+      row.className = "message-row " + role;
+
+      const avatarWrap = document.createElement("div");
+      avatarWrap.className = "message-avatar";
+      const avatar = document.createElement("div");
+      avatar.className =
+        "avatar-circle " + (role === "user" ? "avatar-user" : "avatar-assistant");
+      avatar.textContent = role === "user" ? "YOU" : "";
+      avatarWrap.appendChild(avatar);
+
+      const contentWrap = document.createElement("div");
+      contentWrap.className = "message-content";
+      const meta = document.createElement("div");
+      meta.className = "message-meta";
+      meta.textContent = role === "user" ? "משתמש" : "DRAFFIQ AI";
+      const body = document.createElement("div");
+      body.innerHTML = renderTextWithLinks(text);
+
+      contentWrap.appendChild(meta);
+      contentWrap.appendChild(body);
+      row.appendChild(contentWrap);
+      row.appendChild(avatarWrap);
+      messages.appendChild(row);
+
+      if (scroll) {
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      if (persist) {
+        const session = getActiveSession();
+        if (session) {
+          // עדכון כותרת שיחה לפי הודעת המשתמש הראשונה
+          if (
+            role === "user" &&
+            Array.isArray(session.messages) &&
+            session.messages.length === 0
+          ) {
+            let title = text.replace(/\s+/g, " ").trim();
+            if (title.length > 28) {
+              title = title.slice(0, 28) + "…";
+            }
+            session.title = title || "שיחה חדשה";
+            renderSessionList();
           }
-          session.title = title || "שיחה חדשה";
-          renderSessionList();
-        }
 
-        if (!Array.isArray(session.messages)) {
-          session.messages = [];
+          if (!Array.isArray(session.messages)) {
+            session.messages = [];
+          }
+          session.messages.push({ role, text });
+          saveSessions();
         }
-        session.messages.push({ role, text });
-        saveSessions();
       }
     }
-  }
 
-  function appendThinking() {
-    const row = document.createElement("div");
-    row.className = "message-row assistant";
-    row.dataset.thinking = "true";
+    function appendThinking() {
+      const row = document.createElement("div");
+      row.className = "message-row assistant";
+      row.dataset.thinking = "true";
 
-    const avatarWrap = document.createElement("div");
-    avatarWrap.className = "message-avatar";
-    const avatar = document.createElement("div");
-    avatar.className = "avatar-circle avatar-assistant";
-    avatar.textContent = "";
-    avatarWrap.appendChild(avatar);
+      const avatarWrap = document.createElement("div");
+      avatarWrap.className = "message-avatar";
+      const avatar = document.createElement("div");
+      avatar.className = "avatar-circle avatar-assistant";
+      avatar.textContent = "";
+      avatarWrap.appendChild(avatar);
 
-    const contentWrap = document.createElement("div");
-    contentWrap.className = "message-content";
-    const meta = document.createElement("div");
-    meta.className = "message-meta";
-    meta.textContent = "DRAFFIQ AI";
-    const dots = document.createElement("div");
-    dots.className = "thinking-dots";
-    dots.innerHTML = `
-      <span class="thinking-dot"></span>
-      <span class="thinking-dot"></span>
-      <span class="thinking-dot"></span>
-    `;
+      const contentWrap = document.createElement("div");
+      contentWrap.className = "message-content";
+      const meta = document.createElement("div");
+      meta.className = "message-meta";
+      meta.textContent = "DRAFFIQ AI";
+      const dots = document.createElement("div");
+      dots.className = "thinking-dots";
+      dots.innerHTML = `
+        <span class="thinking-dot"></span>
+        <span class="thinking-dot"></span>
+        <span class="thinking-dot"></span>
+      `;
 
-    contentWrap.appendChild(meta);
-    contentWrap.appendChild(dots);
-    row.appendChild(contentWrap);
-    row.appendChild(avatarWrap);
-    messages.appendChild(row);
-    return row;
-  }
-
-  async function callApi(query) {
-    const response = await fetch("/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ query })
-    });
-    if (!response.ok) {
-      let err;
-      try {
-        err = await response.json();
-      } catch {
-        err = {};
-      }
-      throw new Error(err.error || "אירעה תקלה בצד השרת.");
+      contentWrap.appendChild(meta);
+      contentWrap.appendChild(dots);
+      row.appendChild(contentWrap);
+      row.appendChild(avatarWrap);
+      messages.appendChild(row);
+      return row;
     }
-    const data = await response.json();
-    if (!data.ok) {
-      throw new Error(data.error || "אירעה תקלה בצד השרת.");
-    }
-    return data.answer;
-  }
 
-  // מוציא את כל השיחה הנוכחית כטקסט פשוט (לשיתוף)
-  function getConversationPlainText() {
-    const session = getActiveSession();
-    if (session && Array.isArray(session.messages) && session.messages.length > 0) {
-      return session.messages
-        .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
-        .join("\n\n");
-    }
-    const rows = messages.querySelectorAll(".message-row");
-    const parts = [];
-    rows.forEach((row) => {
-      const isUser = row.classList.contains("user");
-      const label = isUser ? "YOU" : "DRAFFIQ";
-      const contentEl = row.querySelector(".message-content");
-      if (!contentEl) return;
-      const text = contentEl.innerText.trim();
-      if (!text) return;
-      parts.push(label + ":\n" + text);
-    });
-    return parts.join("\n\n");
-  }
-
-  // הדפסה / PDF
-  if (printBtn) {
-    printBtn.addEventListener("click", () => {
-      window.print();
-    });
-  }
-
-  // שיתוף לסלולאר (Web Share API + fallback)
-  if (shareBtn) {
-    shareBtn.addEventListener("click", async () => {
-      const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
-      const title = "DRAFFIQ – שיחת מחקר";
-      const url = window.location.href;
-      if (navigator.share) {
+    async function callApi(query) {
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query })
+      });
+      if (!response.ok) {
+        let err;
         try {
-          await navigator.share({ title, text, url });
-        } catch (e) {
-          // אם המשתמש ביטל – מתעלמים
-        }
-      } else {
-        try {
-          await navigator.clipboard.writeText(text + "\n\n" + url);
-          alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק ידנית באפליקציית שיתוף.");
+          err = await response.json();
         } catch {
-          alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
+          err = {};
         }
+        throw new Error(err.error || "אירעה תקלה בצד השרת.");
       }
-    });
-  }
-
-  // פונקציות לדף הנחיתה (וילון) – עצירה עד לחיצה על CTA
-  function hideLandingOverlay() {
-    if (!landingOverlay || landingOverlay.classList.contains("hidden")) return;
-    landingOverlay.classList.add("hidden");
-    if (chatSection && typeof chatSection.scrollIntoView === "function") {
-      chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      const data = await response.json();
+      if (!data.ok) {
+        throw new Error(data.error || "אירעה תקלה בצד השרת.");
+      }
+      return data.answer;
     }
-  }
 
-  if (landingCta) {
-    landingCta.addEventListener("click", hideLandingOverlay);
-  }
+    // מוציא את כל השיחה הנוכחית כטקסט פשוט (לשיתוף)
+    function getConversationPlainText() {
+      const session = getActiveSession();
+      if (session && Array.isArray(session.messages) && session.messages.length > 0) {
+        return session.messages
+          .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
+          .join("\n\n");
+      }
+      const rows = messages.querySelectorAll(".message-row");
+      const parts = [];
+      rows.forEach((row) => {
+        const isUser = row.classList.contains("user");
+        const label = isUser ? "YOU" : "DRAFFIQ";
+        const contentEl = row.querySelector(".message-content");
+        if (!contentEl) return;
+        const text = contentEl.innerText.trim();
+        if (!text) return;
+        parts.push(label + ":\n" + text);
+      });
+      return parts.join("\n\n");
+    }
 
-  function handleNewChatClick() {
-    createNewSession();
-    if (menuDropdown) menuDropdown.classList.remove("open");
-  }
+    // הדפסה / PDF
+    if (printBtn) {
+      printBtn.addEventListener("click", () => {
+        window.print();
+      });
+    }
 
-  if (newBtn) {
-    newBtn.addEventListener("click", handleNewChatClick);
-  }
+    // שיתוף לסלולאר (Web Share API + fallback)
+    if (shareBtn) {
+      shareBtn.addEventListener("click", async () => {
+        const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
+        const title = "DRAFFIQ – שיחת מחקר";
+        const url = window.location.href;
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, text, url });
+          } catch (e) {
+            // אם המשתמש ביטל – מתעלמים
+          }
+        } else {
+          try {
+            await navigator.clipboard.writeText(text + "\n\n" + url);
+            alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק ידנית באפליקציית שיתוף.");
+          } catch {
+            alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
+          }
+        }
+      });
+    }
 
-  if (sidebarNewBtn) {
-    sidebarNewBtn.addEventListener("click", handleNewChatClick);
-  }
-
-  // תפריט ניווט
-  function toggleMenu() {
-    if (!menuDropdown) return;
-    menuDropdown.classList.toggle("open");
-  }
-
-  if (menuBtn) {
-    menuBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleMenu();
-    });
-  }
-
-  if (homeLink) {
-    homeLink.addEventListener("click", () => {
-      window.location.href = "/";
-    });
-  }
-
-  if (chatLink) {
-    chatLink.addEventListener("click", () => {
+    // פונקציות לדף הנחיתה (וילון) – עצירה עד לחיצה על CTA
+    function hideLandingOverlay() {
+      if (!landingOverlay || landingOverlay.classList.contains("hidden")) return;
+      landingOverlay.classList.add("hidden");
       if (chatSection && typeof chatSection.scrollIntoView === "function") {
         chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-      if (menuDropdown) menuDropdown.classList.remove("open");
-    });
-  }
-
-  // סגירת תפריט בלחיצה מחוץ
-  document.addEventListener("click", (e) => {
-    if (!menuDropdown || !menuDropdown.classList.contains("open")) return;
-    const target = e.target;
-    if (
-      target === menuBtn ||
-      (menuBtn && menuBtn.contains(target)) ||
-      menuDropdown.contains(target)
-    ) {
-      return;
     }
-    menuDropdown.classList.remove("open");
-  });
 
-  // רינדור כפתורי הדוגמאות
-  function renderPromptExamples() {
-    const container = document.getElementById("promptExamplesContainer");
-    if (!container || !textarea) return;
+    if (landingCta) {
+      landingCta.addEventListener("click", hideLandingOverlay);
+    }
 
-    const buttonsHtml = EXAMPLE_PROMPTS.map(
-      (ex, idx) => `
-        <button type="button" class="example-btn" data-idx="${idx}">
-          ${ex.label}
-        </button>
-      `
-    ).join("");
+    function handleNewChatClick() {
+      createNewSession();
+      if (menuDropdown) menuDropdown.classList.remove("open");
+    }
 
-    container.innerHTML = `
-      <div class="prompt-examples">
-        <span class="examples-label">דוגמאות לשאילתות:</span>
-        ${buttonsHtml}
-      </div>
-    `;
+    if (newBtn) {
+      newBtn.addEventListener("click", handleNewChatClick);
+    }
 
-    container.addEventListener("click", (e) => {
-      const btn = e.target.closest(".example-btn");
-      if (!btn) return;
-      const idx = btn.getAttribute("data-idx");
-      const example = EXAMPLE_PROMPTS[idx];
-      if (!example) return;
-      textarea.value = example.text;
-      autoResizeTextarea(textarea);
-      textarea.focus();
-    });
-  }
+    if (sidebarNewBtn) {
+      sidebarNewBtn.addEventListener("click", handleNewChatClick);
+    }
 
-  // מצב עבודה – Quick / Deep
-  function setupModeToggle() {
-    const buttons = document.querySelectorAll(".mode-btn");
-    if (!buttons.length) return;
+    // תפריט ניווט
+    function toggleMenu() {
+      if (!menuDropdown) return;
+      menuDropdown.classList.toggle("open");
+    }
 
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        buttons.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        const mode = btn.getAttribute("data-mode");
-        currentMode = mode === "deep" ? "deep" : "quick";
+    if (menuBtn) {
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleMenu();
       });
-    });
-  }
+    }
 
-  window.addEventListener("DOMContentLoaded", () => {
-    setViewportHeight();
-    loadSessions();
-    renderSessionList();
-    renderMessagesForSession(getActiveSession(), { scroll: false });
-    renderPromptExamples();
-    setupModeToggle();
-  });
+    if (homeLink) {
+      homeLink.addEventListener("click", () => {
+        window.location.href = "/";
+      });
+    }
 
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const rawQuery = textarea.value.trim();
-      if (!rawQuery) return;
+    if (chatLink) {
+      chatLink.addEventListener("click", () => {
+        if (chatSection && typeof chatSection.scrollIntoView === "function") {
+          chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        if (menuDropdown) menuDropdown.classList.remove("open");
+      });
+    }
 
-      const modePrefix =
-        currentMode === "deep"
-          ? "מצב עבודה: Deep-Dive – ניתוח עומק. "
-          : "מצב עבודה: Quick-Scan – סריקה מהירה. ";
-
-      const finalQuery = modePrefix + rawQuery;
-
-      appendMessage(finalQuery, "user", { scroll: true });
-      textarea.value = "";
-      autoResizeTextarea(textarea);
-      textarea.focus();
-      sendBtn.disabled = true;
-      const originalLabel = sendBtn.querySelector(".label").textContent;
-      sendBtn.querySelector(".label").textContent = "מעבד...";
-      const thinkingRow = appendThinking();
-      try {
-        const answer = await callApi(finalQuery);
-        thinkingRow.remove();
-        appendMessage(answer, "assistant", { scroll: false });
-      } catch (err) {
-        thinkingRow.remove();
-        appendMessage(
-          "הייתה בעיה בעיבוד הבקשה: " + (err.message || "שגיאה לא ידועה."),
-          "assistant",
-          { scroll: false }
-        );
-      } finally {
-        sendBtn.disabled = false;
-        sendBtn.querySelector(".label").textContent = originalLabel;
+    // סגירת תפריט בלחיצה מחוץ
+    document.addEventListener("click", (e) => {
+      if (!menuDropdown || !menuDropdown.classList.contains("open")) return;
+      const target = e.target;
+      if (
+        target === menuBtn ||
+        (menuBtn && menuBtn.contains(target)) ||
+        menuDropdown.contains(target)
+      ) {
+        return;
       }
+      menuDropdown.classList.remove("open");
     });
-  }
-</script>
+
+    // רינדור כפתורי הדוגמאות
+    function renderPromptExamples() {
+      const container = document.getElementById("promptExamplesContainer");
+      if (!container || !textarea) return;
+
+      const buttonsHtml = EXAMPLE_PROMPTS.map(
+        (ex, idx) => `
+          <button type="button" class="example-btn" data-idx="${idx}">
+            ${ex.label}
+          </button>
+        `
+      ).join("");
+
+      container.innerHTML = `
+        <div class="prompt-examples">
+          <span class="examples-label">דוגמאות לשאילתות:</span>
+          ${buttonsHtml}
+        </div>
+      `;
+
+      container.addEventListener("click", (e) => {
+        const btn = e.target.closest(".example-btn");
+        if (!btn) return;
+        const idx = btn.getAttribute("data-idx");
+        const example = EXAMPLE_PROMPTS[idx];
+        if (!example) return;
+        textarea.value = example.text;
+        autoResizeTextarea(textarea);
+        textarea.focus();
+      });
+    }
+
+    // מצב עבודה – Quick / Deep
+    function setupModeToggle() {
+      const buttons = document.querySelectorAll(".mode-btn");
+      if (!buttons.length) return;
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          const mode = btn.getAttribute("data-mode");
+          currentMode = mode === "deep" ? "deep" : "quick";
+        });
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      setViewportHeight();
+      loadSessions();
+      renderSessionList();
+      renderMessagesForSession(getActiveSession(), { scroll: false });
+      renderPromptExamples();
+      setupModeToggle();
+    });
+
+    if (form) {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const rawQuery = textarea.value.trim();
+        if (!rawQuery) return;
+
+        const modePrefix =
+          currentMode === "deep"
+            ? "מצב עבודה: Deep-Dive – ניתוח עומק. "
+            : "מצב עבודה: Quick-Scan – סריקה מהירה. ";
+
+        const finalQuery = modePrefix + rawQuery;
+
+        appendMessage(finalQuery, "user", { scroll: true });
+        textarea.value = "";
+        autoResizeTextarea(textarea);
+        textarea.focus();
+        sendBtn.disabled = true;
+        const originalLabel = sendBtn.querySelector(".label").textContent;
+        sendBtn.querySelector(".label").textContent = "מעבד...";
+        const thinkingRow = appendThinking();
+        try {
+          const answer = await callApi(finalQuery);
+          thinkingRow.remove();
+          appendMessage(answer, "assistant", { scroll: false });
+        } catch (err) {
+          thinkingRow.remove();
+          appendMessage(
+            "הייתה בעיה בעיבוד הבקשה: " + (err.message || "שגיאה לא ידועה."),
+            "assistant",
+            { scroll: false }
+          );
+        } finally {
+          sendBtn.disabled = false;
+          sendBtn.querySelector(".label").textContent = originalLabel;
+        }
+      });
+    }
+  </script>
 
 </body>
 
