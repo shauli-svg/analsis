@@ -725,7 +725,6 @@
       margin-bottom: 2px;
     }
 
-    .meta-field input,
     .meta-field select {
       border-radius: 999px;
       border: 1px solid var(--border-subtle);
@@ -772,16 +771,16 @@
 
     .extra-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
     .action-pill {
       background: transparent;
       border: none;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       cursor: pointer;
-      padding: 4px 8px;
+      padding: 3px 7px;
       border-radius: 6px;
     }
 
@@ -852,10 +851,6 @@
     }
 
     @media (max-width: 900px) {
-      .sidebar {
-        display: none;
-      }
-
       .app-shell {
         padding: 10px;
       }
@@ -865,16 +860,47 @@
       }
 
       #messages {
-        padding: 15px;
+        padding: 12px;
       }
 
       .message-content {
         max-width: 90%;
       }
 
-      .meta-row {
-        flex-direction: column;
-        align-items: flex-start;
+      .input-area-wrapper {
+        padding: 10px 10px 12px;
+      }
+
+      .input-box-container {
+        border-radius: 18px;
+        padding: 4px 6px 4px 12px;
+        box-shadow: var(--shadow-md);
+      }
+
+      .textarea-row {
+        gap: 6px;
+      }
+
+      textarea {
+        max-height: 60px;
+      }
+
+      .send-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+        margin-bottom: 1px;
+      }
+
+      /* במובייל – לא להעמיס מתחת לאזור הטקסט */
+      .meta-row,
+      .examples-container {
+        display: none;
+      }
+
+      .tools-row {
+        padding-top: 0;
+        justify-content: flex-end;
       }
 
       .meta-inline {
@@ -892,7 +918,7 @@
       <div class="landing-icon"></div>
       <div style="text-align:center;">
         <h1 class="landing-title">DRAFFIQ AI</h1>
-        <div class="landing-subtitle">מודיעין עסקי לשוק ההון</div>
+        <div class="landing-subtitle">מודיעין עסקי לשוק ההון הישראלי</div>
       </div>
       <button type="button" id="landing-cta" class="landing-cta">
         <span>כניסה למערכת</span>
@@ -908,7 +934,7 @@
         <div class="brand-logo-small">DF</div>
         <div class="brand-text">
           <h1>DRAFFIQ</h1>
-          <span>Financial Intelligence</span>
+          <span>מודיעין עסקי לשוק ההון הישראלי</span>
         </div>
       </div>
 
@@ -933,7 +959,6 @@
         <div class="sidebar-header">
           <span class="sidebar-title">היסטוריית שיחות</span>
           <div class="sidebar-header-actions">
-            <!-- רק כפתור שיחה חדשה בצד -->
             <button id="sidebar-new-btn" title="שיחה חדשה">+</button>
           </div>
         </div>
@@ -954,8 +979,6 @@
             </ul>
             <div class="system-hero-hint">
               ברירת המחדל היא מענה רגיל. אפשר להדליק <strong>Deep Dive</strong> לניתוח מעמיק יותר באותה שיחה.
-              <br>
-              מומלץ למלא טיקר/ISIN ולבחור סוג נכס כדי לחדד את התשובה.
             </div>
           </div>
 
@@ -981,7 +1004,7 @@
                 <button type="submit" id="send-btn" class="send-btn">➤</button>
               </div>
 
-              <!-- מצבי עבודה + שדות מטא -->
+              <!-- מצבי עבודה + שדות מטא (בלי טיקר) -->
               <div class="meta-row">
                 <div class="work-modes">
                   <span class="work-modes-label">מצב מחקר:</span>
@@ -993,10 +1016,6 @@
                 </div>
 
                 <div class="meta-inline">
-                  <div class="meta-field">
-                    <label for="asset-id">טיקר / ISIN / שם</label>
-                    <input id="asset-id" type="text" placeholder="לדוגמה: POAL, IL0006320163">
-                  </div>
                   <div class="meta-field">
                     <label for="asset-type">סוג נכס</label>
                     <select id="asset-type">
@@ -1013,7 +1032,6 @@
 
               <div class="tools-row">
                 <div class="mode-switch">
-                  <!-- רק Deep Dive כ-toggle -->
                   <button type="button" class="mode-option" id="deep-mode-btn" data-mode="deep">
                     Deep Dive
                   </button>
@@ -1059,7 +1077,6 @@
     const sessionListEl = document.getElementById("session-list");
     const sidebarNewBtn = document.getElementById("sidebar-new-btn");
     const deepModeBtn = document.getElementById("deep-mode-btn");
-    const assetIdInput = document.getElementById("asset-id");
     const assetTypeSelect = document.getElementById("asset-type");
 
     let sessions = [];
@@ -1483,9 +1500,6 @@
         }
         if (assetTypeSelect && assetTypeSelect.value) {
           metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
-        }
-        if (assetIdInput && assetIdInput.value.trim()) {
-          metaParts.push(`ASSET_ID=${assetIdInput.value.trim()}`);
         }
 
         const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
