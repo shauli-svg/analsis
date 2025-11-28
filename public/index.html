@@ -529,16 +529,66 @@
       border: 1px dashed #cbd5e1;
       padding: 16px;
       border-radius: var(--radius-md);
-      text-align: center;
+      text-align: right;
       font-size: 0.85rem;
       color: var(--text-muted);
-      margin: 20px auto;
-      max-width: 600px;
+      margin: 12px auto;
+      max-width: 700px;
+    }
+
+    .system-hero-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .system-hero-sub {
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .system-hero-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 8px 0;
+    }
+
+    .system-hero-list li {
+      margin-bottom: 4px;
+    }
+
+    .system-hero-list li::before {
+      content: "• ";
+    }
+
+    .system-hero-hint {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .system-about-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .system-about-cta {
+      margin-top: 6px;
+      font-size: 0.8rem;
+    }
+
+    .system-about-cta a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    .system-about-cta a:hover {
+      text-decoration: underline;
     }
 
     /* Input Area */
     .input-area-wrapper {
-      padding: 20px;
+      padding: 16px 20px 18px;
       background: linear-gradient(to top, #ffffff 80%, rgba(255, 255, 255, 0));
       z-index: 10;
     }
@@ -549,11 +599,11 @@
       background: #ffffff;
       border: 1px solid var(--border-subtle);
       border-radius: 24px;
-      padding: 8px 8px 8px 16px;
+      padding: 6px 8px 6px 16px;
       box-shadow: var(--shadow-float);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
@@ -573,13 +623,13 @@
       border: none;
       resize: none;
       background: transparent;
-      max-height: 120px;
-      min-height: 24px;
-      height: 24px;
+      max-height: 80px;
+      min-height: 20px;
+      height: 20px;
       font-family: inherit;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      padding: 10px 0;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      padding: 6px 0;
       color: var(--primary);
     }
 
@@ -588,8 +638,8 @@
     }
 
     .send-btn {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       border: none;
       background: var(--primary);
@@ -600,7 +650,8 @@
       cursor: pointer;
       flex-shrink: 0;
       transition: transform 0.1s, background 0.2s;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+      font-size: 0.9rem;
     }
 
     .send-btn:disabled {
@@ -612,11 +663,83 @@
       transform: scale(1.05);
     }
 
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .work-modes {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .work-modes-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .work-modes-pills {
+      display: flex;
+      gap: 4px;
+    }
+
+    .work-mode-option {
+      border: none;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      background: #f3f4f6;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .work-mode-option.active {
+      background: #111827;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .meta-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-inline-start: auto;
+    }
+
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      min-width: 120px;
+    }
+
+    .meta-field label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .meta-field input,
+    .meta-field select {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      background: #f9fafb;
+      outline: none;
+    }
+
     .tools-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 4px;
+      padding-top: 2px;
       padding-inline-end: 8px;
     }
 
@@ -637,6 +760,7 @@
       cursor: pointer;
       color: var(--text-muted);
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .mode-option.active {
@@ -747,6 +871,16 @@
       .message-content {
         max-width: 90%;
       }
+
+      .meta-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .meta-inline {
+        width: 100%;
+        justify-content: flex-start;
+      }
     }
   </style>
 </head>
@@ -809,9 +943,33 @@
       <main class="chat-panel" id="chat-section">
         <div id="messages">
           <div class="message system">
-            <strong>ברוכים הבאים ל-DRAFFIQ AI</strong><br>
-            המערכת מתמחה בניתוח דוחות, אג"ח ומניות בשוק ההון הישראלי.<br>
-            ברירת המחדל היא מענה רגיל; ניתן להפעיל מצב Deep-Dive לניתוח מעמיק.
+            <div class="system-hero-title">יחידת מחקר לשוק ההון הישראלי</div>
+            <div class="system-hero-sub">
+              כתוב שאלת מחקר כפי שהיית מנסח לאנליסט בכיר – DRAFFIQ AI ממפה עבורך סיכונים, הזדמנויות ותסריטים קדימה.
+            </div>
+            <ul class="system-hero-list">
+              <li>ניתוח מניות, אג"ח וסקטורים עם דגש על איכות דוחות, מינוף ותזרים.</li>
+              <li>מיצוב החברה מול מתחרות, מגמות סקטור ותמחור ביחס לסיכון.</li>
+              <li>מיקוד בנקודות שכדאי לחפור בהן ידנית – לא החלפה של בדיקה אנושית.</li>
+            </ul>
+            <div class="system-hero-hint">
+              ברירת המחדל היא מענה רגיל. אפשר להדליק <strong>Deep Dive</strong> לניתוח מעמיק יותר באותה שיחה.
+              <br>
+              מומלץ למלא טיקר/ISIN ולבחור סוג נכס כדי לחדד את התשובה.
+            </div>
+          </div>
+
+          <div class="message system">
+            <div class="system-about-title">מי עומד מאחורי DRAFFIQ?</div>
+            <div>
+              המערכת נשענת על ניתוח טקסטואלי מתקדם, שילוב בין קריאת דוחות, חדשות ושיח שוק, יחד עם מתודולוגיות מחקר
+              מעולמות פיננסים וניתוח התנהגותי.
+              המטרה: לא "צ'אט־בוט חכם", אלא שכבת חשיבה שעוזרת לך להבין מה חשוב לקרוא ומה אפשר לדלג.
+            </div>
+            <div class="system-about-cta">
+              רוצה לחבר את DRAFFIQ למחלקת המחקר או לקבל גישה מתקדמת (API / התאמה ספציפית)?
+              ניתן לפנות לכתובת המייל: <a href="mailto:info@draffiq.com">info@draffiq.com</a>
+            </div>
           </div>
         </div>
 
@@ -821,6 +979,36 @@
               <div class="textarea-row">
                 <textarea id="query" name="query" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
                 <button type="submit" id="send-btn" class="send-btn">➤</button>
+              </div>
+
+              <!-- מצבי עבודה + שדות מטא -->
+              <div class="meta-row">
+                <div class="work-modes">
+                  <span class="work-modes-label">מצב מחקר:</span>
+                  <div class="work-modes-pills">
+                    <button type="button" class="work-mode-option active" data-mode="stock">מניות</button>
+                    <button type="button" class="work-mode-option" data-mode="bond">אג"ח</button>
+                    <button type="button" class="work-mode-option" data-mode="sector">סקטורים</button>
+                  </div>
+                </div>
+
+                <div class="meta-inline">
+                  <div class="meta-field">
+                    <label for="asset-id">טיקר / ISIN / שם</label>
+                    <input id="asset-id" type="text" placeholder="לדוגמה: POAL, IL0006320163">
+                  </div>
+                  <div class="meta-field">
+                    <label for="asset-type">סוג נכס</label>
+                    <select id="asset-type">
+                      <option value="">ללא</option>
+                      <option value="equity">מניה</option>
+                      <option value="bond_gov">אג"ח ממשלתי</option>
+                      <option value="bond_corp">אג"ח קונצרני</option>
+                      <option value="fund">קרן / ETF</option>
+                      <option value="index">מדד</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
               <div class="tools-row">
@@ -871,17 +1059,20 @@
     const sessionListEl = document.getElementById("session-list");
     const sidebarNewBtn = document.getElementById("sidebar-new-btn");
     const deepModeBtn = document.getElementById("deep-mode-btn");
+    const assetIdInput = document.getElementById("asset-id");
+    const assetTypeSelect = document.getElementById("asset-type");
 
     let sessions = [];
     let activeSessionId = null;
     // ברירת מחדל – מצב רגיל, אפשר להפעיל Deep Dive כ-toggle
     let currentMode = "normal";
+    let currentWorkMode = "stock";
 
     const EXAMPLE_PROMPTS = [
-      { label: "ניתוח מניה", text: "תן לי ניתוח על מניית פועלים, דגש על תשואת דיבידנד." },
-      { label: "השוואת אג\"ח", text: "השווה בין אג\"ח ממשלתי שקלי לאג\"ח קונצרני בדירוג AA." },
-      { label: "סקטור נדל\"ן", text: "מהם הסיכונים המרכזיים כיום בסקטור הנדל\"ן המניב?" },
-      { label: "דוח אחרון", text: "בצע ניתוח על הדוח האחרון של בזק, במיוחד Red Flags פוטנציאליים." }
+      { label: "מפת סיכונים למניה", text: "בנה לי מפת סיכונים והזדמנויות למניית פועלים לשנתיים הקרובות." },
+      { label: "השוואת אג\"ח", text: "השווה בין אג\"ח ממשלתי שקלי ל-10 שנים לבין אג\"ח קונצרני בדירוג AA באותו מח\"מ." },
+      { label: "סקטור נדל\"ן", text: "מהם הסיכונים המרכזיים כיום בסקטור הנדל\"ן המניב בישראל, ואילו תרחישים יכולים לשנות את הכיוון?" },
+      { label: "דוח אחרון", text: "בצע ניתוח על הדוח האחרון של בזק, עם דגש על תזרים מזומנים ו-Red Flags פוטנציאליים." }
     ];
 
     function setViewportHeight() {
@@ -894,7 +1085,7 @@
     function autoResizeTextarea(el) {
       if (!el) return;
       el.style.height = 'auto';
-      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+      el.style.height = Math.min(el.scrollHeight, 80) + 'px';
     }
 
     if (textarea) {
@@ -1253,6 +1444,19 @@
       });
     }
 
+    function setupWorkModes() {
+      const buttons = document.querySelectorAll(".work-mode-option");
+      if (!buttons.length) return;
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const mode = btn.getAttribute("data-mode");
+          currentWorkMode = mode || "stock";
+        });
+      });
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       setViewportHeight();
       loadSessions();
@@ -1260,6 +1464,7 @@
       renderMessagesForSession(getActiveSession(), { scroll: false });
       renderPromptExamples();
       setupModeToggle();
+      setupWorkModes();
     });
 
     if (form) {
@@ -1271,11 +1476,25 @@
         // מה שהמשתמש רואה בצ'אט
         appendMessage(raw, "user");
 
+        // מטא־דאטה לחידוד ההקשר
+        const metaParts = [];
+        if (currentWorkMode) {
+          metaParts.push(`WORK_MODE=${currentWorkMode}`);
+        }
+        if (assetTypeSelect && assetTypeSelect.value) {
+          metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
+        }
+        if (assetIdInput && assetIdInput.value.trim()) {
+          metaParts.push(`ASSET_ID=${assetIdInput.value.trim()}`);
+        }
+
+        const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
+
         // מה שהשרת מקבל – כולל אינדיקציה למצב Deep Dive בלבד
         const queryForApi =
           currentMode === "deep"
-            ? "DEEP_DIVE: " + raw
-            : raw;
+            ? metaPrefix + "DEEP_DIVE: " + raw
+            : metaPrefix + raw;
 
         if (textarea) {
           textarea.value = "";
