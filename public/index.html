@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <title>DRAFFIQ AI – TASE Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -13,37 +13,44 @@
   <style>
     :root {
       /* Palette - Clean Fintech */
-      --primary: #111827;       /* כהה מאוד, כמעט שחור */
+      --primary: #111827;
       --primary-hover: #000000;
-      
-      --bg-app: #f3f5f9;        /* רקע כללי רך */
-      --bg-panel: #ffffff;      /* רקע כרטיסיות */
-      
-      --bubble-user: #1f2937;   /* בועת משתמש - כהה */
+
+      --bg-app: #f3f5f9;
+      --bg-panel: #ffffff;
+
+      --bubble-user: #1f2937;
       --text-user: #ffffff;
-      
-      --bubble-ai: #f4f6f8;     /* בועת AI - אפור בהיר */
+
+      --bubble-ai: #f4f6f8;
       --text-ai: #111827;
-      
+
       --border-subtle: #e5e7eb;
       --text-muted: #6b7280;
-      
+
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 20px;
       --radius-xl: 28px;
-      
+
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1);
       --shadow-float: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
 
       --vh: 1vh;
     }
 
-    * { box-sizing: border-box; outline: none; }
+    * {
+      box-sizing: border-box;
+      outline: none;
+    }
 
-    html, body {
-      margin: 0; padding: 0; height: 100%;
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
     }
 
     body {
@@ -52,238 +59,398 @@
       color: var(--primary);
       display: flex;
       flex-direction: column;
-      overflow: hidden; /* מונע גלילה כפולה בדף הראשי */
+      overflow: hidden;
     }
 
-    /* ===== Scrollbar Styling ===== */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 99px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
 
     /* ===== Landing Overlay ===== */
     .landing-overlay {
-      position: fixed; inset: 0; z-index: 999;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
       background: #ffffff;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: opacity 0.5s ease, visibility 0.5s;
     }
+
     .landing-overlay.hidden {
-      opacity: 0; pointer-events: none; visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
     }
+
     .landing-content {
-      position: relative; z-index: 10;
-      display: flex; flex-direction: column; align-items: center; gap: 24px;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
       animation: fadeInLogin 0.8s ease-out;
     }
+
+    /* לוגו מסך פתיחה – חזרה לסגנון red-dot */
     .landing-icon {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #ffffff, #d1d5db);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
-      position: relative;
-      overflow: hidden;
-    }
-    /* Red dot inside logo */
-    .landing-icon::after {
-      content: ''; position: absolute; top: 22%; left: 22%;
-      width: 14px; height: 14px; background: #ef4444; border-radius: 50%;
-      box-shadow: 0 0 10px rgba(239,68,68,0.6);
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 24%, #9ca3af 100%);
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.8),
+        0 18px 30px rgba(15, 23, 42, 0.25);
     }
 
     .landing-title {
-      font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
       background: linear-gradient(135deg, #111827 0%, #4b5563 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       margin: 0;
     }
+
     .landing-subtitle {
-      font-size: 1rem; color: var(--text-muted); font-weight: 400; margin-top: -12px;
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-top: -12px;
     }
 
-    /* תיקון הכפתור בדף הנחיתה - נקי */
     .landing-cta {
       margin-top: 12px;
       background: transparent;
       color: var(--primary);
       border: 1px solid var(--primary);
       padding: 10px 28px;
-      font-size: 0.95rem; font-weight: 500;
+      font-size: 0.95rem;
+      font-weight: 500;
       border-radius: 99px;
       cursor: pointer;
       transition: all 0.2s ease;
-      display: inline-flex; align-items: center; gap: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
-    /* הסרת המסגרת האפורה במעבר עכבר - הופך לשחור מלא */
+
     .landing-cta:hover {
       background: var(--primary);
       color: #ffffff;
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      border-color: var(--primary); /* נשאר אותו צבע כדי למנוע קפיצה */
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary);
     }
 
     @keyframes fadeInLogin {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ===== Top Bar ===== */
     .top-bar {
-      height: 64px; flex-shrink: 0;
-      background: rgba(255,255,255,0.85);
+      height: 64px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      display: flex; align-items: center; justify-content: center;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .top-bar-inner {
-      width: 100%; max-width: 1400px; padding: 0 24px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-logo-small {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: #e5e7eb; position: relative;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: bold; font-size: 10px; color: #374151;
-    }
-    .brand-logo-small::after {
-      content:''; width:6px; height:6px; background:#ef4444; border-radius:50%;
-      position: absolute; top:6px; left:6px;
-    }
-    .brand-text h1 {
-      font-size: 1rem; font-weight: 700; margin: 0; letter-spacing: -0.5px;
-    }
-    .brand-text span {
-      font-size: 0.75rem; color: var(--text-muted); display: block;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .top-actions { display: flex; align-items: center; gap: 12px; }
-    
-    .status-badge {
-      font-size: 0.7rem; background: #f3f4f6; color: var(--text-muted);
-      padding: 4px 10px; border-radius: 6px; font-weight: 500;
-      display: none; /* Mobile hidden */
+    .top-bar-inner {
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    @media (min-width: 768px) { .status-badge { display: block; } }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* לוגו למעלה – חזרה ל-red-dot שלך */
+    .brand-logo-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 22%, #9ca3af 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #f9fafb;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.6),
+        0 4px 10px rgba(15, 23, 42, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      font-size: 0.7rem;
+      background: #f3f4f6;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .status-badge {
+        display: block;
+      }
+    }
 
     .icon-btn {
-      background: transparent; border: none; font-size: 1.2rem;
-      cursor: pointer; padding: 8px; border-radius: 8px;
-      color: var(--primary); transition: background 0.2s;
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      color: var(--primary);
+      transition: background 0.2s;
     }
-    .icon-btn:hover { background: #f3f4f6; }
+
+    .icon-btn:hover {
+      background: #f3f4f6;
+    }
 
     .new-chat-btn-top {
-      background: var(--primary); color: #fff;
-      border: none; padding: 8px 16px; border-radius: 99px;
-      font-size: 0.85rem; font-weight: 500; cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       transition: transform 0.1s;
     }
-    .new-chat-btn-top:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-    /* Dropdown Menu */
+    .new-chat-btn-top:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
     .menu-dropdown {
-      position: absolute; top: 60px; left: 24px; /* RTL fix: left aligns to end */
-      background: #fff; border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md); box-shadow: var(--shadow-md);
-      padding: 6px; display: none; min-width: 180px; z-index: 200;
+      position: absolute;
+      top: 60px;
+      left: 24px;
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      padding: 6px;
+      display: none;
+      min-width: 180px;
+      z-index: 200;
     }
-    .menu-dropdown.open { display: flex; flex-direction: column; }
+
+    .menu-dropdown.open {
+      display: flex;
+      flex-direction: column;
+    }
+
     .menu-item {
-      text-align: right; background: none; border: none;
-      padding: 10px 14px; width: 100%; border-radius: 6px;
-      font-size: 0.9rem; cursor: pointer; color: var(--primary);
+      text-align: right;
+      background: none;
+      border: none;
+      padding: 10px 14px;
+      width: 100%;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--primary);
     }
-    .menu-item:hover { background: #f9fafb; }
+
+    .menu-item:hover {
+      background: #f9fafb;
+    }
 
     /* ===== Main Layout ===== */
     .app-shell {
-      flex: 1; overflow: hidden;
-      display: flex; justify-content: center;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
       padding: 20px;
     }
+
     .app-container {
-      width: 100%; max-width: 1400px;
-      display: flex; gap: 20px; height: 100%;
+      width: 100%;
+      max-width: 1400px;
+      display: flex;
+      gap: 20px;
+      height: 100%;
     }
 
     /* Sidebar */
     .sidebar {
-      width: 260px; flex-shrink: 0;
+      width: 260px;
+      flex-shrink: 0;
       background: var(--bg-panel);
       border-radius: var(--radius-lg);
-      border: 1px solid rgba(0,0,0,0.04);
-      display: flex; flex-direction: column;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
       padding: 16px;
       box-shadow: var(--shadow-sm);
     }
+
     .sidebar-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
     }
-    .sidebar-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-    
+
+    .sidebar-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
     .session-list {
-      flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
+
     .session-item {
-      text-align: right; border: none; background: transparent;
-      padding: 10px 12px; border-radius: var(--radius-sm);
-      font-size: 0.85rem; color: #374151; cursor: pointer;
+      text-align: right;
+      border: none;
+      background: transparent;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: #374151;
+      cursor: pointer;
       transition: background 0.15s;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .session-item:hover { background: #f3f4f6; }
-    .session-item.active { background: #eff6ff; color: #1d4ed8; font-weight: 500; }
+
+    .session-item:hover {
+      background: #f3f4f6;
+    }
+
+    .session-item.active {
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 500;
+    }
 
     /* Chat Area */
     .chat-panel {
-      flex: 1; min-width: 0;
+      flex: 1;
+      min-width: 0;
       background: var(--bg-panel);
       border-radius: var(--radius-lg);
-      border: 1px solid rgba(0,0,0,0.04);
+      border: 1px solid rgba(0, 0, 0, 0.04);
       box-shadow: var(--shadow-sm);
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
       position: relative;
     }
 
-    /* Messages */
     #messages {
-      flex: 1; overflow-y: auto;
+      flex: 1;
+      overflow-y: auto;
       padding: 20px 40px;
-      display: flex; flex-direction: column; gap: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
       scroll-behavior: smooth;
     }
 
-    /* Modern Bubble System */
     .message-row {
-      display: flex; width: 100%;
+      display: flex;
+      width: 100%;
       margin-bottom: 8px;
     }
-    
-    /* User: Right side, Dark bubble */
+
     .message-row.user {
-      justify-content: flex-start; /* RTL: Start is Right */
+      justify-content: flex-start;
     }
+
     .message-row.user .message-content {
       background: var(--bubble-user);
       color: var(--text-user);
-      border-radius: 20px 4px 20px 20px; /* קצה חד למעלה ימין */
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 20px 4px 20px 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-    .message-row.user .message-meta { display: none; } /* לא צריך כיתוב "משתמש" */
 
-    /* AI: Left side (RTL: End), Light bubble */
     .message-row.assistant {
-      justify-content: flex-end; /* RTL: End is Left */
+      justify-content: flex-end;
     }
+
     .message-row.assistant .message-content {
       background: var(--bubble-ai);
       color: var(--text-ai);
-      border-radius: 4px 20px 20px 20px; /* קצה חד למעלה שמאל */
+      border-radius: 4px 20px 20px 20px;
       border: 1px solid #f0f0f0;
     }
 
@@ -293,128 +460,250 @@
       font-size: 0.95rem;
       line-height: 1.6;
       position: relative;
+      word-wrap: break-word;
+      white-space: pre-wrap;
     }
 
-    .message-content a { color: inherit; text-decoration: underline; opacity: 0.9; }
-    
-    .message-avatar { display: none; } /* נקי יותר בלי אווטארים בתוך השורות */
+    .message-content a {
+      color: inherit;
+      text-decoration: underline;
+      opacity: 0.9;
+    }
 
-    /* System / Welcome Message */
+    .message-avatar {
+      display: none;
+    }
+
     .message.system {
-      background: #f8fafc; border: 1px dashed #cbd5e1;
-      padding: 16px; border-radius: var(--radius-md);
-      text-align: center; font-size: 0.85rem; color: var(--text-muted);
-      margin: 20px auto; max-width: 600px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 20px auto;
+      max-width: 600px;
     }
 
-    /* Input Area - Floating Design */
+    /* Input Area */
     .input-area-wrapper {
       padding: 20px;
-      background: linear-gradient(to top, #ffffff 80%, rgba(255,255,255,0));
+      background: linear-gradient(to top, #ffffff 80%, rgba(255, 255, 255, 0));
       z-index: 10;
     }
 
     .input-box-container {
-      max-width: 860px; margin: 0 auto;
+      max-width: 860px;
+      margin: 0 auto;
       background: #ffffff;
       border: 1px solid var(--border-subtle);
       border-radius: 24px;
       padding: 8px 8px 8px 16px;
       box-shadow: var(--shadow-float);
-      display: flex; flex-direction: column; gap: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
+
     .input-box-container:focus-within {
       border-color: #9ca3af;
-      box-shadow: 0 15px 40px -10px rgba(0,0,0,0.12);
+      box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.12);
     }
 
-    .textarea-row { display: flex; align-items: flex-end; gap: 10px; }
-    
-    textarea {
-      flex: 1; border: none; resize: none; background: transparent;
-      max-height: 120px; min-height: 24px; height: 24px; /* JS יגדיל */
-      font-family: inherit; font-size: 0.95rem; line-height: 1.5;
-      padding: 10px 0; color: var(--primary);
+    .textarea-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
     }
-    textarea::placeholder { color: #9ca3af; }
+
+    textarea {
+      flex: 1;
+      border: none;
+      resize: none;
+      background: transparent;
+      max-height: 120px;
+      min-height: 24px;
+      height: 24px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      padding: 10px 0;
+      color: var(--primary);
+    }
+
+    textarea::placeholder {
+      color: #9ca3af;
+    }
 
     .send-btn {
-      width: 36px; height: 36px; border-radius: 50%;
-      border: none; background: var(--primary); color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
       transition: transform 0.1s, background 0.2s;
       margin-bottom: 4px;
     }
-    .send-btn:disabled { background: #e5e7eb; cursor: not-allowed; }
-    .send-btn:hover:not(:disabled) { transform: scale(1.05); }
 
-    /* Bottom Tools Row */
+    .send-btn:disabled {
+      background: #e5e7eb;
+      cursor: not-allowed;
+    }
+
+    .send-btn:hover:not(:disabled) {
+      transform: scale(1.05);
+    }
+
     .tools-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding-top: 4px; padding-inline-end: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 4px;
+      padding-inline-end: 8px;
     }
-    
+
     .mode-switch {
-      display: flex; gap: 4px; background: #f3f4f6;
-      padding: 3px; border-radius: 99px;
+      display: flex;
+      gap: 4px;
+      background: #f3f4f6;
+      padding: 3px;
+      border-radius: 99px;
     }
+
     .mode-option {
-      border: none; background: transparent; font-size: 0.75rem;
-      padding: 4px 12px; border-radius: 99px; cursor: pointer;
-      color: var(--text-muted); transition: all 0.2s;
-    }
-    .mode-option.active {
-      background: #fff; color: var(--primary);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight: 500;
-    }
-
-    .extra-actions { display: flex; gap: 8px; }
-    .action-pill {
-      background: transparent; border: none; font-size: 0.75rem;
-      color: var(--text-muted); cursor: pointer;
-      padding: 4px 8px; border-radius: 6px;
-    }
-    .action-pill:hover { background: #f3f4f6; color: var(--primary); }
-
-    /* Examples Container */
-    .examples-container {
-      margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
-    }
-    .example-chip {
-      background: #f9fafb; border: 1px solid #e5e7eb;
-      border-radius: 99px; padding: 6px 14px;
-      font-size: 0.75rem; color: #4b5563; cursor: pointer;
+      border: none;
+      background: transparent;
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: 99px;
+      cursor: pointer;
+      color: var(--text-muted);
       transition: all 0.2s;
     }
-    .example-chip:hover { background: #fff; border-color: #d1d5db; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-    /* Thinking Animation */
-    .thinking-dots {
-      display: inline-flex; gap: 4px; padding: 0 4px;
+    .mode-option.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      font-weight: 500;
     }
+
+    .extra-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-pill {
+      background: transparent;
+      border: none;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .action-pill:hover {
+      background: #f3f4f6;
+      color: var(--primary);
+    }
+
+    .examples-container {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .example-chip {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 99px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .example-chip:hover {
+      background: #fff;
+      border-color: #d1d5db;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .thinking-dots {
+      display: inline-flex;
+      gap: 4px;
+      padding: 0 4px;
+    }
+
     .thinking-dot {
-      width: 6px; height: 6px; background: #9ca3af; border-radius: 50%;
+      width: 6px;
+      height: 6px;
+      background: #9ca3af;
+      border-radius: 50%;
       animation: pulse 1.4s infinite;
     }
-    .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
-    .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
 
-    /* Mobile Responsive */
+    .thinking-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .thinking-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.4;
+        transform: scale(0.8);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     @media (max-width: 900px) {
-      .sidebar { display: none; } /* מחביא סרגל צד במובייל */
-      .app-shell { padding: 10px; }
-      .chat-panel { border-radius: 16px; }
-      #messages { padding: 15px; }
-      .message-content { max-width: 90%; }
+      .sidebar {
+        display: none;
+      }
+
+      .app-shell {
+        padding: 10px;
+      }
+
+      .chat-panel {
+        border-radius: 16px;
+      }
+
+      #messages {
+        padding: 15px;
+      }
+
+      .message-content {
+        max-width: 90%;
+      }
     }
   </style>
 </head>
 
 <body>
-
+  <!-- Landing -->
   <div id="landing-overlay" class="landing-overlay">
     <div class="landing-content">
       <div class="landing-icon"></div>
@@ -429,6 +718,7 @@
     </div>
   </div>
 
+  <!-- Top bar -->
   <div class="top-bar">
     <div class="top-bar-inner">
       <div class="brand">
@@ -443,25 +733,25 @@
         <div class="status-badge">TASE LIVE</div>
         <button id="new-btn" class="new-chat-btn-top">+ שיחה חדשה</button>
         <button id="menu-btn" class="icon-btn">☰</button>
-        
+
         <div id="menu-dropdown" class="menu-dropdown">
-           <button class="menu-item" id="home-link">מסך הבית</button>
-           <button class="menu-item" id="chat-link">היסטוריה</button>
+          <button class="menu-item" id="home-link">מסך הבית</button>
+          <button class="menu-item" id="chat-link">קפיצה לצ'אט</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Layout -->
   <div class="app-shell">
     <div class="app-container">
-      
+
       <aside class="sidebar">
         <div class="sidebar-header">
           <span class="sidebar-title">היסטוריית שיחות</span>
           <button id="sidebar-new-btn" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">+</button>
         </div>
-        <div class="session-list" id="session-list">
-          </div>
+        <div class="session-list" id="session-list"></div>
       </aside>
 
       <main class="chat-panel" id="chat-section">
@@ -477,25 +767,26 @@
           <form id="chat-form">
             <div class="input-box-container">
               <div class="textarea-row">
-                <textarea id="query" name="query" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
+                <textarea id="query" name="query" rows="1"
+                  placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
                 <button type="submit" id="send-btn" class="send-btn">➤</button>
               </div>
-              
+
               <div class="tools-row">
                 <div class="mode-switch">
                   <button type="button" class="mode-option active" data-mode="quick">Quick Scan</button>
                   <button type="button" class="mode-option" data-mode="deep">Deep Dive</button>
                 </div>
-                
+
                 <div class="extra-actions">
                   <button type="button" class="action-pill" id="share-btn">שתף</button>
                   <button type="button" class="action-pill" id="print-btn">PDF</button>
                 </div>
               </div>
             </div>
-            
+
             <div id="promptExamplesContainer" class="examples-container"></div>
-            
+
             <div style="text-align:center; margin-top:10px; font-size:0.65rem; color:#9ca3af;">
               המידע אינו מהווה ייעוץ השקעות. ט.ל.ח.
             </div>
@@ -531,7 +822,6 @@
     let activeSessionId = null;
     let currentMode = "quick";
 
-    // Prompts
     const EXAMPLE_PROMPTS = [
       { label: "ניתוח מניה", text: "תן לי ניתוח עומק על מניית פועלים, דגש על תשואת דיבידנד." },
       { label: "השוואת אג\"ח", text: "השווה בין אג\"ח ממשלתי שקלי לאג\"ח קונצרני בדירוג AA." },
@@ -546,8 +836,8 @@
     window.addEventListener("load", setViewportHeight);
     window.addEventListener("resize", setViewportHeight);
 
-    // Auto resize textarea
     function autoResizeTextarea(el) {
+      if (!el) return;
       el.style.height = 'auto';
       el.style.height = Math.min(el.scrollHeight, 120) + 'px';
     }
@@ -557,38 +847,49 @@
       textarea.addEventListener("keydown", (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
-          form.dispatchEvent(new Event("submit"));
+          if (form) form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
         }
       });
     }
 
-    // Link parsing
     function renderTextWithLinks(text) {
       if (!text) return "";
-      let escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      let escaped = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
       const urlRegex = /(https?:\/\/[^\s)]+)/g;
       return escaped.replace(urlRegex, (url) => {
-        return `<a href="${url}" target="_blank">🔗 קישור</a>`;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">🔗 קישור</a>`;
       });
     }
 
-    // Session Management
     function saveSessions() {
-      try { localStorage.setItem(SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId })); } catch(e){}
+      try {
+        localStorage.setItem(SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId }));
+      } catch (e) { }
     }
-    function getActiveSession() { return sessions.find((s) => s.id === activeSessionId) || null; }
+
+    function getActiveSession() {
+      return sessions.find((s) => s.id === activeSessionId) || null;
+    }
 
     function renderMessagesForSession(session, options = {}) {
       const { scroll = true } = options;
       if (!messages) return;
-      
-      // Clear dynamic messages only (keep system message if you want, or clearer to wipe all)
-      // Strategy: Remove all .message-row
+
       const rows = messages.querySelectorAll(".message-row");
       rows.forEach(r => r.remove());
 
-      if (!session || !Array.isArray(session.messages)) return;
-      session.messages.forEach(m => appendMessage(m.text, m.role, { persist: false, scroll: false }));
+      if (!session || !Array.isArray(session.messages)) {
+        if (scroll) messages.scrollTop = messages.scrollHeight;
+        return;
+      }
+
+      session.messages.forEach(m =>
+        appendMessage(m.text, m.role, { persist: false, scroll: false })
+      );
+
       if (scroll) messages.scrollTop = messages.scrollHeight;
     }
 
@@ -597,9 +898,12 @@
       sessionListEl.innerHTML = "";
       sessions.forEach(sess => {
         const btn = document.createElement("button");
+        btn.type = "button";
         btn.className = "session-item" + (sess.id === activeSessionId ? " active" : "");
-        btn.textContent = sess.title || "שיחה חדשה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+        btn.textContent = sess.title ||
+          ("שיחה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }));
         btn.onclick = () => {
+          if (sess.id === activeSessionId) return;
           activeSessionId = sess.id;
           saveSessions();
           renderSessionList();
@@ -612,12 +916,33 @@
     function createNewSession() {
       const id = "s_" + Date.now();
       const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [] };
-      sessions.unshift(session); // Add to top
+      sessions.unshift(session);
       activeSessionId = id;
       saveSessions();
       renderSessionList();
       renderMessagesForSession(session);
-      if(textarea) { textarea.value = ""; autoResizeTextarea(textarea); textarea.focus(); }
+      if (textarea) {
+        textarea.value = "";
+        autoResizeTextarea(textarea);
+        textarea.focus();
+      }
+    }
+
+    function migrateOldHistoryIfNeeded() {
+      try {
+        const raw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || !parsed.length) return;
+        const id = "s_" + Date.now();
+        sessions = [{
+          id,
+          title: "שיחה קודמת",
+          createdAt: Date.now(),
+          messages: parsed
+        }];
+        activeSessionId = id;
+      } catch (e) { }
     }
 
     function loadSessions() {
@@ -625,37 +950,63 @@
         const raw = localStorage.getItem(SESSIONS_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          sessions = parsed.sessions || [];
-          activeSessionId = parsed.activeSessionId || (sessions[0]?.id) || null;
+          if (parsed && Array.isArray(parsed.sessions)) {
+            sessions = parsed.sessions;
+            activeSessionId = parsed.activeSessionId || (sessions[0] && sessions[0].id) || null;
+          }
         }
-        if (!sessions.length) createNewSession();
-      } catch (e) { createNewSession(); }
+        if (!sessions || !sessions.length) {
+          migrateOldHistoryIfNeeded();
+        }
+        if (!sessions || !sessions.length) {
+          const id = "s_" + Date.now();
+          sessions = [{
+            id,
+            title: "שיחה חדשה",
+            createdAt: Date.now(),
+            messages: []
+          }];
+          activeSessionId = id;
+        }
+      } catch (e) {
+        const id = "s_" + Date.now();
+        sessions = [{
+          id,
+          title: "שיחה חדשה",
+          createdAt: Date.now(),
+          messages: []
+        }];
+        activeSessionId = id;
+      }
     }
 
-    // Appending Messages (Updated HTML Structure)
     function appendMessage(text, role, options = {}) {
       const { persist = true, scroll = true } = options;
-      
+      if (!messages) return;
+
       const row = document.createElement("div");
-      row.className = "message-row " + role; // user or assistant
-      
+      row.className = "message-row " + role;
+
       const content = document.createElement("div");
       content.className = "message-content";
       content.innerHTML = renderTextWithLinks(text);
-      
       row.appendChild(content);
       messages.appendChild(row);
 
-      if (scroll) messages.scrollTop = messages.scrollHeight;
+      if (scroll) {
+        messages.scrollTop = messages.scrollHeight;
+      }
 
       if (persist) {
         const session = getActiveSession();
         if (session) {
-          if (role === "user" && session.messages.length === 0) {
-            let t = text.substring(0, 30);
-            session.title = t;
+          if (role === "user" && Array.isArray(session.messages) && session.messages.length === 0) {
+            let t = text.replace(/\s+/g, " ").trim();
+            if (t.length > 28) t = t.slice(0, 28) + "…";
+            session.title = t || "שיחה חדשה";
             renderSessionList();
           }
+          if (!Array.isArray(session.messages)) session.messages = [];
           session.messages.push({ role, text });
           saveSessions();
         }
@@ -667,92 +1018,214 @@
       row.className = "message-row assistant";
       const content = document.createElement("div");
       content.className = "message-content";
-      content.innerHTML = `<div class="thinking-dots"><span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span></div>`;
+      content.innerHTML =
+        `<div class="thinking-dots">
+           <span class="thinking-dot"></span>
+           <span class="thinking-dot"></span>
+           <span class="thinking-dot"></span>
+         </div>`;
       row.appendChild(content);
       messages.appendChild(row);
       messages.scrollTop = messages.scrollHeight;
       return row;
     }
 
-    // Handlers
     async function callApi(query) {
       const response = await fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query })
       });
-      if (!response.ok) throw new Error("Server Error");
+      if (!response.ok) {
+        let err;
+        try {
+          err = await response.json();
+        } catch {
+          err = {};
+        }
+        throw new Error(err.error || "שגיאה בצד השרת.");
+      }
       const data = await response.json();
-      return data.answer;
+      if (!data.ok && data.answer === undefined) {
+        throw new Error(data.error || "שגיאה בצד השרת.");
+      }
+      return data.answer ?? "";
     }
 
-    // UI Events
+    // שיתוף – טקסט פשוט
+    function getConversationPlainText() {
+      const session = getActiveSession();
+      if (session && Array.isArray(session.messages) && session.messages.length > 0) {
+        return session.messages
+          .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
+          .join("\n\n");
+      }
+      const rows = messages.querySelectorAll(".message-row");
+      const parts = [];
+      rows.forEach((row) => {
+        const isUser = row.classList.contains("user");
+        const label = isUser ? "YOU" : "DRAFFIQ";
+        const contentEl = row.querySelector(".message-content");
+        if (!contentEl) return;
+        const text = contentEl.innerText.trim();
+        if (!text) return;
+        parts.push(label + ":\n" + text);
+      });
+      return parts.join("\n\n");
+    }
+
+    if (printBtn) {
+      printBtn.addEventListener("click", () => {
+        window.print();
+      });
+    }
+
+    if (shareBtn) {
+      shareBtn.addEventListener("click", async () => {
+        const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
+        const title = "DRAFFIQ – שיחת מחקר";
+        const url = window.location.href;
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, text, url });
+          } catch (e) { }
+        } else {
+          try {
+            await navigator.clipboard.writeText(text + "\n\n" + url);
+            alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק בכל אפליקציה.");
+          } catch {
+            alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
+          }
+        }
+      });
+    }
+
     if (landingCta) {
       landingCta.addEventListener("click", () => {
         landingOverlay.classList.add("hidden");
+        if (chatSection && chatSection.scrollIntoView) {
+          chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       });
     }
 
-    // Mode Toggle
-    document.querySelectorAll(".mode-option").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".mode-option").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentMode = btn.dataset.mode;
+    function handleNewChatClick() {
+      createNewSession();
+      if (menuDropdown) menuDropdown.classList.remove("open");
+    }
+
+    if (newBtn) newBtn.addEventListener("click", handleNewChatClick);
+    if (sidebarNewBtn) sidebarNewBtn.addEventListener("click", handleNewChatClick);
+
+    if (menuBtn) {
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!menuDropdown) return;
+        menuDropdown.classList.toggle("open");
       });
+    }
+
+    if (homeLink) {
+      homeLink.addEventListener("click", () => {
+        window.location.href = "/";
+      });
+    }
+
+    if (chatLink) {
+      chatLink.addEventListener("click", () => {
+        if (chatSection && chatSection.scrollIntoView) {
+          chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        if (menuDropdown) menuDropdown.classList.remove("open");
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!menuDropdown || !menuDropdown.classList.contains("open")) return;
+      const target = e.target;
+      if (target === menuBtn || (menuBtn && menuBtn.contains(target)) || menuDropdown.contains(target)) {
+        return;
+      }
+      menuDropdown.classList.remove("open");
     });
 
-    // Example Chips
     function renderPromptExamples() {
       const container = document.getElementById("promptExamplesContainer");
-      if(!container) return;
-      container.innerHTML = EXAMPLE_PROMPTS.map((ex, i) => 
-        `<button type="button" class="example-chip" onclick="usePrompt(${i})">${ex.label}</button>`
+      if (!container || !textarea) return;
+      container.innerHTML = EXAMPLE_PROMPTS.map((ex, i) =>
+        `<button type="button" class="example-chip" data-idx="${i}">${ex.label}</button>`
       ).join("");
-    }
-    window.usePrompt = (i) => {
-      textarea.value = EXAMPLE_PROMPTS[i].text;
-      autoResizeTextarea(textarea);
-      textarea.focus();
-    };
 
-    // Submitting
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const raw = textarea.value.trim();
-      if (!raw) return;
-      
-      const fullQuery = `[Mode: ${currentMode}] ${raw}`;
-      appendMessage(fullQuery, "user"); // Show user text
-      textarea.value = ""; autoResizeTextarea(textarea);
-      
-      const thinking = appendThinking();
-      
-      try {
-        const ans = await callApi(fullQuery);
-        thinking.remove();
-        appendMessage(ans, "assistant");
-      } catch (err) {
-        thinking.remove();
-        appendMessage("שגיאה בתקשורת עם השרת.", "assistant");
-      }
+      container.addEventListener("click", (e) => {
+        const btn = e.target.closest(".example-chip");
+        if (!btn) return;
+        const idx = btn.getAttribute("data-idx");
+        const ex = EXAMPLE_PROMPTS[idx];
+        if (!ex) return;
+        textarea.value = ex.text;
+        autoResizeTextarea(textarea);
+        textarea.focus();
+      });
+    }
+
+    function setupModeToggle() {
+      const buttons = document.querySelectorAll(".mode-option");
+      if (!buttons.length) return;
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          const mode = btn.getAttribute("data-mode");
+          currentMode = mode === "deep" ? "deep" : "quick";
+        });
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      setViewportHeight();
+      loadSessions();
+      renderSessionList();
+      renderMessagesForSession(getActiveSession(), { scroll: false });
+      renderPromptExamples();
+      setupModeToggle();
     });
 
-    // Menus
-    if (menuBtn) menuBtn.onclick = (e) => { e.stopPropagation(); menuDropdown.classList.toggle("open"); };
-    document.onclick = () => menuDropdown.classList.remove("open");
-    
-    // New Chat
-    const startNew = () => { createNewSession(); menuDropdown.classList.remove("open"); };
-    if (newBtn) newBtn.onclick = startNew;
-    if (sidebarNewBtn) sidebarNewBtn.onclick = startNew;
+    if (form) {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const raw = textarea ? textarea.value.trim() : "";
+        if (!raw) return;
 
-    // Initialization
-    loadSessions();
-    renderSessionList();
-    renderMessagesForSession(getActiveSession(), {scroll:false});
-    renderPromptExamples();
+        const prefix =
+          currentMode === "deep"
+            ? "מצב עבודה: Deep-Dive – ניתוח עומק. "
+            : "מצב עבודה: Quick-Scan – סריקה מהירה. ";
 
+        const fullQuery = prefix + raw;
+
+        appendMessage(fullQuery, "user");
+        if (textarea) {
+          textarea.value = "";
+          autoResizeTextarea(textarea);
+          textarea.focus();
+        }
+
+        if (sendBtn) sendBtn.disabled = true;
+        const thinking = appendThinking();
+
+        try {
+          const ans = await callApi(fullQuery);
+          thinking.remove();
+          appendMessage(ans || "לא התקבלה תשובה מהשרת.", "assistant");
+        } catch (err) {
+          thinking.remove();
+          appendMessage("שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."), "assistant");
+        } finally {
+          if (sendBtn) sendBtn.disabled = false;
+        }
+      });
+    }
   </script>
 </body>
+
 </html>
