@@ -5,993 +5,504 @@
   <meta charset="UTF-8" />
   <title>DRAFFIQ AI – TASE Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      color-scheme: light;
-
-      /* רקע כללי בהיר יותר */
-      --bg-page: #f5f6f8;
-      --bg-card: #fcfcfd;
-      --bg-messages: #f7f8fa;
-
-      /* בועות משתמש/מודל בהירות */
-      --bg-user: #ffffff;
-      --bg-assistant: #f3f4f8;
-
-      --border-subtle: rgba(148, 163, 184, 0.25);
-      --border-soft: rgba(148, 163, 184, 0.18);
-
-      --text-main: #111827;
+      /* Palette - Clean Fintech */
+      --primary: #111827;       /* כהה מאוד, כמעט שחור */
+      --primary-hover: #000000;
+      
+      --bg-app: #f3f5f9;        /* רקע כללי רך */
+      --bg-panel: #ffffff;      /* רקע כרטיסיות */
+      
+      --bubble-user: #1f2937;   /* בועת משתמש - כהה */
+      --text-user: #ffffff;
+      
+      --bubble-ai: #f4f6f8;     /* בועת AI - אפור בהיר */
+      --text-ai: #111827;
+      
+      --border-subtle: #e5e7eb;
       --text-muted: #6b7280;
-
-      --accent-soft: #e2e4ea;
-
-      --radius-xl: 22px;
-      --radius-lg: 18px;
+      
+      --radius-sm: 8px;
       --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-float: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
 
-      --shadow-soft: 0 14px 38px rgba(15, 23, 42, 0.10);
       --vh: 1vh;
     }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    * { box-sizing: border-box; outline: none; }
+
+    html, body {
+      margin: 0; padding: 0; height: 100%;
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      /* מעבר טונים מודרני ועדין יותר */
-      background:
-        radial-gradient(circle at top, #ffffff 0, #f3f4f7 38%, #e2e4ea 100%);
-      color: var(--text-main);
-      min-height: calc(var(--vh, 1vh) * 100);
+      font-family: 'Heebo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--primary);
       display: flex;
       flex-direction: column;
-      align-items: stretch;
+      overflow: hidden; /* מונע גלילה כפולה בדף הראשי */
     }
 
-    /* ===== Landing overlay / דף כניסה ===== */
+    /* ===== Scrollbar Styling ===== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* ===== Landing Overlay ===== */
     .landing-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 50;
+      position: fixed; inset: 0; z-index: 999;
       background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      opacity: 1;
-      transition: opacity 0.4s ease;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s;
     }
-
     .landing-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
+      opacity: 0; pointer-events: none; visibility: hidden;
     }
-
     .landing-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      color: #111827;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; gap: 24px;
+      animation: fadeInLogin 0.8s ease-out;
     }
-
-    .landing-logo {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
-
     .landing-icon {
-      width: 76px;
-      height: 76px;
-      box-shadow:
-        0 0 0 1px rgba(148, 163, 184, 0.8),
-        0 8px 20px rgba(15, 23, 42, 0.15);
-      animation: iconBounce 0.7s ease-out 1.3s 1;
-      border-radius: 999px;
-      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 20%, #9ca3af 100%);
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #d1d5db);
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Red dot inside logo */
+    .landing-icon::after {
+      content: ''; position: absolute; top: 22%; left: 22%;
+      width: 14px; height: 14px; background: #ef4444; border-radius: 50%;
+      box-shadow: 0 0 10px rgba(239,68,68,0.6);
     }
 
     .landing-title {
-      font-weight: 800;
-      font-size: 2.1rem;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      color: #111827;
+      font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #111827 0%, #4b5563 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin: 0;
     }
-
     .landing-subtitle {
-      font-size: 0.95rem;
-      color: #4b5563;
-      letter-spacing: 0.03em;
-      margin-top: 4px;
+      font-size: 1rem; color: var(--text-muted); font-weight: 400; margin-top: -12px;
     }
 
-    .landing-cta-wrap {
-      margin-top: 8px;
-    }
-
+    /* תיקון הכפתור בדף הנחיתה - נקי */
     .landing-cta {
-      border-radius: 999px;
-      border: 1px solid #111827;
+      margin-top: 12px;
       background: transparent;
-      color: #111827;
-      padding: 6px 18px;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 10px 28px;
+      font-size: 0.95rem; font-weight: 500;
+      border-radius: 99px;
       cursor: pointer;
-      text-decoration: none;
-      transition:
-        background-color 0.15s ease,
-        color 0.15s ease,
-        transform 0.08s ease,
-        box-shadow 0.15s ease;
+      transition: all 0.2s ease;
+      display: inline-flex; align-items: center; gap: 8px;
     }
-
-    .landing-cta span.arrow {
-      font-size: 0.9rem;
-      line-height: 1;
-    }
-
+    /* הסרת המסגרת האפורה במעבר עכבר - הופך לשחור מלא */
     .landing-cta:hover {
-      background: #e5e7eb;
-      color: #111827;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
+      background: var(--primary);
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border-color: var(--primary); /* נשאר אותו צבע כדי למנוע קפיצה */
     }
 
-    .landing-curtain {
-      position: absolute;
-      inset: 0;
-      background: #ffffff;
-      z-index: 3;
-      transform-origin: left center;
-      animation: curtainOpen 2.6s ease-out forwards;
+    @keyframes fadeInLogin {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes curtainOpen {
-      0% {
-        transform: translateX(0);
-      }
-
-      100% {
-        transform: translateX(100%);
-      }
-    }
-
-    @keyframes iconBounce {
-      0% {
-        transform: translateY(0);
-      }
-
-      40% {
-        transform: translateY(-10px);
-      }
-
-      70% {
-        transform: translateY(4px);
-      }
-
-      100% {
-        transform: translateY(0);
-      }
-    }
-
-    /* Top bar */
+    /* ===== Top Bar ===== */
     .top-bar {
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      height: 64px; flex-shrink: 0;
+      background: rgba(255,255,255,0.85);
       backdrop-filter: blur(12px);
-      background: linear-gradient(to bottom,
-          rgba(249, 250, 251, 0.92),
-          rgba(249, 250, 251, 0.86));
-      border-bottom: 1px solid rgba(209, 213, 219, 0.9);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      display: flex; align-items: center; justify-content: center;
+      position: sticky; top: 0; z-index: 100;
     }
-
     .top-bar-inner {
-      width: 100%;
-      max-width: 1320px; /* הרחב כמו הצ'אט */
-      padding: 0 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      position: relative;
+      width: 100%; max-width: 1400px; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo-small {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #e5e7eb; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 10px; color: #374151;
+    }
+    .brand-logo-small::after {
+      content:''; width:6px; height:6px; background:#ef4444; border-radius:50%;
+      position: absolute; top:6px; left:6px;
+    }
+    .brand-text h1 {
+      font-size: 1rem; font-weight: 700; margin: 0; letter-spacing: -0.5px;
+    }
+    .brand-text span {
+      font-size: 0.75rem; color: var(--text-muted); display: block;
     }
 
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.95rem;
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    
+    .status-badge {
+      font-size: 0.7rem; background: #f3f4f6; color: var(--text-muted);
+      padding: 4px 10px; border-radius: 6px; font-weight: 500;
+      display: none; /* Mobile hidden */
     }
+    @media (min-width: 768px) { .status-badge { display: block; } }
 
-    .brand-icon {
-      width: 23px;
-      height: 23px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 20%, #9ca3af 100%);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: #F5F5F5;
-      text-transform: uppercase;
-      box-shadow:
-        0 0 0 1px rgba(148, 163, 184, 0.6),
-        0 4px 8px rgba(148, 163, 184, 0.4);
+    .icon-btn {
+      background: transparent; border: none; font-size: 1.2rem;
+      cursor: pointer; padding: 8px; border-radius: 8px;
+      color: var(--primary); transition: background 0.2s;
     }
+    .icon-btn:hover { background: #f3f4f6; }
 
-    .brand-title {
-      font-weight: 700;
-      font-size: 1rem;
-      letter-spacing: -0.02em;
-      text-transform: uppercase;
+    .new-chat-btn-top {
+      background: var(--primary); color: #fff;
+      border: none; padding: 8px 16px; border-radius: 99px;
+      font-size: 0.85rem; font-weight: 500; cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.1s;
     }
+    .new-chat-btn-top:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-    .brand-subtitle {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .top-right {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-    }
-
-    .top-status {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    .menu-btn {
-      border: none;
-      background: transparent;
-      border-radius: 0;
-      padding: 4px 6px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition:
-        transform 0.08s ease;
-      box-shadow: none;
-    }
-
-    .menu-btn:hover {
-      transform: translateY(-0.5px);
-    }
-
-    .top-new-btn {
-      padding: 4px 12px;
-      font-size: 0.78rem;
-      background: #111827;
-      color: #f9fafb;
-      border-radius: 999px;
-      border: 1px solid rgba(15, 23, 42, 0.9);
-    }
-
-    .top-new-btn:hover:not(:disabled) {
-      background: #020617;
-      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.45);
-      transform: translateY(-0.5px);
-    }
-
-    /* תפריט ניווט */
+    /* Dropdown Menu */
     .menu-dropdown {
-      position: absolute;
-      top: 44px;
-      inset-inline-end: 0;
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid rgba(209, 213, 219, 0.9);
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
-      padding: 6px;
-      min-width: 160px;
-      display: none;
-      z-index: 20;
+      position: absolute; top: 60px; left: 24px; /* RTL fix: left aligns to end */
+      background: #fff; border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+      padding: 6px; display: none; min-width: 180px; z-index: 200;
     }
-
-    .menu-dropdown.open {
-      display: block;
+    .menu-dropdown.open { display: flex; flex-direction: column; }
+    .menu-item {
+      text-align: right; background: none; border: none;
+      padding: 10px 14px; width: 100%; border-radius: 6px;
+      font-size: 0.9rem; cursor: pointer; color: var(--primary);
     }
+    .menu-item:hover { background: #f9fafb; }
 
-    .menu-item-btn {
-      width: 100%;
-      padding: 6px 10px;
-      font-size: 0.8rem;
-      background: #ffffff;
-      color: #111827;
-      border-radius: 8px;
-      justify-content: flex-start;
-    }
-
-    .menu-item-btn:hover {
-      background: #f3f4f6;
-      box-shadow: none;
-      transform: none;
-    }
-
-    /* Main layout */
+    /* ===== Main Layout ===== */
     .app-shell {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 16px 24px 20px;
-      min-height: 0;
+      flex: 1; overflow: hidden;
+      display: flex; justify-content: center;
+      padding: 20px;
+    }
+    .app-container {
+      width: 100%; max-width: 1400px;
+      display: flex; gap: 20px; height: 100%;
     }
 
-    .chat-wrapper {
-      width: 100%;
-      max-width: 1320px; /* כמעט כל המסך */
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .chat-layout {
-      display: flex;
-      gap: 12px;
-      align-items: stretch;
-      min-height: 0;
-    }
-
-    /* Sidebar – רשימת שיחות */
+    /* Sidebar */
     .sidebar {
-      width: 220px;
-      background: #f9fafb;
-      border-radius: var(--radius-xl);
-      border: 1px solid var(--border-subtle);
-      box-shadow: var(--shadow-soft);
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-
-    .sidebar-title {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    .sidebar-new-btn {
-      padding: 3px 8px;
-      font-size: 0.75rem;
-      background: #e5e7eb;
-      border-radius: 999px;
-    }
-
-    .sidebar-new-btn:hover {
-      background: #d4d4d4;
-      box-shadow: none;
-      transform: translateY(-0.5px);
-    }
-
-    .session-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(148, 163, 184, 0.7) transparent;
-      padding-inline: 2px;
-    }
-
-    .session-list::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .session-list::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .session-list::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.7);
-      border-radius: 999px;
-    }
-
-    .session-item {
-      width: 100%;
-      text-align: right;
-      justify-content: flex-start;
-      padding: 6px 8px;
-      font-size: 0.78rem;
-      background: #f9fafb;
-      color: #111827;
-      border-radius: 10px;
-      border: 1px solid transparent;
-    }
-
-    .session-item:hover {
-      background: #e5e7eb;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .session-item.active {
-      background: #111827;
-      color: #f9fafb;
-      border-color: #111827;
-    }
-
-    .panel {
-      flex: 1;
-      min-height: 0;
-      background: var(--bg-card);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-soft);
-      border: 1px solid var(--border-subtle);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* אזור ההודעות */
-    #messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 18px 20px;
-      background: var(--bg-messages);
-      border-bottom: 1px solid rgba(209, 213, 219, 0.7);
-      scrollbar-width: thin;
-      scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
-      -webkit-overflow-scrolling: touch;
-      margin: 12px 14px 0;
+      width: 260px; flex-shrink: 0;
+      background: var(--bg-panel);
       border-radius: var(--radius-lg);
+      border: 1px solid rgba(0,0,0,0.04);
+      display: flex; flex-direction: column;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .sidebar-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);
+    }
+    .sidebar-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+    
+    .session-list {
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+    }
+    .session-item {
+      text-align: right; border: none; background: transparent;
+      padding: 10px 12px; border-radius: var(--radius-sm);
+      font-size: 0.85rem; color: #374151; cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .session-item:hover { background: #f3f4f6; }
+    .session-item.active { background: #eff6ff; color: #1d4ed8; font-weight: 500; }
+
+    /* Chat Area */
+    .chat-panel {
+      flex: 1; min-width: 0;
+      background: var(--bg-panel);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(0,0,0,0.04);
+      box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column;
+      position: relative;
     }
 
-    /* בועות */
+    /* Messages */
+    #messages {
+      flex: 1; overflow-y: auto;
+      padding: 20px 40px;
+      display: flex; flex-direction: column; gap: 24px;
+      scroll-behavior: smooth;
+    }
+
+    /* Modern Bubble System */
+    .message-row {
+      display: flex; width: 100%;
+      margin-bottom: 8px;
+    }
+    
+    /* User: Right side, Dark bubble */
     .message-row.user {
-      background: var(--bg-user);
-      border: 1px solid rgba(209, 213, 219, 0.6);
+      justify-content: flex-start; /* RTL: Start is Right */
     }
+    .message-row.user .message-content {
+      background: var(--bubble-user);
+      color: var(--text-user);
+      border-radius: 20px 4px 20px 20px; /* קצה חד למעלה ימין */
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .message-row.user .message-meta { display: none; } /* לא צריך כיתוב "משתמש" */
 
+    /* AI: Left side (RTL: End), Light bubble */
     .message-row.assistant {
-      background: var(--bg-assistant);
-      border: 1px solid rgba(209, 213, 219, 0.55);
+      justify-content: flex-end; /* RTL: End is Left */
     }
-
-    .message-avatar {
-      flex: 0 0 30px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 2px;
-    }
-
-    .avatar-circle {
-      width: 25px;
-      height: 25px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.5rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      background: #e5e7eb;
-      color: #111827;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-    }
-
-    .avatar-user {
-      background: #ffffff;
-    }
-
-    .avatar-assistant {
-      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 20%, #9ca3af 100%);
-      color: transparent;
-      box-shadow:
-        0 0 0 1px rgba(148, 163, 184, 0.6),
-        0 4px 8px rgba(148, 163, 184, 0.4);
+    .message-row.assistant .message-content {
+      background: var(--bubble-ai);
+      color: var(--text-ai);
+      border-radius: 4px 20px 20px 20px; /* קצה חד למעלה שמאל */
+      border: 1px solid #f0f0f0;
     }
 
     .message-content {
-      flex: 1;
-      min-width: 0;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      color: var(--text-main);
+      max-width: 80%;
+      padding: 14px 20px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      position: relative;
     }
 
-    .message-content a {
-      color: #111827;
-      text-decoration: none;
-    }
+    .message-content a { color: inherit; text-decoration: underline; opacity: 0.9; }
+    
+    .message-avatar { display: none; } /* נקי יותר בלי אווטארים בתוך השורות */
 
-    .inline-link {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: #f9fafb;
-      font-size: 0.75rem;
-      gap: 4px;
-    }
-
-    .message-meta {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-bottom: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
+    /* System / Welcome Message */
     .message.system {
-      margin: 6px 0 14px;
-      padding: 10px 12px;
-      border-radius: var(--radius-lg);
-      background: #f9fafb;
-      font-size: 0.8rem;
-      text-align: center;
-      border: 1px dashed rgba(148, 163, 184, 0.9);
-      color: var(--text-main);
+      background: #f8fafc; border: 1px dashed #cbd5e1;
+      padding: 16px; border-radius: var(--radius-md);
+      text-align: center; font-size: 0.85rem; color: var(--text-muted);
+      margin: 20px auto; max-width: 600px;
     }
 
-    .system-line-sub {
-      font-size: 0.8rem;
-      color: var(--text-main);
+    /* Input Area - Floating Design */
+    .input-area-wrapper {
+      padding: 20px;
+      background: linear-gradient(to top, #ffffff 80%, rgba(255,255,255,0));
+      z-index: 10;
     }
 
-    /* Input panel */
-    .input-shell {
-      padding: 10px 20px 14px;
-      background: #f8fafc;
-    }
-
-    .input-inner {
-      border-radius: 999px;
-      background: #f4f5f9;
-      border: 1px solid var(--border-soft);
-      padding: 4px 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-      width: 100%;
-      margin: 0;
-    }
-
-    .input-inner:focus-within {
-      border-color: rgba(107, 114, 128, 0.9);
+    .input-box-container {
+      max-width: 860px; margin: 0 auto;
       background: #ffffff;
-      box-shadow:
-        0 0 0 1px rgba(156, 163, 175, 0.6),
-        0 10px 22px rgba(148, 163, 184, 0.28);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      padding: 8px 8px 8px 16px;
+      box-shadow: var(--shadow-float);
+      display: flex; flex-direction: column; gap: 8px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-box-container:focus-within {
+      border-color: #9ca3af;
+      box-shadow: 0 15px 40px -10px rgba(0,0,0,0.12);
     }
 
-    .input-textarea-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
+    .textarea-row { display: flex; align-items: flex-end; gap: 10px; }
+    
     textarea {
-      resize: none;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 0.9rem;
-      height: 44px;
-      min-height: 44px;
-      max-height: 44px;
-      overflow-y: auto;
-      padding: 4px 8px 4px 0;
+      flex: 1; border: none; resize: none; background: transparent;
+      max-height: 120px; min-height: 24px; height: 24px; /* JS יגדיל */
+      font-family: inherit; font-size: 0.95rem; line-height: 1.5;
+      padding: 10px 0; color: var(--primary);
+    }
+    textarea::placeholder { color: #9ca3af; }
+
+    .send-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: none; background: var(--primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      transition: transform 0.1s, background 0.2s;
+      margin-bottom: 4px;
+    }
+    .send-btn:disabled { background: #e5e7eb; cursor: not-allowed; }
+    .send-btn:hover:not(:disabled) { transform: scale(1.05); }
+
+    /* Bottom Tools Row */
+    .tools-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 4px; padding-inline-end: 8px;
+    }
+    
+    .mode-switch {
+      display: flex; gap: 4px; background: #f3f4f6;
+      padding: 3px; border-radius: 99px;
+    }
+    .mode-option {
+      border: none; background: transparent; font-size: 0.75rem;
+      padding: 4px 12px; border-radius: 99px; cursor: pointer;
+      color: var(--text-muted); transition: all 0.2s;
+    }
+    .mode-option.active {
+      background: #fff; color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight: 500;
     }
 
-    textarea::placeholder {
-      color: #9ca3af;
+    .extra-actions { display: flex; gap: 8px; }
+    .action-pill {
+      background: transparent; border: none; font-size: 0.75rem;
+      color: var(--text-muted); cursor: pointer;
+      padding: 4px 8px; border-radius: 6px;
     }
+    .action-pill:hover { background: #f3f4f6; color: var(--primary); }
 
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      background: #e5e7eb;
-      color: #111827;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      transition:
-        background-color 0.15s ease,
-        transform 0.08s ease,
-        box-shadow 0.15s ease;
+    /* Examples Container */
+    .examples-container {
+      margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
     }
-
-    button span.icon {
-      font-size: 1rem;
+    .example-chip {
+      background: #f9fafb; border: 1px solid #e5e7eb;
+      border-radius: 99px; padding: 6px 14px;
+      font-size: 0.75rem; color: #4b5563; cursor: pointer;
+      transition: all 0.2s;
     }
+    .example-chip:hover { background: #fff; border-color: #d1d5db; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-    button:hover:not(:disabled) {
-      background: #d4d4d4;
-      transform: translateY(-0.5px);
-      box-shadow: 0 3px 8px rgba(107, 114, 128, 0.3);
-    }
-
-    button:disabled {
-      opacity: 0.65;
-      cursor: default;
-      transform: none;
-      box-shadow: none;
-    }
-
-    /* שורת כפתורי פעולה – לשמאל */
-    .actions-row {
-      margin-top: 6px;
-      font-size: 0.75rem;
-      display: flex;
-      direction: rtl;
-      justify-content: flex-end; /* ב-RTL זה דוחף לשמאל */
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;
-      width: 100%;
-      margin: 6px 0 0;
-      padding: 0 18px;
-    }
-
-    .actions-row button {
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      background: #edf0f4;
-    }
-
-    /* שורת מצב – למטה */
-    .status-line {
-      margin-top: 6px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: flex-start;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;
-      max-width: 720px;
-      margin: 6px auto 0;
-    }
-
-    .status-pill {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #f3f4f6;
-      border: 1px solid rgba(209, 213, 219, 0.9);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #9ca3af;
-      box-shadow: 0 0 0 3px rgba(229, 231, 235, 1);
-    }
-
-    /* כפתורי דוגמאות לפרומפטים */
-    .prompt-examples {
-      margin-top: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      font-size: 0.8rem;
-      max-width: 720px;
-      margin-inline: auto;
-    }
-
-    .examples-label {
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-inline-start: 4px;
-    }
-
-    .example-btn {
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      background: #f9fafb;
-      cursor: pointer;
-    }
-
-    .example-btn:hover {
-      background: #e5e7eb;
-    }
-
-    /* מצב עבודה – Quick / Deep */
-    .mode-toggle {
-      margin-top: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      font-size: 0.8rem;
-      max-width: 720px;
-      margin-inline: auto;
-    }
-
-    .mode-label {
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-inline-start: 2px;
-    }
-
-    .mode-btn {
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      background: #f3f4f6;
-      cursor: pointer;
-    }
-
-    .mode-btn.active {
-      background: #111827;
-      color: #f9fafb;
-      border-color: #111827;
-    }
-
-    /* Thinking dots */
+    /* Thinking Animation */
     .thinking-dots {
-      display: inline-flex;
-      gap: 3px;
-      align-items: center;
-      margin-top: 2px;
+      display: inline-flex; gap: 4px; padding: 0 4px;
     }
-
     .thinking-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 999px;
-      background: #9ca3af;
-      opacity: 0.4;
-      animation: pulse 1s infinite ease-in-out;
+      width: 6px; height: 6px; background: #9ca3af; border-radius: 50%;
+      animation: pulse 1.4s infinite;
     }
+    .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
 
-    .thinking-dot:nth-child(2) {
-      animation-delay: 0.15s;
-    }
-
-    .thinking-dot:nth-child(3) {
-      animation-delay: 0.3s;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        transform: translateY(0);
-        opacity: 0.4;
-      }
-
-      50% {
-        transform: translateY(-2px);
-        opacity: 1;
-      }
-    }
-
+    /* Mobile Responsive */
     @media (max-width: 900px) {
-      .sidebar {
-        display: none;
-      }
-
-      .chat-layout {
-        flex-direction: column;
-      }
-    }
-
-    @media (max-width: 720px) {
-      .top-bar-inner {
-        padding: 0 12px;
-      }
-
-      .app-shell {
-        padding: 8px 10px 8px;
-      }
-
-      .panel {
-        border-radius: 18px;
-      }
-
-      .top-status {
-        display: none;
-      }
-
-      textarea,
-      button {
-        font-size: 1rem;
-      }
-
-      .input-inner,
-      .actions-row,
-      .status-line,
-      .mode-toggle,
-      .prompt-examples {
-        max-width: 100%;
-      }
-    }
-
-    /* ===== הדפסה נקייה ===== */
-    @media print {
-
-      .landing-overlay,
-      .top-bar,
-      .input-shell,
-      .sidebar {
-        display: none !important;
-      }
-
-      body {
-        background: #ffffff !important;
-      }
-
-      .app-shell {
-        padding: 0;
-      }
-
-      .panel {
-        box-shadow: none;
-        border: none;
-        border-radius: 0;
-      }
-
-      #messages {
-        border: none;
-        background: #ffffff;
-      }
+      .sidebar { display: none; } /* מחביא סרגל צד במובייל */
+      .app-shell { padding: 10px; }
+      .chat-panel { border-radius: 16px; }
+      #messages { padding: 15px; }
+      .message-content { max-width: 90%; }
     }
   </style>
 </head>
 
 <body>
-  <!-- דף כניסה / פתיחת וילון -->
+
   <div id="landing-overlay" class="landing-overlay">
     <div class="landing-content">
-      <div class="landing-logo">
-        <div class="brand-icon landing-icon"></div>
-        <div class="landing-title">DRAFFIQ AI</div>
-        <div class="landing-subtitle">יחידת מודיעין עסקית לשוק ההון הישראלי</div>
+      <div class="landing-icon"></div>
+      <div style="text-align:center;">
+        <h1 class="landing-title">DRAFFIQ AI</h1>
+        <div class="landing-subtitle">מודיעין עסקי לשוק ההון</div>
       </div>
-      <div class="landing-cta-wrap">
-        <button type="button" id="landing-cta" class="landing-cta">
-          <span>יחידת מודיעין עסקית</span>
-          <span class="arrow">←</span>
-        </button>
-      </div>
+      <button type="button" id="landing-cta" class="landing-cta">
+        <span>כניסה למערכת</span>
+        <span>←</span>
+      </button>
     </div>
-    <div class="landing-curtain"></div>
   </div>
 
   <div class="top-bar">
     <div class="top-bar-inner">
       <div class="brand">
-        <div class="brand-icon"></div>
-        <div>
-          <div class="brand-title">DRAFFIQ AI</div>
-          <div class="brand-subtitle">מחקר וניתוח לשוק ההון הישראלי</div>
+        <div class="brand-logo-small">DF</div>
+        <div class="brand-text">
+          <h1>DRAFFIQ</h1>
+          <span>Financial Intelligence</span>
         </div>
       </div>
-      <div class="top-right">
-        <div class="top-status">
-          ENGINE: DRAFFIQ · SCOPE: TASE · FINANCE ONLY
-        </div>
-        <button type="button" id="new-btn" class="top-new-btn">שיחה חדשה</button>
-        <button type="button" class="menu-btn" id="menu-btn">☰</button>
 
-        <!-- תפריט ניווט -->
+      <div class="top-actions">
+        <div class="status-badge">TASE LIVE</div>
+        <button id="new-btn" class="new-chat-btn-top">+ שיחה חדשה</button>
+        <button id="menu-btn" class="icon-btn">☰</button>
+        
         <div id="menu-dropdown" class="menu-dropdown">
-          <button type="button" class="menu-item-btn" id="home-link">דף הבית</button>
-          <button type="button" class="menu-item-btn" id="chat-link">צ׳אט TASE</button>
+           <button class="menu-item" id="home-link">מסך הבית</button>
+           <button class="menu-item" id="chat-link">היסטוריה</button>
         </div>
       </div>
     </div>
   </div>
 
   <div class="app-shell">
-    <div class="chat-wrapper">
-      <div class="chat-layout">
-        <!-- סרגל שיחות -->
-        <aside class="sidebar" id="session-sidebar">
-          <div class="sidebar-header">
-            <div class="sidebar-title">שיחות</div>
-            <button type="button" id="sidebar-new-btn" class="sidebar-new-btn">+ חדשה</button>
+    <div class="app-container">
+      
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title">היסטוריית שיחות</span>
+          <button id="sidebar-new-btn" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">+</button>
+        </div>
+        <div class="session-list" id="session-list">
           </div>
-          <div class="session-list" id="session-list"></div>
-        </aside>
+      </aside>
 
-        <!-- איזור הצ׳אט -->
-        <div class="panel" id="chat-section">
-          <div id="messages">
-            <div class="message system">
-              <div class="system-line-sub">
-                כתוב פרומפט מלא כפי שהיית מגדיר לאנליסט בכיר, כולל מצב עבודה (Quick-Scan / Deep-Dive),
-                נכס (מניה/אג״ח/סקטור) ודגשים עיקריים.
+      <main class="chat-panel" id="chat-section">
+        <div id="messages">
+          <div class="message system">
+            <strong>ברוכים הבאים ל-DRAFFIQ AI</strong><br>
+            המערכת מתמחה בניתוח דוחות, אג"ח ומניות בשוק ההון הישראלי.<br>
+            ניתן לבקש ניתוח Quick-Scan או העמקה Deep-Dive.
+          </div>
+        </div>
+
+        <div class="input-area-wrapper">
+          <form id="chat-form">
+            <div class="input-box-container">
+              <div class="textarea-row">
+                <textarea id="query" name="query" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
+                <button type="submit" id="send-btn" class="send-btn">➤</button>
+              </div>
+              
+              <div class="tools-row">
+                <div class="mode-switch">
+                  <button type="button" class="mode-option active" data-mode="quick">Quick Scan</button>
+                  <button type="button" class="mode-option" data-mode="deep">Deep Dive</button>
+                </div>
+                
+                <div class="extra-actions">
+                  <button type="button" class="action-pill" id="share-btn">שתף</button>
+                  <button type="button" class="action-pill" id="print-btn">PDF</button>
+                </div>
               </div>
             </div>
-          </div>
+            
+            <div id="promptExamplesContainer" class="examples-container"></div>
+            
+            <div style="text-align:center; margin-top:10px; font-size:0.65rem; color:#9ca3af;">
+              המידע אינו מהווה ייעוץ השקעות. ט.ל.ח.
+            </div>
+          </form>
+        </div>
+      </main>
 
-          <div class="input-shell">
-            <form id="chat-form">
-              <div class="input-inner">
-                <div class="input-textarea-wrap">
-                  <textarea id="query" name="query" rows="3"></textarea>
-                </div>
-                <button type="submit" id="send-btn">
-                  <span class="icon">➤</span>
-                  <span class="label">שלח</span>
-                </button>
-              </div>
-
-              <div class="actions-row">
-                <button type="button" id="print-btn">הדפס / PDF</button>
-                <button type="button" id="share-btn">שיתוף</button>
-              </div>
-
-              <div class="mode-toggle">
-                <span class="mode-label">מצב עבודה:</span>
-                <button type="button" class="mode-btn active" data-mode="quick">
-                  Quick-Scan
-                </button>
-                <button type="button" class="mode-btn" data-mode="deep">
-                  Deep-Dive
-                </button>
-              </div>
-
-              <!-- כאן ייכנסו כפתורי הדוגמאות -->
-              <div id="promptExamplesContainer"></div>
-
-              <div class="status-line">
-                <div class="status-pill">
-                  <span class="status-dot"></span>
-                  <span>מצב: מחקר פיננסי בלבד · לא ייעוץ השקעות</span>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div> <!-- /panel -->
-      </div> <!-- /chat-layout -->
     </div>
   </div>
 
@@ -1018,26 +529,14 @@
 
     let sessions = [];
     let activeSessionId = null;
-    let currentMode = "quick"; // quick | deep
+    let currentMode = "quick";
 
-    // דוגמאות לפרומפטים מוכנים
+    // Prompts
     const EXAMPLE_PROMPTS = [
-      {
-        label: "ניתוח עומק – מניה",
-        text: "תן לי ניתוח עומק על מניית ______ עם דגש על מודל עסקי, יתרון תחרותי ומבנה שוק ב-5–10 שנים קדימה."
-      },
-      {
-        label: "השוואה בין שני נכסים",
-        text: "השווה בין מניית ______ לאג\"ח ______ ברמת סיכונים, מודל עסקי, תזרים ותרחיש בסיסי לשנים הקרובות."
-      },
-      {
-        label: "ניתוח סקטור – בנקים",
-        text: "נתח את סקטור הבנקים בישראל: מבנה שוק, רגולציה, רווחיות, חשיפות מרכזיות וסיכונים עיקריים."
-      },
-      {
-        label: "Quick-Scan – דוח רבעוני",
-        text: "בצע Quick-Scan על הדוח הרבעוני האחרון של ______, תוך דגש על צמיחה, רווחיות, חוב ו-Red Flags מהותיים."
-      }
+      { label: "ניתוח מניה", text: "תן לי ניתוח עומק על מניית פועלים, דגש על תשואת דיבידנד." },
+      { label: "השוואת אג\"ח", text: "השווה בין אג\"ח ממשלתי שקלי לאג\"ח קונצרני בדירוג AA." },
+      { label: "סקטור נדל\"ן", text: "מהם הסיכונים המרכזיים כיום בסקטור הנדל\"ן המניב?" },
+      { label: "Quick Scan דוח", text: "בצע סריקה מהירה על הדוח האחרון של בזק, חפש Red Flags." }
     ];
 
     function setViewportHeight() {
@@ -1046,148 +545,79 @@
     }
     window.addEventListener("load", setViewportHeight);
     window.addEventListener("resize", setViewportHeight);
-    window.addEventListener("orientationchange", setViewportHeight);
 
-    // שומרים גובה קבוע – אין גדילה עם הטקסט
+    // Auto resize textarea
     function autoResizeTextarea(el) {
-      // no-op – נשאר בגובה קבוע
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 120) + 'px';
     }
 
     if (textarea) {
       textarea.addEventListener("input", () => autoResizeTextarea(textarea));
-      textarea.addEventListener("focus", () => {
-        setTimeout(() => {
-          messages.scrollTop = messages.scrollHeight;
-        }, 50);
+      textarea.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          form.dispatchEvent(new Event("submit"));
+        }
       });
     }
 
-    // הופך טקסט רגיל ללינקים לחיצים (עם escape בסיסי)
+    // Link parsing
     function renderTextWithLinks(text) {
       if (!text) return "";
-      let escaped = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
+      let escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       const urlRegex = /(https?:\/\/[^\s)]+)/g;
-
-      escaped = escaped.replace(urlRegex, (url) => {
-        let clean = url;
-        let trailing = "";
-
-        while (/[),.!?]$/.test(clean)) {
-          trailing = clean.slice(-1) + trailing;
-          clean = clean.slice(0, -1);
-        }
-
-        return `<a href="${clean}" target="_blank" rel="noopener noreferrer" class="inline-link">🔗 קישור</a>${trailing}`;
+      return escaped.replace(urlRegex, (url) => {
+        return `<a href="${url}" target="_blank">🔗 קישור</a>`;
       });
-
-      return escaped;
     }
 
+    // Session Management
     function saveSessions() {
-      try {
-        const payload = {
-          sessions,
-          activeSessionId
-        };
-        localStorage.setItem(SESSIONS_KEY, JSON.stringify(payload));
-      } catch (e) {
-        // לא קריטי אם נכשל – ממשיכים בלי להפיל את ה-UI
-      }
+      try { localStorage.setItem(SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId })); } catch(e){}
     }
-
-    function getActiveSession() {
-      return sessions.find((s) => s.id === activeSessionId) || null;
-    }
+    function getActiveSession() { return sessions.find((s) => s.id === activeSessionId) || null; }
 
     function renderMessagesForSession(session, options = {}) {
       const { scroll = true } = options;
       if (!messages) return;
-
-      // מסיר את כל השורות הדינמיות ומשאיר את הודעת המערכת
+      
+      // Clear dynamic messages only (keep system message if you want, or clearer to wipe all)
+      // Strategy: Remove all .message-row
       const rows = messages.querySelectorAll(".message-row");
-      rows.forEach((r) => r.remove());
+      rows.forEach(r => r.remove());
 
-      if (!session || !Array.isArray(session.messages)) {
-        if (scroll) messages.scrollTop = messages.scrollHeight;
-        return;
-      }
-
-      session.messages.forEach((m) => {
-        appendMessage(m.text, m.role, { persist: false, scroll: false });
-      });
-
-      if (scroll) {
-        messages.scrollTop = messages.scrollHeight;
-      }
+      if (!session || !Array.isArray(session.messages)) return;
+      session.messages.forEach(m => appendMessage(m.text, m.role, { persist: false, scroll: false }));
+      if (scroll) messages.scrollTop = messages.scrollHeight;
     }
 
     function renderSessionList() {
       if (!sessionListEl) return;
       sessionListEl.innerHTML = "";
-
-      sessions.forEach((sess) => {
+      sessions.forEach(sess => {
         const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className =
-          "session-item" + (sess.id === activeSessionId ? " active" : "");
-        btn.textContent = sess.title || "שיחה ללא כותרת";
-        btn.addEventListener("click", () => {
-          if (sess.id === activeSessionId) return;
+        btn.className = "session-item" + (sess.id === activeSessionId ? " active" : "");
+        btn.textContent = sess.title || "שיחה חדשה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+        btn.onclick = () => {
           activeSessionId = sess.id;
           saveSessions();
           renderSessionList();
-          renderMessagesForSession(sess, { scroll: false });
-          if (textarea) textarea.focus();
-        });
+          renderMessagesForSession(sess);
+        };
         sessionListEl.appendChild(btn);
       });
     }
 
     function createNewSession() {
       const id = "s_" + Date.now();
-      const session = {
-        id,
-        title: "שיחה חדשה",
-        createdAt: Date.now(),
-        messages: []
-      };
-      sessions.push(session);
+      const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [] };
+      sessions.unshift(session); // Add to top
       activeSessionId = id;
       saveSessions();
       renderSessionList();
-      renderMessagesForSession(session, { scroll: false });
-      if (textarea) {
-        textarea.value = "";
-        textarea.focus();
-      }
-    }
-
-    function migrateOldHistoryIfNeeded() {
-      try {
-        const raw = localStorage.getItem(OLD_STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed) || !parsed.length) return;
-
-        const id = "s_" + Date.now();
-        sessions = [
-          {
-            id,
-            title: "שיחה קודמת",
-            createdAt: Date.now(),
-            messages: parsed
-          }
-        ];
-        activeSessionId = id;
-        // אופציונלי – ניקוי הישן
-        // localStorage.removeItem(OLD_STORAGE_KEY);
-      } catch (e) {
-        // מתעלמים
-      }
+      renderMessagesForSession(session);
+      if(textarea) { textarea.value = ""; autoResizeTextarea(textarea); textarea.focus(); }
     }
 
     function loadSessions() {
@@ -1195,97 +625,36 @@
         const raw = localStorage.getItem(SESSIONS_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.sessions)) {
-            sessions = parsed.sessions;
-            activeSessionId =
-              parsed.activeSessionId ||
-              (parsed.sessions[0] && parsed.sessions[0].id) ||
-              null;
-          }
+          sessions = parsed.sessions || [];
+          activeSessionId = parsed.activeSessionId || (sessions[0]?.id) || null;
         }
-
-        if (!sessions || !sessions.length) {
-          migrateOldHistoryIfNeeded();
-        }
-
-        if (!sessions || !sessions.length) {
-          const id = "s_" + Date.now();
-          sessions = [
-            {
-              id,
-              title: "שיחה חדשה",
-              createdAt: Date.now(),
-              messages: []
-            }
-          ];
-          activeSessionId = id;
-        }
-      } catch (e) {
-        const id = "s_" + Date.now();
-        sessions = [
-          {
-            id,
-            title: "שיחה חדשה",
-            createdAt: Date.now(),
-            messages: []
-          }
-        ];
-        activeSessionId = id;
-      }
+        if (!sessions.length) createNewSession();
+      } catch (e) { createNewSession(); }
     }
 
+    // Appending Messages (Updated HTML Structure)
     function appendMessage(text, role, options = {}) {
       const { persist = true, scroll = true } = options;
-      if (!messages) return;
-
+      
       const row = document.createElement("div");
-      row.className = "message-row " + role;
-
-      const avatarWrap = document.createElement("div");
-      avatarWrap.className = "message-avatar";
-      const avatar = document.createElement("div");
-      avatar.className =
-        "avatar-circle " + (role === "user" ? "avatar-user" : "avatar-assistant");
-      avatar.textContent = role === "user" ? "YOU" : "";
-      avatarWrap.appendChild(avatar);
-
-      const contentWrap = document.createElement("div");
-      contentWrap.className = "message-content";
-      const meta = document.createElement("div");
-      meta.className = "message-meta";
-      meta.textContent = role === "user" ? "משתמש" : "DRAFFIQ AI";
-      const body = document.createElement("div");
-      body.innerHTML = renderTextWithLinks(text);
-
-      contentWrap.appendChild(meta);
-      contentWrap.appendChild(body);
-      row.appendChild(contentWrap);
-      row.appendChild(avatarWrap);
+      row.className = "message-row " + role; // user or assistant
+      
+      const content = document.createElement("div");
+      content.className = "message-content";
+      content.innerHTML = renderTextWithLinks(text);
+      
+      row.appendChild(content);
       messages.appendChild(row);
 
-      if (scroll) {
-        messages.scrollTop = messages.scrollHeight;
-      }
+      if (scroll) messages.scrollTop = messages.scrollHeight;
 
       if (persist) {
         const session = getActiveSession();
         if (session) {
-          // עדכון כותרת שיחה לפי הודעת המשתמש הראשונה
-          if (
-            role === "user" &&
-            Array.isArray(session.messages) &&
-            session.messages.length === 0
-          ) {
-            let title = text.replace(/\s+/g, " ").trim();
-            if (title.length > 28) {
-              title = title.slice(0, 28) + "…";
-            }
-            session.title = title || "שיחה חדשה";
+          if (role === "user" && session.messages.length === 0) {
+            let t = text.substring(0, 30);
+            session.title = t;
             renderSessionList();
-          }
-
-          if (!Array.isArray(session.messages)) {
-            session.messages = [];
           }
           session.messages.push({ role, text });
           saveSessions();
@@ -1296,276 +665,94 @@
     function appendThinking() {
       const row = document.createElement("div");
       row.className = "message-row assistant";
-      row.dataset.thinking = "true";
-
-      const avatarWrap = document.createElement("div");
-      avatarWrap.className = "message-avatar";
-      const avatar = document.createElement("div");
-      avatar.className = "avatar-circle avatar-assistant";
-      avatar.textContent = "";
-      avatarWrap.appendChild(avatar);
-
-      const contentWrap = document.createElement("div");
-      contentWrap.className = "message-content";
-      const meta = document.createElement("div");
-      meta.className = "message-meta";
-      meta.textContent = "DRAFFIQ AI";
-      const dots = document.createElement("div");
-      dots.className = "thinking-dots";
-      dots.innerHTML = `
-        <span class="thinking-dot"></span>
-        <span class="thinking-dot"></span>
-        <span class="thinking-dot"></span>
-      `;
-
-      contentWrap.appendChild(meta);
-      contentWrap.appendChild(dots);
-      row.appendChild(contentWrap);
-      row.appendChild(avatarWrap);
+      const content = document.createElement("div");
+      content.className = "message-content";
+      content.innerHTML = `<div class="thinking-dots"><span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span></div>`;
+      row.appendChild(content);
       messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
       return row;
     }
 
+    // Handlers
     async function callApi(query) {
       const response = await fetch("/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query })
       });
-      if (!response.ok) {
-        let err;
-        try {
-          err = await response.json();
-        } catch {
-          err = {};
-        }
-        throw new Error(err.error || "אירעה תקלה בצד השרת.");
-      }
+      if (!response.ok) throw new Error("Server Error");
       const data = await response.json();
-      if (!data.ok) {
-        throw new Error(data.error || "אירעה תקלה בצד השרת.");
-      }
       return data.answer;
     }
 
-    // מוציא את כל השיחה הנוכחית כטקסט פשוט (לשיתוף)
-    function getConversationPlainText() {
-      const session = getActiveSession();
-      if (session && Array.isArray(session.messages) && session.messages.length > 0) {
-        return session.messages
-          .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
-          .join("\n\n");
-      }
-      const rows = messages.querySelectorAll(".message-row");
-      const parts = [];
-      rows.forEach((row) => {
-        const isUser = row.classList.contains("user");
-        const label = isUser ? "YOU" : "DRAFFIQ";
-        const contentEl = row.querySelector(".message-content");
-        if (!contentEl) return;
-        const text = contentEl.innerText.trim();
-        if (!text) return;
-        parts.push(label + ":\n" + text);
-      });
-      return parts.join("\n\n");
-    }
-
-    // הדפסה / PDF
-    if (printBtn) {
-      printBtn.addEventListener("click", () => {
-        window.print();
-      });
-    }
-
-    // שיתוף לסלולאר (Web Share API + fallback)
-    if (shareBtn) {
-      shareBtn.addEventListener("click", async () => {
-        const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
-        const title = "DRAFFIQ – שיחת מחקר";
-        const url = window.location.href;
-        if (navigator.share) {
-          try {
-            await navigator.share({ title, text, url });
-          } catch (e) {
-            // אם המשתמש ביטל – מתעלמים
-          }
-        } else {
-          try {
-            await navigator.clipboard.writeText(text + "\n\n" + url);
-            alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק ידנית באפליקציית שיתוף.");
-          } catch {
-            alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
-          }
-        }
-      });
-    }
-
-    // פונקציות לדף הנחיתה (וילון) – עצירה עד לחיצה על CTA
-    function hideLandingOverlay() {
-      if (!landingOverlay || landingOverlay.classList.contains("hidden")) return;
-      landingOverlay.classList.add("hidden");
-      if (chatSection && typeof chatSection.scrollIntoView === "function") {
-        chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-
+    // UI Events
     if (landingCta) {
-      landingCta.addEventListener("click", hideLandingOverlay);
-    }
-
-    function handleNewChatClick() {
-      createNewSession();
-      if (menuDropdown) menuDropdown.classList.remove("open");
-    }
-
-    if (newBtn) {
-      newBtn.addEventListener("click", handleNewChatClick);
-    }
-
-    if (sidebarNewBtn) {
-      sidebarNewBtn.addEventListener("click", handleNewChatClick);
-    }
-
-    // תפריט ניווט
-    function toggleMenu() {
-      if (!menuDropdown) return;
-      menuDropdown.classList.toggle("open");
-    }
-
-    if (menuBtn) {
-      menuBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleMenu();
+      landingCta.addEventListener("click", () => {
+        landingOverlay.classList.add("hidden");
       });
     }
 
-    if (homeLink) {
-      homeLink.addEventListener("click", () => {
-        window.location.href = "/";
+    // Mode Toggle
+    document.querySelectorAll(".mode-option").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".mode-option").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentMode = btn.dataset.mode;
       });
-    }
-
-    if (chatLink) {
-      chatLink.addEventListener("click", () => {
-        if (chatSection && typeof chatSection.scrollIntoView === "function") {
-          chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-        if (menuDropdown) menuDropdown.classList.remove("open");
-      });
-    }
-
-    // סגירת תפריט בלחיצה מחוץ
-    document.addEventListener("click", (e) => {
-      if (!menuDropdown || !menuDropdown.classList.contains("open")) return;
-      const target = e.target;
-      if (
-        target === menuBtn ||
-        (menuBtn && menuBtn.contains(target)) ||
-        menuDropdown.contains(target)
-      ) {
-        return;
-      }
-      menuDropdown.classList.remove("open");
     });
 
-    // רינדור כפתורי הדוגמאות
+    // Example Chips
     function renderPromptExamples() {
       const container = document.getElementById("promptExamplesContainer");
-      if (!container || !textarea) return;
-
-      const buttonsHtml = EXAMPLE_PROMPTS.map(
-        (ex, idx) => `
-          <button type="button" class="example-btn" data-idx="${idx}">
-            ${ex.label}
-          </button>
-        `
+      if(!container) return;
+      container.innerHTML = EXAMPLE_PROMPTS.map((ex, i) => 
+        `<button type="button" class="example-chip" onclick="usePrompt(${i})">${ex.label}</button>`
       ).join("");
-
-      container.innerHTML = `
-        <div class="prompt-examples">
-          <span class="examples-label">דוגמאות לשאילתות:</span>
-          ${buttonsHtml}
-        </div>
-      `;
-
-      container.addEventListener("click", (e) => {
-        const btn = e.target.closest(".example-btn");
-        if (!btn) return;
-        const idx = btn.getAttribute("data-idx");
-        const example = EXAMPLE_PROMPTS[idx];
-        if (!example) return;
-        textarea.value = example.text;
-        autoResizeTextarea(textarea);
-        textarea.focus();
-      });
     }
+    window.usePrompt = (i) => {
+      textarea.value = EXAMPLE_PROMPTS[i].text;
+      autoResizeTextarea(textarea);
+      textarea.focus();
+    };
 
-    // מצב עבודה – Quick / Deep
-    function setupModeToggle() {
-      const buttons = document.querySelectorAll(".mode-btn");
-      if (!buttons.length) return;
-
-      buttons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          buttons.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          const mode = btn.getAttribute("data-mode");
-          currentMode = mode === "deep" ? "deep" : "quick";
-        });
-      });
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      setViewportHeight();
-      loadSessions();
-      renderSessionList();
-      renderMessagesForSession(getActiveSession(), { scroll: false });
-      renderPromptExamples();
-      setupModeToggle();
+    // Submitting
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const raw = textarea.value.trim();
+      if (!raw) return;
+      
+      const fullQuery = `[Mode: ${currentMode}] ${raw}`;
+      appendMessage(fullQuery, "user"); // Show user text
+      textarea.value = ""; autoResizeTextarea(textarea);
+      
+      const thinking = appendThinking();
+      
+      try {
+        const ans = await callApi(fullQuery);
+        thinking.remove();
+        appendMessage(ans, "assistant");
+      } catch (err) {
+        thinking.remove();
+        appendMessage("שגיאה בתקשורת עם השרת.", "assistant");
+      }
     });
 
-    if (form) {
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const rawQuery = textarea.value.trim();
-        if (!rawQuery) return;
+    // Menus
+    if (menuBtn) menuBtn.onclick = (e) => { e.stopPropagation(); menuDropdown.classList.toggle("open"); };
+    document.onclick = () => menuDropdown.classList.remove("open");
+    
+    // New Chat
+    const startNew = () => { createNewSession(); menuDropdown.classList.remove("open"); };
+    if (newBtn) newBtn.onclick = startNew;
+    if (sidebarNewBtn) sidebarNewBtn.onclick = startNew;
 
-        const modePrefix =
-          currentMode === "deep"
-            ? "מצב עבודה: Deep-Dive – ניתוח עומק. "
-            : "מצב עבודה: Quick-Scan – סריקה מהירה. ";
+    // Initialization
+    loadSessions();
+    renderSessionList();
+    renderMessagesForSession(getActiveSession(), {scroll:false});
+    renderPromptExamples();
 
-        const finalQuery = modePrefix + rawQuery;
-
-        appendMessage(finalQuery, "user", { scroll: true });
-        textarea.value = "";
-        autoResizeTextarea(textarea);
-        textarea.focus();
-        sendBtn.disabled = true;
-        const originalLabel = sendBtn.querySelector(".label").textContent;
-        sendBtn.querySelector(".label").textContent = "מעבד...";
-        const thinkingRow = appendThinking();
-        try {
-          const answer = await callApi(finalQuery);
-          thinkingRow.remove();
-          appendMessage(answer, "assistant", { scroll: false });
-        } catch (err) {
-          thinkingRow.remove();
-          appendMessage(
-            "הייתה בעיה בעיבוד הבקשה: " + (err.message || "שגיאה לא ידועה."),
-            "assistant",
-            { scroll: false }
-          );
-        } finally {
-          sendBtn.disabled = false;
-          sendBtn.querySelector(".label").textContent = originalLabel;
-        }
-      });
-    }
   </script>
-
 </body>
-
 </html>
