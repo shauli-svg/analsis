@@ -224,21 +224,21 @@
     }
 
     .brand-logo-small {
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 22%, #9ca3af 100%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 0;
-  font-size: 0rem;
-  color: #f9fafb;
-  box-shadow:
-    0 0 0 1px rgba(148, 163, 184, 0.35),
-    0 2px 4px rgba(15, 23, 42, 0.18);
-  margin-top: 3px;
-}
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 22%, #9ca3af 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 0;
+      font-size: 0rem;
+      color: #f9fafb;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.35),
+        0 2px 4px rgba(15, 23, 42, 0.18);
+      margin-top: 3px;
+    }
 
     .brand-text {
       display: flex;
@@ -424,29 +424,91 @@
       gap: 4px;
     }
 
-    .session-item {
+    /* ===== Session items with 3-dots menu ===== */
+    .session-item-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 4px;
+      border-radius: var(--radius-sm);
+    }
+
+    .session-item-main {
       text-align: right;
       border: none;
       background: transparent;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: var(--radius-sm);
       font-size: 0.85rem;
       color: #374151;
       cursor: pointer;
       transition: background 0.15s;
+      flex: 1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .session-item:hover {
+    .session-item-main:hover {
       background: #f3f4f6;
     }
 
-    .session-item.active {
+    .session-item-wrapper.active .session-item-main {
       background: #eff6ff;
       color: #1d4ed8;
       font-weight: 500;
+    }
+
+    .session-item-menu-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #9ca3af;
+      padding: 2px 4px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .session-item-menu-btn:hover {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .session-item-menu {
+      position: absolute;
+      left: 6px;
+      top: 100%;
+      margin-top: 4px;
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      box-shadow: var(--shadow-md);
+      padding: 4px;
+      min-width: 140px;
+      z-index: 160;
+      display: none;
+    }
+
+    .session-item-menu.open {
+      display: block;
+    }
+
+    .session-item-menu-item {
+      width: 100%;
+      text-align: right;
+      border: none;
+      background: transparent;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border-radius: 4px;
+      color: #111827;
+    }
+
+    .session-item-menu-item:hover {
+      background: #f3f4f6;
     }
 
     /* Chat Area */
@@ -882,7 +944,11 @@
         overflow-y: hidden;
       }
 
-      .session-item {
+      .session-item-wrapper {
+        min-width: 140px;
+      }
+
+      .session-item-main {
         font-size: 0.75rem;
         padding: 6px 10px;
         max-width: 180px;
@@ -1172,15 +1238,21 @@
     function renderSessionList() {
       if (!sessionListEl) return;
       sessionListEl.innerHTML = "";
-      sessions.forEach(sess => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "session-item" + (sess.id === activeSessionId ? " active" : "");
-        btn.textContent = sess.title ||
-          ("שיחה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }));
-        btn.title = "הקלק פעמיים לשינוי שם";
 
-        btn.addEventListener("click", () => {
+      sessions.forEach(sess => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "session-item-wrapper" + (sess.id === activeSessionId ? " active" : "");
+        wrapper.dataset.sessionId = sess.id;
+
+        // כפתור ראשי – פתיחת השיחה
+        const mainBtn = document.createElement("button");
+        mainBtn.type = "button";
+        mainBtn.className = "session-item-main";
+        mainBtn.textContent = sess.title ||
+          ("שיחה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }));
+        mainBtn.title = "פתיחת שיחה";
+
+        mainBtn.addEventListener("click", () => {
           if (sess.id === activeSessionId) return;
           activeSessionId = sess.id;
           saveSessions();
@@ -1188,7 +1260,24 @@
           renderMessagesForSession(sess);
         });
 
-        btn.addEventListener("dblclick", () => {
+        // כפתור שלוש נקודות
+        const menuBtn = document.createElement("button");
+        menuBtn.type = "button";
+        menuBtn.className = "session-item-menu-btn";
+        menuBtn.innerHTML = "⋮";
+
+        // תפריט שיחה
+        const menu = document.createElement("div");
+        menu.className = "session-item-menu";
+
+        const renameItem = document.createElement("button");
+        renameItem.type = "button";
+        renameItem.className = "session-item-menu-item";
+        renameItem.textContent = "שנה שם שיחה";
+
+        renameItem.addEventListener("click", (e) => {
+          e.stopPropagation();
+          menu.classList.remove("open");
           const currentTitle = sess.title || "";
           const newTitle = prompt("שם חדש לשיחה:", currentTitle);
           if (newTitle && newTitle.trim()) {
@@ -1198,7 +1287,23 @@
           }
         });
 
-        sessionListEl.appendChild(btn);
+        menu.appendChild(renameItem);
+
+        menuBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isOpen = menu.classList.contains("open");
+          // לסגור אחרים
+          document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
+          if (!isOpen) {
+            menu.classList.add("open");
+          }
+        });
+
+        wrapper.appendChild(mainBtn);
+        wrapper.appendChild(menuBtn);
+        wrapper.appendChild(menu);
+
+        sessionListEl.appendChild(wrapper);
       });
     }
 
@@ -1427,13 +1532,21 @@
       });
     }
 
+    // סגירת תפריטי top bar + תפריטי שיחות בלחיצה בחוץ
     document.addEventListener("click", (e) => {
-      if (!menuDropdown || !menuDropdown.classList.contains("open")) return;
       const target = e.target;
-      if (target === menuBtn || (menuBtn && menuBtn.contains(target)) || menuDropdown.contains(target)) {
-        return;
+
+      // תפריט עליון
+      if (menuDropdown && menuDropdown.classList.contains("open")) {
+        if (target !== menuBtn && !(menuBtn && menuBtn.contains(target)) && !menuDropdown.contains(target)) {
+          menuDropdown.classList.remove("open");
+        }
       }
-      menuDropdown.classList.remove("open");
+
+      // תפריטי שיחות – אם הלחיצה לא בתוך wrapper של שיחה
+      if (!target.closest(".session-item-wrapper")) {
+        document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
+      }
     });
 
     function renderPromptExamples() {
