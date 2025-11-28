@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 
 <head>
@@ -108,10 +109,9 @@
       animation: fadeInLogin 0.8s ease-out;
     }
 
-    /* לוגו מסך פתיחה – red-dot + קפיצה יותר חיננית */
     .landing-icon {
-      width: 40px;
-      height: 40px;
+      width: 35px;
+      height: 35px;
       border-radius: 999px;
       background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 24%, #9ca3af 100%);
       box-shadow:
@@ -121,7 +121,7 @@
     }
 
     .landing-title {
-      font-size: 2.3rem;
+      font-size: 2.1rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       background: linear-gradient(135deg, #111827 0%, #4b5563 100%);
@@ -223,10 +223,9 @@
       gap: 8px;
     }
 
-    /* לוגו למעלה – red-dot מיושר לראש המילה */
     .brand-logo-small {
-      width: 20px;
-      height: 20px;
+      width: 15px;
+      height: 15px;
       border-radius: 999px;
       background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 22%, #9ca3af 100%);
       display: inline-flex;
@@ -234,8 +233,6 @@
       justify-content: center;
       font-weight: 0;
       font-size: 0rem;
-      letter-spacing: -0.02em;
-      text-transform: uppercase;
       color: #f9fafb;
       box-shadow:
         0 0 0 1px rgba(148, 163, 184, 0.6),
@@ -724,7 +721,6 @@
       margin-bottom: 2px;
     }
 
-    .meta-field input,
     .meta-field select {
       border-radius: 999px;
       border: 1px solid var(--border-subtle);
@@ -850,13 +846,46 @@
       }
     }
 
+    /* ===== Mobile Layout Tweaks ===== */
     @media (max-width: 900px) {
-      .sidebar {
-        display: none;
+      .app-shell {
+        padding: 8px;
       }
 
-      .app-shell {
-        padding: 10px;
+      .app-container {
+        flex-direction: column;
+        height: calc(100vh - 64px);
+        gap: 8px;
+      }
+
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        padding: 8px 10px;
+        border-radius: 14px;
+        margin-bottom: 4px;
+      }
+
+      .sidebar-header {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+        flex-shrink: 0;
+      }
+
+      .session-list {
+        flex: 1;
+        flex-direction: row;
+        gap: 6px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .session-item {
+        font-size: 0.75rem;
+        padding: 6px 10px;
+        max-width: 180px;
       }
 
       .chat-panel {
@@ -864,21 +893,31 @@
       }
 
       #messages {
-        padding: 15px;
+        padding: 12px;
       }
 
       .message-content {
-        max-width: 90%;
+        max-width: 95%;
       }
 
       .meta-row {
         flex-direction: column;
         align-items: flex-start;
+        gap: 4px;
       }
 
       .meta-inline {
         width: 100%;
         justify-content: flex-start;
+      }
+
+      .tools-row {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .mode-switch {
+        margin-bottom: 4px;
       }
     }
   </style>
@@ -891,7 +930,7 @@
       <div class="landing-icon"></div>
       <div style="text-align:center;">
         <h1 class="landing-title">DRAFFIQ AI</h1>
-        <div class="landing-subtitle">מודיעין עסקי לשוק ההון</div>
+        <div class="landing-subtitle">מודיעין עסקי לשוק ההון הישראלי</div>
       </div>
       <button type="button" id="landing-cta" class="landing-cta">
         <span>כניסה למערכת</span>
@@ -907,7 +946,7 @@
         <div class="brand-logo-small">DF</div>
         <div class="brand-text">
           <h1>DRAFFIQ</h1>
-          <span>Financial Intelligence</span>
+          <span>מודיעין עסקי לשוק ההון הישראלי</span>
         </div>
       </div>
 
@@ -932,7 +971,6 @@
         <div class="sidebar-header">
           <span class="sidebar-title">היסטוריית שיחות</span>
           <div class="sidebar-header-actions">
-            <!-- רק כפתור שיחה חדשה בצד -->
             <button id="sidebar-new-btn" title="שיחה חדשה">+</button>
           </div>
         </div>
@@ -954,7 +992,7 @@
             <div class="system-hero-hint">
               ברירת המחדל היא מענה רגיל. אפשר להדליק <strong>Deep Dive</strong> לניתוח מעמיק יותר באותה שיחה.
               <br>
-              מומלץ למלא טיקר/ISIN ולבחור סוג נכס כדי לחדד את התשובה.
+              מומלץ לבחור סוג נכס כדי לחדד את התשובה.
             </div>
           </div>
 
@@ -993,10 +1031,6 @@
 
                 <div class="meta-inline">
                   <div class="meta-field">
-                    <label for="asset-id">טיקר / ISIN / שם</label>
-                    <input id="asset-id" type="text" placeholder="לדוגמה: POAL, IL0006320163">
-                  </div>
-                  <div class="meta-field">
                     <label for="asset-type">סוג נכס</label>
                     <select id="asset-type">
                       <option value="">ללא</option>
@@ -1012,7 +1046,6 @@
 
               <div class="tools-row">
                 <div class="mode-switch">
-                  <!-- רק Deep Dive כ-toggle -->
                   <button type="button" class="mode-option" id="deep-mode-btn" data-mode="deep">
                     Deep Dive
                   </button>
@@ -1058,12 +1091,10 @@
     const sessionListEl = document.getElementById("session-list");
     const sidebarNewBtn = document.getElementById("sidebar-new-btn");
     const deepModeBtn = document.getElementById("deep-mode-btn");
-    const assetIdInput = document.getElementById("asset-id");
     const assetTypeSelect = document.getElementById("asset-type");
 
     let sessions = [];
     let activeSessionId = null;
-    // ברירת מחדל – מצב רגיל, אפשר להפעיל Deep Dive כ-toggle
     let currentMode = "normal";
     let currentWorkMode = "stock";
 
@@ -1149,7 +1180,6 @@
           ("שיחה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }));
         btn.title = "הקלק פעמיים לשינוי שם";
 
-        // פתיחת שיחה
         btn.addEventListener("click", () => {
           if (sess.id === activeSessionId) return;
           activeSessionId = sess.id;
@@ -1158,7 +1188,6 @@
           renderMessagesForSession(sess);
         });
 
-        // ריניימינג על דאבל-קליק
         btn.addEventListener("dblclick", () => {
           const currentTitle = sess.title || "";
           const newTitle = prompt("שם חדש לשיחה:", currentTitle);
@@ -1253,7 +1282,6 @@
       row.appendChild(content);
       messages.appendChild(row);
 
-      // נשארים בראש התשובה – גוללים אוטומטית רק בהודעת המשתמש
       if (scroll && role === "user") {
         messages.scrollTop = messages.scrollHeight;
       }
@@ -1287,7 +1315,6 @@
          </div>`;
       row.appendChild(content);
       messages.appendChild(row);
-      // לא גוללים אוטומטית – המשתמש שולט
       return row;
     }
 
@@ -1313,7 +1340,6 @@
       return data.answer ?? "";
     }
 
-    // שיתוף – טקסט פשוט
     function getConversationPlainText() {
       const session = getActiveSession();
       if (session && Array.isArray(session.messages) && session.messages.length > 0) {
@@ -1472,10 +1498,8 @@
         const raw = textarea ? textarea.value.trim() : "";
         if (!raw) return;
 
-        // מה שהמשתמש רואה בצ'אט
         appendMessage(raw, "user");
 
-        // מטא־דאטה לחידוד ההקשר
         const metaParts = [];
         if (currentWorkMode) {
           metaParts.push(`WORK_MODE=${currentWorkMode}`);
@@ -1483,13 +1507,9 @@
         if (assetTypeSelect && assetTypeSelect.value) {
           metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
         }
-        if (assetIdInput && assetIdInput.value.trim()) {
-          metaParts.push(`ASSET_ID=${assetIdInput.value.trim()}`);
-        }
 
         const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
 
-        // מה שהשרת מקבל – כולל אינדיקציה למצב Deep Dive בלבד
         const queryForApi =
           currentMode === "deep"
             ? metaPrefix + "DEEP_DIVE: " + raw
