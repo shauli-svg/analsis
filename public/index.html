@@ -857,7 +857,7 @@
       max-width: 860px;
       width: 100%;
       margin-inline: auto;
-      justify-content: flex-start; /* ב־RTL זה אומר להתחיל מימין ולרדת שורות */
+      justify-content: flex-start;
     }
 
     .example-chip {
@@ -1018,7 +1018,8 @@
         <div class="brand-logo-small">DF</div>
         <div class="brand-text">
           <h1>DRAFFIQ</h1>
-          <span>מודיעין עסקי לשוק ההון הישראלי</span>
+          <!-- כאן קיצרנו, בלי "הישראלי" -->
+          <span>מודיעין עסקי לשוק ההון</span>
         </div>
       </div>
 
@@ -1482,7 +1483,7 @@
       shareBtn.addEventListener("click", async () => {
         const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
         const title = "DRAFFIQ – שיחת מחקר";
-               const url = window.location.href;
+        const url = window.location.href;
         if (navigator.share) {
           try {
             await navigator.share({ title, text, url });
@@ -1615,7 +1616,7 @@
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const raw = textarea ? textarea.value.trim() : "";
-               if (!raw) return;
+        if (!raw) return;
 
         appendMessage(raw, "user");
 
