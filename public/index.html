@@ -805,6 +805,9 @@
           </div>
         </div>
 
+                <!-- קוביות ממצאים מרכזיים -->
+        <div id="key-findings" class="key-findings"></div>
+
         <div class="input-area-wrapper">
           <form id="chat-form">
             <div class="input-box-container">
@@ -1192,6 +1195,44 @@
     });
 
     function renderPromptExamples() {
+          // יצירת קוביות "ממצאים מרכזיים" מתוך תשובת הבוט
+    function updateKeyFindingsFromAnswer(answerText) {
+      const container = document.getElementById("key-findings");
+      if (!container || !answerText) return;
+
+      // ניקוי קוביות קודמות
+      container.innerHTML = "";
+
+      // ניקוי ריבוי רווחים ושורות
+      const clean = answerText.replace(/\n{2,}/g, "\n").trim();
+      const lines = clean
+        .split("\n")
+        .map(l => l.trim())
+        .filter(Boolean);
+
+      // ננסה קודם לקחת שורות שמתחילות בבולטים (- או •)
+      let bulletLines = lines.filter(l => /^[-•]/.test(l));
+
+      // אם אין בולטים – ניקח את 3 השורות הראשונות
+      if (!bulletLines.length) {
+        bulletLines = lines.slice(0, 3);
+      }
+
+      const top3 = bulletLines.slice(0, 3);
+
+      top3.forEach((line, idx) => {
+        const text = line.replace(/^[-•]\s*/, "");
+
+        const card = document.createElement("div");
+        card.className = "finding-card";
+        card.innerHTML = `
+          <div class="finding-title">ממצא ${idx + 1}</div>
+          <div class="finding-text">${text}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
       const container = document.getElementById("promptExamplesContainer");
       if (!container || !textarea) return;
       container.innerHTML = EXAMPLE_PROMPTS.map((ex, i) =>
@@ -1255,10 +1296,15 @@
         if (sendBtn) sendBtn.disabled = true;
         const thinking = appendThinking();
 
-        try {
+                try {
           const ans = await callApi(fullQuery);
           thinking.remove();
-          appendMessage(ans || "לא התקבלה תשובה מהשרת.", "assistant");
+
+          const safeAnswer = ans || "לא התקבלה תשובה מהשרת.";
+          appendMessage(safeAnswer, "assistant");
+
+          // עדכון קוביות הממצאים מתחת לצ'אט
+          updateKeyFindingsFromAnswer(safeAnswer);
         } catch (err) {
           thinking.remove();
           appendMessage("שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."), "assistant");
