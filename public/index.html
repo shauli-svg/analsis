@@ -644,6 +644,86 @@
       text-decoration: underline;
     }
 
+    /* Message actions (⭐) */
+    .message-actions {
+      margin-top: 6px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      font-size: 0.75rem;
+    }
+
+    .msg-highlight-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      padding: 0;
+    }
+
+    .msg-highlight-btn:hover {
+      color: #f59e0b;
+      transform: translateY(-1px);
+    }
+
+    /* Highlights section under chat */
+    .highlights-section {
+      display: none;
+      max-width: 860px;
+      margin: 0 auto 12px;
+      padding: 8px 4px 4px;
+    }
+
+    .highlights-header {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .highlights-header .emoji {
+      font-size: 0.9rem;
+    }
+
+    .highlights-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .highlight-card {
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 8px 10px;
+      min-width: 180px;
+      max-width: 260px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: right;
+      cursor: default;
+    }
+
+    .highlight-tag {
+      font-size: 0.7rem;
+      color: #4b5563;
+    }
+
+    .highlight-title {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .highlight-snippet {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
     /* Input Area */
     .input-area-wrapper {
       padding: 16px 20px 18px;
@@ -991,6 +1071,14 @@
       .mode-switch {
         margin-bottom: 4px;
       }
+
+      .highlights-container {
+        flex-direction: column;
+      }
+
+      .highlight-card {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -1018,7 +1106,6 @@
         <div class="brand-logo-small">DF</div>
         <div class="brand-text">
           <h1>DRAFFIQ</h1>
-          <!-- כאן קיצרנו, בלי "הישראלי" -->
           <span>מודיעין עסקי לשוק ההון</span>
         </div>
       </div>
@@ -1082,6 +1169,15 @@
             </div>
           </div>
         </div>
+
+        <!-- Highlights under chat -->
+        <section id="highlights-section" class="highlights-section">
+          <div class="highlights-header">
+            <span class="emoji">⭐</span>
+            <span>סיכום השיחה – נקודות מרכזיות ששמרת</span>
+          </div>
+          <div id="highlights-container" class="highlights-container"></div>
+        </section>
 
         <div class="input-area-wrapper">
           <form id="chat-form">
@@ -1223,6 +1319,61 @@
       return sessions.find((s) => s.id === activeSessionId) || null;
     }
 
+    function renderHighlights() {
+      const container = document.getElementById("highlights-container");
+      const section = document.getElementById("highlights-section");
+      if (!container || !section) return;
+
+      const session = getActiveSession();
+      container.innerHTML = "";
+
+      if (!session || !Array.isArray(session.highlights) || !session.highlights.length) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+
+      session.highlights.forEach(h => {
+        const card = document.createElement("div");
+        card.className = "highlight-card";
+        card.innerHTML = `
+          <div class="highlight-tag">${h.tag || "סיכום"}</div>
+          <div class="highlight-title">${h.title || "ללא כותרת"}</div>
+          <div class="highlight-snippet">${h.snippet || ""}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function addHighlightFromMessage(text) {
+      const session = getActiveSession();
+      if (!session) return;
+
+      const clean = (text || "").replace(/\s+/g, " ").trim();
+      if (!clean) return;
+
+      const defaultTitle = clean.slice(0, 40);
+      const titleInput = prompt("כותרת לקוביית הסיכום:", defaultTitle);
+      const title = (titleInput || defaultTitle || "").trim();
+      if (!title) return;
+
+      const snippet = clean.length > 140 ? clean.slice(0, 140) + "…" : clean;
+
+      const highlight = {
+        id: "h_" + Date.now(),
+        title,
+        snippet,
+        tag: "סיכום",
+        createdAt: Date.now()
+      };
+
+      if (!Array.isArray(session.highlights)) session.highlights = [];
+      session.highlights.push(highlight);
+      saveSessions();
+      renderHighlights();
+    }
+
     function renderMessagesForSession(session, options = {}) {
       const { scroll = true } = options;
       if (!messages) return;
@@ -1232,6 +1383,7 @@
 
       if (!session || !Array.isArray(session.messages)) {
         if (scroll) messages.scrollTop = messages.scrollHeight;
+        renderHighlights();
         return;
       }
 
@@ -1240,6 +1392,7 @@
       );
 
       if (scroll) messages.scrollTop = messages.scrollHeight;
+      renderHighlights();
     }
 
     function renderSessionList() {
@@ -1316,7 +1469,7 @@
 
     function createNewSession() {
       const id = "s_" + Date.now();
-      const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [] };
+      const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [], highlights: [] };
       sessions.unshift(session);
       activeSessionId = id;
       saveSessions();
@@ -1340,7 +1493,8 @@
           id,
           title: "שיחה קודמת",
           createdAt: Date.now(),
-          messages: parsed
+          messages: parsed,
+          highlights: []
         }];
         activeSessionId = id;
       } catch (e) { }
@@ -1365,7 +1519,8 @@
             id,
             title: "שיחה חדשה",
             createdAt: Date.now(),
-            messages: []
+            messages: [],
+            highlights: []
           }];
           activeSessionId = id;
         }
@@ -1375,9 +1530,18 @@
           id,
           title: "שיחה חדשה",
           createdAt: Date.now(),
-          messages: []
+          messages: [],
+          highlights: []
         }];
         activeSessionId = id;
+      }
+
+      // נרמול – לוודא שיש מערכים
+      if (sessions && sessions.length) {
+        sessions.forEach(s => {
+          if (!Array.isArray(s.messages)) s.messages = [];
+          if (!Array.isArray(s.highlights)) s.highlights = [];
+        });
       }
     }
 
@@ -1391,6 +1555,27 @@
       const content = document.createElement("div");
       content.className = "message-content";
       content.innerHTML = renderTextWithLinks(text);
+
+      const actions = document.createElement("div");
+      actions.className = "message-actions";
+
+      if (role === "assistant") {
+        const highlightBtn = document.createElement("button");
+        highlightBtn.type = "button";
+        highlightBtn.className = "msg-highlight-btn";
+        highlightBtn.title = "הוסף כקוביית סיכום";
+        highlightBtn.textContent = "⭐";
+        highlightBtn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          addHighlightFromMessage(text);
+        });
+        actions.appendChild(highlightBtn);
+      }
+
+      if (actions.childNodes.length > 0) {
+        content.appendChild(actions);
+      }
+
       row.appendChild(content);
       messages.appendChild(row);
 
@@ -1610,6 +1795,7 @@
       renderPromptExamples();
       setupModeToggle();
       setupWorkModes();
+      renderHighlights();
     });
 
     if (form) {
