@@ -1,1916 +1,614 @@
+<!-- index.html – גרסה מתקדמת עם קוביות סיכום מתחת לצ'אט, עיצוב SLIK, מקרא צבעים, פתיחה/מחיקה/ייחוס לצ'אט -->
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
-
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DRAFFIQ AI – TASE Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 
+  <!-- גופן -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      /* Palette - Clean Fintech */
-      --primary: #111827;
-      --primary-hover: #000000;
-
       --bg-app: #f3f5f9;
-      --bg-panel: #ffffff;
-
-      --bubble-user: #1f2937;
-      --text-user: #ffffff;
-
-      --bubble-ai: #f4f6f8;
-      --text-ai: #111827;
-
+      --bg-chat: #ffffff;
+      --bg-highlight: #f9fafb;
       --border-subtle: #e5e7eb;
+      --text-main: #111827;
       --text-muted: #6b7280;
 
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 20px;
-      --radius-xl: 28px;
+      --risk-bg: #fef2f2;
+      --risk-border: #fecaca;
+      --risk-dot: #ef4444;
 
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-        0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-float: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+      --opp-bg: #ecfdf5;
+      --opp-border: #bbf7d0;
+      --opp-dot: #10b981;
 
-      --vh: 1vh;
+      --neutral-bg: #f3f4f6;
+      --neutral-border: #e5e7eb;
+      --neutral-dot: #9ca3af;
     }
 
-    * {
-      box-sizing: border-box;
-      outline: none;
-    }
+    * { box-sizing: border-box; }
 
-    html,
     body {
+      font-family: 'Heebo', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top left, #e5ebff 0, #f3f5f9 40%, #ffffff 100%);
+      color: var(--text-main);
       margin: 0;
       padding: 0;
-      height: 100%;
-    }
-
-    body {
-      font-family: 'Rubik', Rubik, Rubik, sans-serif;
-      background-color: var(--bg-app);
-      color: var(--primary);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      height: 100vh;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 99px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-
-    /* ===== Landing Overlay ===== */
-    .landing-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.5s ease, visibility 0.5s;
-    }
-
-    .landing-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-      visibility: hidden;
-    }
-
-    .landing-content {
-      position: relative;
-      z-index: 10;
+    /* ===== מסגרת כללית ===== */
+    .app-shell {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 18px;
-      animation: fadeInLogin 0.8s ease-out;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 12px 10px;
+      gap: 10px;
     }
 
-    .landing-icon {
-      width: 35px;
-      height: 35px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 24%, #9ca3af 100%);
-      box-shadow:
-        0 0 0 1px rgba(148, 163, 184, 0.55),
-        0 1px 1.5px rgba(15, 23, 42, 0.18);
-      animation: landingBounce 1.5s cubic-bezier(0.22, 0.61, 0.36, 1);
-    }
-
-    .landing-title {
-      font-size: 2.1rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #111827 0%, #000000 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin: 0;
-    }
-
-    .landing-subtitle {
-      font-size: 1.0rem;
-      color: var(--text-muted);
-      font-weight: 400;
-      margin-top: -6px;
-    }
-
-    .landing-cta {
-      margin-top: 12px;
-      background: transparent;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-      padding: 10px 28px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      border-radius: 99px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .landing-cta:hover {
-      background: var(--primary);
-      color: #ffffff;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      border-color: var(--primary);
-    }
-
-    @keyframes fadeInLogin {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes landingBounce {
-      0% {
-        transform: translateY(-20px) scale(0.9);
-        opacity: 0;
-      }
-
-      35% {
-        transform: translateY(2px) scale(1.02);
-        opacity: 1;
-      }
-
-      65% {
-        transform: translateY(-6px) scale(0.98);
-      }
-
-      100% {
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    /* ===== Top Bar ===== */
+    /* בר עליון קטן (אפשר להרחיב בהמשך) */
     .top-bar {
-      height: 64px;
-      flex-shrink: 0;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .top-bar-inner {
-      width: 100%;
-      max-width: 1400px;
-      padding: 0 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+      border: 1px solid rgba(148,163,184,0.25);
+      backdrop-filter: blur(12px);
     }
 
     .brand {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 8px;
     }
 
-    .brand-logo-small {
-      width: 16px;
-      height: 16px;
+    .brand-logo {
+      width: 22px;
+      height: 22px;
       border-radius: 999px;
-      background: radial-gradient(circle at 20% 20%, #f9fafb, #FF0000 22%, #9ca3af 100%);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 0;
-      font-size: 0rem;
-      color: #f9fafb;
+      background: radial-gradient(circle at 20% 20%, #f9fafb 0, #ff0000 30%, #9ca3af 100%);
       box-shadow:
-        0 0 0 1px rgba(148, 163, 184, 0.35),
-        0 1px 2px rgba(15, 23, 42, 0.18);
-      margin-top: 3px;
+        0 0 0 1px rgba(148,163,184,0.45),
+        0 2px 4px rgba(15,23,42,0.28);
     }
 
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .brand-text h1 {
-      font-size: 1.0rem;
+    .brand-text-main {
+      font-size: 0.95rem;
       font-weight: 700;
-      margin: 0;
-      letter-spacing: -0.5px;
-      line-height: 1;
+      letter-spacing: -0.03em;
     }
 
-    .brand-text span {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      display: block;
-      margin-top: 2px;
-      line-height: 1.1;
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .status-badge {
+    .brand-text-sub {
       font-size: 0.7rem;
-      background: #f3f4f6;
-      color: var(--text-muted);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: 500;
-      display: none;
-    }
-
-    @media (min-width: 768px) {
-      .status-badge {
-        display: block;
-      }
-    }
-
-    .icon-btn {
-      background: transparent;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 8px;
-      color: var(--primary);
-      transition: background 0.2s;
-    }
-
-    .icon-btn:hover {
-      background: #f3f4f6;
-    }
-
-    .new-chat-btn-top {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 99px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      transition: transform 0.1s;
-    }
-
-    .new-chat-btn-top:hover {
-      background: var(--primary-hover);
-      transform: translateY(-1px);
-    }
-
-    .menu-dropdown {
-      position: absolute;
-      top: 60px;
-      left: 24px;
-      background: #fff;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-md);
-      padding: 6px;
-      display: none;
-      min-width: 180px;
-      z-index: 200;
-    }
-
-    .menu-dropdown.open {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .menu-item {
-      text-align: right;
-      background: none;
-      border: none;
-      padding: 10px 14px;
-      width: 100%;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      color: var(--primary);
-    }
-
-    .menu-item:hover {
-      background: #f9fafb;
-    }
-
-    /* ===== Main Layout ===== */
-    .app-shell {
-      flex: 1;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .app-container {
-      width: 100%;
-      max-width: 1400px;
-      display: flex;
-      gap: 20px;
-      height: 100%;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 260px;
-      flex-shrink: 0;
-      background: var(--bg-panel);
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(0, 0, 0, 0.04);
-      display: flex;
-      flex-direction: column;
-      padding: 16px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .sidebar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .sidebar-title {
-      font-size: 0.85rem;
-      font-weight: 600;
       color: var(--text-muted);
     }
 
-    .sidebar-header-actions {
+    .top-right {
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    .sidebar-header-actions button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      color: #9ca3af;
-      padding: 0;
-    }
-
-    .sidebar-header-actions button:hover {
-      color: #4b5563;
-    }
-
-    .session-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    /* ===== Session items with 3-dots menu ===== */
-    .session-item-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2px 4px;
-      border-radius: var(--radius-sm);
-    }
-
-    .session-item-main {
-      text-align: right;
-      border: none;
-      background: transparent;
-      padding: 8px 10px;
-      border-radius: var(--radius-sm);
-      font-size: 0.85rem;
-      color: #374151;
-      cursor: pointer;
-      transition: background 0.15s;
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .session-item-main:hover {
-      background: #f3f4f6;
-    }
-
-    .session-item-wrapper.active .session-item-main {
-      background: #eff6ff;
-      color: #1d4ed8;
-      font-weight: 500;
-    }
-
-    .session-item-menu-btn {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      color: #9ca3af;
-      padding: 2px 4px;
-      border-radius: 6px;
-      flex-shrink: 0;
-    }
-
-    .session-item-menu-btn:hover {
-      background: #f3f4f6;
-      color: #4b5563;
-    }
-
-    .session-item-menu {
-      position: absolute;
-      left: 6px;
-      top: 100%;
-      margin-top: 4px;
-      background: #ffffff;
-      border: 1px solid var(--border-subtle);
-      border-radius: 6px;
-      box-shadow: var(--shadow-md);
-      padding: 4px;
-      min-width: 140px;
-      z-index: 160;
-      display: none;
-    }
-
-    .session-item-menu.open {
-      display: block;
-    }
-
-    .session-item-menu-item {
-      width: 100%;
-      text-align: right;
-      border: none;
-      background: transparent;
-      padding: 6px 8px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      border-radius: 4px;
-      color: #111827;
-    }
-
-    .session-item-menu-item:hover {
-      background: #f3f4f6;
-    }
-
-    /* Chat Area */
-    .chat-panel {
-      flex: 1;
-      min-width: 0;
-      background: var(--bg-panel);
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(0, 0, 0, 0.04);
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    /* ===== Market panel (most active) ===== */
-    .market-panel {
-      padding: 10px 24px 8px;
-      border-bottom: 1px solid var(--border-subtle);
-      background: #f9fafb;
-    }
-
-    .market-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .market-panel-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #111827;
-    }
-
-    .market-panel-meta {
       font-size: 0.7rem;
       color: var(--text-muted);
     }
 
-    .market-panel-body {
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.22);
+    }
+
+    /* ===== צ'אט ===== */
+    .chat-shell {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-    }
-
-    .market-row {
-      display: grid;
-      grid-template-columns: 1.2fr 0.9fr 0.8fr 0.9fr;
-      column-gap: 8px;
-      align-items: center;
-      font-size: 0.8rem;
-      padding: 4px 6px;
-      border-radius: 8px;
-      background: #ffffff;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .market-symbol {
-      font-weight: 600;
-      color: #111827;
-      white-space: nowrap;
-    }
-
-    .market-name {
-      color: #4b5563;
+      border-radius: 24px;
+      background: var(--bg-chat);
+      box-shadow:
+        0 18px 45px rgba(15,23,42,0.12);
+      border: 1px solid rgba(148,163,184,0.25);
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      min-height: 0;
     }
 
-    .market-change {
-      text-align: left;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .market-change.positive {
-      color: #15803d;
-    }
-
-    .market-change.negative {
-      color: #b91c1c;
-    }
-
-    .market-value {
-      text-align: left;
-      font-variant-numeric: tabular-nums;
-      color: #4b5563;
-    }
-
-    .market-risk-pill {
-      justify-self: flex-end;
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      color: #374151;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-    }
-
-    .market-risk-pill.elevated {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .market-risk-pill.anomaly {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .market-panel-empty,
-    .market-panel-error {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      padding: 4px 0;
-    }
-
-    .market-refresh-btn {
-      border: none;
-      background: transparent;
-      font-size: 0.85rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      cursor: pointer;
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .market-refresh-btn:hover {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    #messages {
+    #chat {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 40px;
+      padding: 20px 32px 12px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      scroll-behavior: smooth;
+      gap: 16px;
+      background: linear-gradient(to bottom, #f9fafb 0, #ffffff 14%, #ffffff 100%);
     }
 
-    .message-row {
-      display: flex;
-      width: 100%;
-      margin-bottom: 8px;
-    }
-
-    .message-row.user {
-      justify-content: flex-start;
-    }
-
-    .message-row.user .message-content {
-      background: var(--bubble-user);
-      color: var(--text-user);
-      border-radius: 20px 4px 20px 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .message-row.assistant {
-      justify-content: flex-end;
-    }
-
-    .message-row.assistant .message-content {
-      background: var(--bubble-ai);
-      color: var(--text-ai);
-      border-radius: 4px 20px 20px 20px;
-      border: 1px solid #f0f0f0;
-    }
-
-    .message-content {
-      max-width: 80%;
-      padding: 14px 20px;
-      font-size: 0.95rem;
+    .message {
+      max-width: 72%;
+      padding: 10px 14px;
+      border-radius: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.06);
       line-height: 1.6;
+      font-size: 0.88rem;
       position: relative;
       word-wrap: break-word;
       white-space: pre-wrap;
     }
 
-    .message-content a {
-      color: inherit;
-      text-decoration: underline;
-      opacity: 0.9;
-    }
-
-    .message-avatar {
-      display: none;
-    }
-
-    .message.system {
-      background: #f8fafc;
-      border: 1px dashed #cbd5e1;
-      padding: 16px;
-      border-radius: var(--radius-md);
-      text-align: right;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin: 12px auto;
-      max-width: 700px;
-    }
-
-    .system-hero-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 4px;
-    }
-
-    .system-hero-sub {
-      font-size: 0.85rem;
-      margin-bottom: 8px;
-    }
-
-    .system-hero-list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 8px 0;
-    }
-
-    .system-hero-list li {
-      margin-bottom: 4px;
-    }
-
-    .system-hero-list li::before {
-      content: "• ";
-    }
-
-    .system-hero-hint {
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-
-    .system-about-title {
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .system-about-cta {
-      margin-top: 6px;
-      font-size: 0.8rem;
-    }
-
-    .system-about-cta a {
-      color: #2563eb;
-      text-decoration: none;
-    }
-
-    .system-about-cta a:hover {
-      text-decoration: underline;
-    }
-
-    /* Input Area */
-    .input-area-wrapper {
-      padding: 16px 20px 18px;
-      background: linear-gradient(to top, #ffffff 80%, rgba(255, 255, 255, 0));
-      z-index: 10;
-    }
-
-    .input-box-container {
-      max-width: 860px;
-      margin: 0 auto;
-      background: #ffffff;
-      border: 1px solid var(--border-subtle);
-      border-radius: 24px;
-      padding: 6px 8px 6px 16px;
-      box-shadow: var(--shadow-float);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .input-box-container:focus-within {
-      border-color: #9ca3af;
-      box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.12);
-    }
-
-    .textarea-row {
-      display: flex;
-      align-items: flex-end;
-      gap: 10px;
-    }
-
-    textarea {
-      flex: 1;
-      border: none;
-      resize: none;
-      background: transparent;
-      max-height: 80px;
-      min-height: 20px;
-      height: 20px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      padding: 6px 0;
-      color: var(--primary);
-    }
-
-    textarea::placeholder {
-      color: #9ca3af;
-    }
-
-    .send-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: transform 0.1s, background 0.2s;
-      margin-bottom: 2px;
-      font-size: 0.9rem;
-    }
-
-    .send-btn:disabled {
-      background: #e5e7eb;
-      cursor: not-allowed;
-    }
-
-    .send-btn:hover:not(:disabled) {
-      transform: scale(1.05);
-    }
-
-    .meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 8px;
-      margin-top: 2px;
-    }
-
-    .work-modes {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .work-modes-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .work-modes-pills {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    .work-mode-option {
-      border: none;
-      border-radius: 999px;
-      padding: 3px 10px;
-      font-size: 0.75rem;
-      background: #f3f4f6;
-      color: #4b5563;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .work-mode-option.active {
+    .message.user {
       background: #111827;
-      color: #ffffff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      color: #f9fafb;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
     }
 
-    .meta-inline {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-inline-start: auto;
+    .message.assistant {
+      background: #f9fafb;
+      color: var(--text-main);
+      border: 1px solid #e5e7eb;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
     }
 
-    .meta-field {
+    .message.assistant.from-highlight {
+      border-style: dashed;
+      border-color: #d1d5db;
+      background: #f9fafb;
+    }
+
+    .reply-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    /* ===== קוביות סיכום ===== */
+    #highlights-panel {
+      border-top: 1px solid var(--border-subtle);
+      background: #ffffff;
+      box-shadow: 0 -6px 16px rgba(15,23,42,0.04);
+      padding: 10px 22px 12px;
       display: flex;
       flex-direction: column;
-      min-width: 120px;
+      gap: 10px;
+      max-height: 32vh;
+      overflow: hidden;
+      transition: max-height 0.25s ease, padding-bottom 0.25s ease;
     }
 
-    .meta-field label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-bottom: 2px;
+    #highlights-panel.collapsed {
+      max-height: 28px;
+      padding-bottom: 6px;
     }
 
-    .meta-field select {
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      padding: 3px 10px;
+    .highlights-header {
       font-size: 0.8rem;
-      background: #f9fafb;
-      outline: none;
-    }
-
-    .tools-row {
+      color: var(--text-muted);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 2px;
-      padding-inline-end: 8px;
-    }
-
-    .mode-switch {
-      display: flex;
-      gap: 4px;
-      background: #f3f4f6;
-      padding: 3px;
-      border-radius: 99px;
-    }
-
-    .mode-option {
-      border: none;
-      background: transparent;
-      font-size: 0.75rem;
-      padding: 4px 12px;
-      border-radius: 99px;
-      cursor: pointer;
-      color: var(--text-muted);
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .mode-option.active {
-      background: #fff;
-      color: var(--primary);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      font-weight: 500;
-    }
-
-    .extra-actions {
-      display: flex;
       gap: 8px;
     }
 
-    .action-pill {
-      background: transparent;
-      border: none;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 6px;
-    }
-
-    .action-pill:hover {
-      background: #f3f4f6;
-      color: var(--primary);
-    }
-
-    /* כפתורי השאלות – מתחת לאינפוט, בשורות מימין לשמאל */
-    .examples-container {
-      margin-top: 12px;
+    .highlights-header-left {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      max-width: 860px;
-      width: 100%;
-      margin-inline: auto;
-      justify-content: flex-start;
-    }
-
-    .example-chip {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 99px;
-      padding: 6px 14px;
-      font-size: 0.75rem;
-      color: #4b5563;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .example-chip:hover {
-      background: #fff;
-      border-color: #d1d5db;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .thinking-dots {
-      display: inline-flex;
+      align-items: center;
       gap: 4px;
+    }
+
+    .toggle-btn {
+      border: none;
+      background: transparent;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text-muted);
       padding: 0 4px;
     }
 
-    .thinking-dot {
-      width: 6px;
-      height: 6px;
-      background: #9ca3af;
+    .legend {
+      display: flex;
+      gap: 10px;
+      font-size: 0.72rem;
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .legend i {
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      animation: pulse 1.4s infinite;
+      display: inline-block;
     }
 
-    .thinking-dot:nth-child(2) {
-      animation-delay: 0.2s;
+    .legend .risk { background: var(--risk-dot); }
+    .legend .opportunity { background: var(--opp-dot); }
+    .legend .neutral { background: var(--neutral-dot); }
+
+    .highlight-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 4px;
+      overflow-y: auto;
     }
 
-    .thinking-dot:nth-child(3) {
-      animation-delay: 0.4s;
+    .highlight-card {
+      flex: 1 1 230px;
+      background: var(--bg-highlight);
+      border-radius: 12px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+      border: 1px solid var(--border-subtle);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+      cursor: default;
     }
 
-    @keyframes pulse {
-      0%,
-      100% {
-        opacity: 0.4;
-        transform: scale(0.8);
-      }
-
-      50% {
-        opacity: 1;
-        transform: scale(1);
-      }
+    .highlight-card.risk {
+      background: var(--risk-bg);
+      border-color: var(--risk-border);
     }
 
-    /* ===== Mobile Layout Tweaks ===== */
-    @media (max-width: 900px) {
+    .highlight-card.opportunity {
+      background: var(--opp-bg);
+      border-color: var(--opp-border);
+    }
+
+    .highlight-card.neutral {
+      background: var(--neutral-bg);
+      border-color: var(--neutral-border);
+    }
+
+    .highlight-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(15,23,42,0.10);
+    }
+
+    .highlight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .highlight-tag {
+      border-radius: 999px;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      background: rgba(15,23,42,0.04);
+      color: #4b5563;
+    }
+
+    .highlight-body {
+      font-size: 0.78rem;
+      color: #374151;
+      margin-top: 4px;
+      line-height: 1.4;
+      cursor: pointer;
+      max-height: 3.4em; /* בערך 2 שורות */
+      overflow: hidden;
+    }
+
+    .highlight-body.expanded {
+      max-height: none;
+    }
+
+    .highlight-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .highlight-actions button {
+      background: transparent;
+      border: none;
+      font-size: 0.72rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 2px 4px;
+    }
+
+    .highlight-actions button:hover {
+      color: var(--text-main);
+      text-decoration: underline;
+    }
+
+    /* ===== אזור קלט ===== */
+    #input-area {
+      padding: 10px 18px 14px;
+      border-top: 1px solid var(--border-subtle);
+      background: #f9fafb;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    #user-input {
+      flex: 1;
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      resize: none;
+      background: #ffffff;
+      color: var(--text-main);
+      max-height: 80px;
+      min-height: 28px;
+      line-height: 1.4;
+    }
+
+    #user-input::placeholder {
+      color: #9ca3af;
+    }
+
+    #send-btn {
+      background: #111827;
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.35);
+      flex-shrink: 0;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    #send-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(15,23,42,0.45);
+    }
+
+    #send-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(15,23,42,0.35);
+    }
+
+    /* ===== רספונסיביות ===== */
+    @media (max-width: 768px) {
       .app-shell {
-        padding: 8px;
+        padding: 10px 8px;
       }
-
-      .app-container {
-        flex-direction: column;
-        height: calc(100vh - 64px);
-        gap: 8px;
+      .chat-shell {
+        border-radius: 18px;
       }
-
-      .sidebar {
-        width: 100%;
-        flex-direction: row;
-        align-items: center;
-        padding: 8px 10px;
-        border-radius: 14px;
-        margin-bottom: 4px;
+      #chat {
+        padding: 14px 12px 8px;
       }
-
-      .sidebar-header {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-        flex-shrink: 0;
-      }
-
-      .session-list {
-        flex: 1;
-        flex-direction: row;
-        gap: 6px;
-        overflow-x: auto;
-        overflow-y: hidden;
-      }
-
-      .session-item-wrapper {
-        min-width: 140px;
-      }
-
-      .session-item-main {
-        font-size: 0.75rem;
-        padding: 6px 10px;
-        max-width: 180px;
-      }
-
-      .chat-panel {
-        border-radius: 16px;
-      }
-
-      .market-panel {
-        padding: 8px 12px 6px;
-      }
-
-      #messages {
-        padding: 12px;
-      }
-
-      .message-content {
-        max-width: 95%;
-      }
-
-      .meta-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-      }
-
-      .meta-inline {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      .tools-row {
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-
-      .mode-switch {
-        margin-bottom: 4px;
-      }
+      .message { max-width: 90%; }
+      #highlights-panel { padding-inline: 14px; }
+      #input-area { padding-inline: 12px; }
     }
   </style>
 </head>
-
 <body>
-  <!-- Landing -->
-  <div id="landing-overlay" class="landing-overlay">
-    <div class="landing-content">
-      <div class="landing-icon"></div>
-      <div style="text-align:center;">
-        <h1 class="landing-title">DRAFFIQ AI</h1>
-        <div class="landing-subtitle">מודיעין עסקי לשוק ההון הישראלי</div>
-      </div>
-      <button type="button" id="landing-cta" class="landing-cta">
-        <span>כניסה למערכת</span>
-        <span>←</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Top bar -->
-  <div class="top-bar">
-    <div class="top-bar-inner">
-      <div class="brand">
-        <div class="brand-logo-small">DF</div>
-        <div class="brand-text">
-          <h1>DRAFFIQ</h1>
-          <span>מודיעין עסקי לשוק ההון</span>
-        </div>
-      </div>
-
-      <div class="top-actions">
-        <div class="status-badge">TASE LIVE</div>
-        <button id="new-btn" class="new-chat-btn-top">+ שיחה חדשה</button>
-        <button id="menu-btn" class="icon-btn">☰</button>
-
-        <div id="menu-dropdown" class="menu-dropdown">
-          <button class="menu-item" id="home-link">מסך הבית</button>
-          <button class="menu-item" id="chat-link">קפיצה לצ'אט</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Layout -->
   <div class="app-shell">
-    <div class="app-container">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-logo"></div>
+        <div>
+          <div class="brand-text-main">DRAFFIQ AI</div>
+          <div class="brand-text-sub">מודיעין עסקי לשוק ההון הישראלי</div>
+        </div>
+      </div>
+      <div class="top-right">
+        <span class="status-dot"></span>
+        <span>TASE LIVE · מצב דמו</span>
+      </div>
+    </header>
 
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <span class="sidebar-title">היסטוריית שיחות</span>
-          <div class="sidebar-header-actions">
-            <button id="sidebar-new-btn" title="שיחה חדשה">+</button>
+    <section class="chat-shell">
+      <div id="chat">
+        <div class="message user">בוקר טוב, עדכוני שוק?</div>
+        <div class="message assistant">מגמה חיובית במדדים המובילים, מחזורי המסחר עולים, וענף הנדל"ן בולט בעליות ביחס לשוק.</div>
+      </div>
+
+      <div id="highlights-panel">
+        <div class="highlights-header">
+          <div class="highlights-header-left">
+            <span>⭐ סיכום השיחה – נקודות עיקריות</span>
+            <button class="toggle-btn" id="toggle-highlights" title="הצג / הסתר סיכום">▾</button>
+          </div>
+          <div class="legend">
+            <span><i class="risk"></i> סיכון</span>
+            <span><i class="opportunity"></i> הזדמנות</span>
+            <span><i class="neutral"></i> ניטרלי</span>
           </div>
         </div>
-        <div class="session-list" id="session-list"></div>
-      </aside>
+        <div class="highlight-grid" id="highlights-container"></div>
+      </div>
 
-      <main class="chat-panel" id="chat-section">
-        <!-- פאנל נתוני שוק – מחובר לראוט /api/markets/most-active -->
-        <section class="market-panel">
-          <div class="market-panel-header">
-            <div>
-              <div class="market-panel-title">ניירות ערך – מחזורי מסחר גבוהים</div>
-              <div id="market-panel-meta" class="market-panel-meta"></div>
-            </div>
-            <button type="button" id="refresh-market-btn" class="market-refresh-btn">
-              ↻ רענן
-            </button>
-          </div>
-          <div id="market-panel-body" class="market-panel-body">
-            <div class="market-panel-empty">טוען נתוני שוק...</div>
-          </div>
-        </section>
-
-        <div id="messages">
-          <div class="message system">
-            <div class="system-hero-title">יחידת מחקר לשוק ההון הישראלי</div>
-            <div class="system-hero-sub">
-              כתוב שאלת מחקר כפי שהיית מנסח לאנליסט בכיר – DRAFFIQ AI ממפה עבורך סיכונים, הזדמנויות ותסריטים קדימה.
-            </div>
-            <ul class="system-hero-list">
-              <li>ניתוח מניות, אג"ח וסקטורים עם דגש על איכות דוחות, מינוף ותזרים.</li>
-              <li>מיצוב החברה מול מתחרות, מגמות סקטור ותמחור ביחס לסיכון.</li>
-              <li>מיקוד בנקודות שכדאי לחפור בהן ידנית – לא החלפה של בדיקה אנושית.</li>
-            </ul>
-            <div class="system-hero-hint">
-              ברירת המחדל היא מענה רגיל. אפשר להדליק <strong>Deep Dive</strong> לניתוח מעמיק יותר באותה שיחה.
-              <br>
-              מומלץ לבחור סוג נכס כדי לחדד את התשובה.
-            </div>
-          </div>
-
-          <div class="message system">
-            <div class="system-about-title">מי עומד מאחורי DRAFFIQ?</div>
-            <div>
-              המערכת נשענת על ניתוח טקסטואלי מתקדם, שילוב בין קריאת דוחות, חדשות ושיח שוק, יחד עם מתודולוגיות מחקר
-              מעולמות פיננסים וניתוח התנהגותי.
-              המטרה: לא "צ'אט־בוט חכם", אלא שכבת חשיבה שעוזרת לך להבין מה חשוב לקרוא ומה אפשר לדלג.
-            </div>
-            <div class="system-about-cta">
-              רוצה לחבר את DRAFFIQ למחלקת המחקר או לקבל גישה מתקדמת (API / התאמה ספציפית)?
-              ניתן לפנות לכתובת המייל: <a href="mailto:info@draffiq.com">info@draffiq.com</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="input-area-wrapper">
-          <form id="chat-form">
-            <div class="input-box-container">
-              <div class="textarea-row">
-                <textarea id="query" name="query" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
-                <button type="submit" id="send-btn" class="send-btn">➤</button>
-              </div>
-
-              <!-- מצבי עבודה + שדות מטא -->
-              <div class="meta-row">
-                <div class="work-modes">
-                  <span class="work-modes-label">מצב מחקר:</span>
-                  <div class="work-modes-pills">
-                    <button type="button" class="work-mode-option active" data-mode="stock">מניות</button>
-                    <button type="button" class="work-mode-option" data-mode="bond">אג"ח</button>
-                    <button type="button" class="work-mode-option" data-mode="sector">סקטורים</button>
-                  </div>
-                </div>
-
-                <div class="meta-inline">
-                  <div class="meta-field">
-                    <label for="asset-type">סוג נכס</label>
-                    <select id="asset-type">
-                      <option value="">ללא</option>
-                      <option value="equity">מניה</option>
-                      <option value="bond_gov">אג"ח ממשלתי</option>
-                      <option value="bond_corp">אג"ח קונצרני</option>
-                      <option value="fund">קרן / ETF</option>
-                      <option value="index">מדד</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tools-row">
-                <div class="mode-switch">
-                  <button type="button" class="mode-option" id="deep-mode-btn" data-mode="deep">
-                    Deep Dive
-                  </button>
-                </div>
-
-                <div class="extra-actions">
-                  <button type="button" class="action-pill" id="share-btn">שתף</button>
-                  <button type="button" class="action-pill" id="print-btn">PDF</button>
-                </div>
-              </div>
-            </div>
-
-            <div id="promptExamplesContainer" class="examples-container"></div>
-
-            <div style="text-align:center; margin-top:10px; font-size:0.65rem; color:#9ca3af;">
-              המידע אינו מהווה ייעוץ השקעות. ט.ל.ח.
-            </div>
-          </form>
-        </div>
-      </main>
-
-    </div>
+      <div id="input-area">
+        <textarea id="user-input" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
+        <button class="send" id="send-btn">➤</button>
+      </div>
+    </section>
   </div>
 
   <script>
-    const SESSIONS_KEY = "draffiq-sessions-v2";
-    const OLD_STORAGE_KEY = "draffiq-chat-v1";
+    const chatEl = document.getElementById('chat');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const highlightsContainer = document.getElementById('highlights-container');
+    const highlightsPanel = document.getElementById('highlights-panel');
+    const toggleHighlightsBtn = document.getElementById('toggle-highlights');
 
-    const form = document.getElementById("chat-form");
-    const textarea = document.getElementById("query");
-    const messages = document.getElementById("messages");
-    const sendBtn = document.getElementById("send-btn");
-    const printBtn = document.getElementById("print-btn");
-    const shareBtn = document.getElementById("share-btn");
-    const newBtn = document.getElementById("new-btn");
-    const menuBtn = document.getElementById("menu-btn");
-    const landingOverlay = document.getElementById("landing-overlay");
-    const landingCta = document.getElementById("landing-cta");
-    const chatSection = document.getElementById("chat-section");
-    const menuDropdown = document.getElementById("menu-dropdown");
-    const homeLink = document.getElementById("home-link");
-    const chatLink = document.getElementById("chat-link");
-    const sessionListEl = document.getElementById("session-list");
-    const sidebarNewBtn = document.getElementById("sidebar-new-btn");
-    const deepModeBtn = document.getElementById("deep-mode-btn");
-    const assetTypeSelect = document.getElementById("asset-type");
-
-    const marketPanelBody = document.getElementById("market-panel-body");
-    const marketPanelMeta = document.getElementById("market-panel-meta");
-    const refreshMarketBtn = document.getElementById("refresh-market-btn");
-
-    let sessions = [];
-    let activeSessionId = null;
-    let currentMode = "normal";
-    let currentWorkMode = "stock";
-
-    const EXAMPLE_PROMPTS = [
-      { label: "מפת סיכונים למניה", text: "בנה לי מפת סיכונים והזדמנויות למניית פועלים לשנתיים הקרובות." },
-      { label: "השוואת אג\"ח", text: "השווה בין אג\"ח ממשלתי שקלי ל-10 שנים לבין אג\"ח קונצרני בדירוג AA באותו מח\"מ." },
-      { label: "סקטור נדל\"ן", text: "מהם הסיכונים המרכזיים כיום בסקטור הנדל\"ן המניב בישראל, ואילו תרחישים יכולים לשנות את הכיוון?" },
-      { label: "דוח אחרון", text: "בצע ניתוח על הדוח האחרון של בזק, עם דגש על תזרים מזומנים ו-Red Flags פוטנציאליים." }
+    // נתוני התחלה לדוגמה
+    const highlights = [
+      {
+        id: 1,
+        title: 'עלייה במחזור המסחר',
+        snippet: 'תנועת כסף מוגברת בענף הנדל"ן, בעיקר בחברות עם אג"ח קצרות ומח"מ בינוני.',
+        tag: 'הזדמנות',
+        color: 'opportunity'
+      },
+      {
+        id: 2,
+        title: 'סטייה במדד הבנקים',
+        snippet: 'בנק אחד מפגר משמעותית אחרי מדד הבנקים למרות נתונים תפעוליים דומים – ייתכן מחיר חסר או סיכון נסתר.',
+        tag: 'סיכון',
+        color: 'risk'
+      },
+      {
+        id: 3,
+        title: 'יציבות באג"ח ממשלתי',
+        snippet: 'תשואות האג"ח הממשלתיות כמעט ללא שינוי – סביבת ריבית יציבה יחסית בטווח הקצר.',
+        tag: 'ניטרלי',
+        color: 'neutral'
+      }
     ];
 
-    function setViewportHeight() {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--vh", vh + "px");
-    }
-    window.addEventListener("load", setViewportHeight);
-    window.addEventListener("resize", setViewportHeight);
+    let nextHighlightId = highlights.length + 1;
 
-    function autoResizeTextarea(el) {
-      if (!el) return;
-      el.style.height = 'auto';
-      el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+    function autoResizeTextarea() {
+      if (!userInput) return;
+      userInput.style.height = 'auto';
+      userInput.style.height = Math.min(userInput.scrollHeight, 80) + 'px';
     }
 
-    if (textarea) {
-      textarea.addEventListener("input", () => autoResizeTextarea(textarea));
-      textarea.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          if (form) form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
-        }
-      });
-    }
+    function appendChatMessage(text, role = 'user', options = {}) {
+      const { fromHighlight = false } = options;
+      const msg = document.createElement('div');
+      msg.className = 'message ' + role + (fromHighlight ? ' from-highlight' : '');
 
-    function renderTextWithLinks(text) {
-      if (!text) return "";
-      let escaped = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-      const urlRegex = /(https?:\/\/[^\s)]+)/g;
-      return escaped.replace(urlRegex, (url) => {
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">🔗 קישור</a>`;
-      });
-    }
-
-    function saveSessions() {
-      try {
-        localStorage.setItem(SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId }));
-      } catch (e) { }
-    }
-
-    function getActiveSession() {
-      return sessions.find((s) => s.id === activeSessionId) || null;
-    }
-
-    function renderMessagesForSession(session, options = {}) {
-      const { scroll = true } = options;
-      if (!messages) return;
-
-      const rows = messages.querySelectorAll(".message-row");
-      rows.forEach(r => r.remove());
-
-      if (!session || !Array.isArray(session.messages)) {
-        if (scroll) messages.scrollTop = messages.scrollHeight;
-        return;
+      if (fromHighlight) {
+        msg.innerHTML = '<div class="reply-label">⭐ מתוך סיכום מהיר</div><div>' + text + '</div>';
+      } else {
+        msg.textContent = text;
       }
 
-      session.messages.forEach(m =>
-        appendMessage(m.text, m.role, { persist: false, scroll: false })
-      );
-
-      if (scroll) messages.scrollTop = messages.scrollHeight;
+      chatEl.appendChild(msg);
+      chatEl.scrollTop = chatEl.scrollHeight;
+      return msg;
     }
 
-    function renderSessionList() {
-      if (!sessionListEl) return;
-      sessionListEl.innerHTML = "";
+    function classifyText(text) {
+      const t = (text || '').toLowerCase();
+      // מנגנון סופר פשוט – רק דמו, אפשר להחליף במנוע רציני בצד השרת
+      const riskKeywords = ['סיכון', 'ירידה', 'שלילי', 'לחץ', 'תנודתיות', 'ירידות'];
+      const oppKeywords = ['הזדמנות', 'עלייה', 'חיובי', 'צמיחה', 'התרחבות'];
 
-      sessions.forEach(sess => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "session-item-wrapper" + (sess.id === activeSessionId ? " active" : "");
-        wrapper.dataset.sessionId = sess.id;
+      const contains = (arr) => arr.some(k => t.includes(k));
 
-        // כפתור ראשי – פתיחת השיחה
-        const mainBtn = document.createElement("button");
-        mainBtn.type = "button";
-        mainBtn.className = "session-item-main";
-        mainBtn.textContent = sess.title ||
-          ("שיחה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }));
-        mainBtn.title = "פתיחת שיחה";
+      if (contains(riskKeywords)) {
+        return { color: 'risk', tag: 'סיכון' };
+      }
+      if (contains(oppKeywords)) {
+        return { color: 'opportunity', tag: 'הזדמנות' };
+      }
+      return { color: 'neutral', tag: 'ניטרלי' };
+    }
 
-        mainBtn.addEventListener("click", () => {
-          if (sess.id === activeSessionId) return;
-          activeSessionId = sess.id;
-          saveSessions();
-          renderSessionList();
-          renderMessagesForSession(sess);
+    function addHighlightFromText(text, title = 'נקודה מהתשובה') {
+      if (!text || !text.trim()) return;
+      const { color, tag } = classifyText(text);
+      const snippet = text.length > 210 ? text.slice(0, 207) + '…' : text;
+      highlights.push({ id: nextHighlightId++, title, snippet, tag, color });
+      renderHighlights();
+    }
+
+    function renderHighlights() {
+      highlightsContainer.innerHTML = '';
+      highlights.forEach(h => {
+        const card = document.createElement('div');
+        card.className = 'highlight-card ' + (h.color || 'neutral');
+
+        card.innerHTML = `
+          <div class="highlight-header">
+            <span>${h.title}</span>
+            <span class="highlight-tag">${h.tag}</span>
+          </div>
+          <div class="highlight-body" data-id="${h.id}">${h.snippet}</div>
+          <div class="highlight-actions">
+            <button class="reply-btn" data-id="${h.id}">הוסף לשיחה</button>
+            <button class="remove-btn" data-id="${h.id}">✕</button>
+          </div>
+        `;
+
+        const bodyEl = card.querySelector('.highlight-body');
+        bodyEl.addEventListener('click', () => {
+          bodyEl.classList.toggle('expanded');
         });
 
-        // כפתור שלוש נקודות
-        const menuBtn = document.createElement("button");
-        menuBtn.type = "button";
-        menuBtn.className = "session-item-menu-btn";
-        menuBtn.innerHTML = "⋮";
+        const replyBtn = card.querySelector('.reply-btn');
+        replyBtn.addEventListener('click', () => {
+          appendChatMessage(h.snippet, 'assistant', { fromHighlight: true });
+        });
 
-        // תפריט שיחה
-        const menu = document.createElement("div");
-        menu.className = "session-item-menu";
-
-        const renameItem = document.createElement("button");
-        renameItem.type = "button";
-        renameItem.className = "session-item-menu-item";
-        renameItem.textContent = "שנה שם שיחה";
-
-        renameItem.addEventListener("click", (e) => {
-          e.stopPropagation();
-          menu.classList.remove("open");
-          const currentTitle = sess.title || "";
-          const newTitle = prompt("שם חדש לשיחה:", currentTitle);
-          if (newTitle && newTitle.trim()) {
-            sess.title = newTitle.trim();
-            saveSessions();
-            renderSessionList();
+        const removeBtn = card.querySelector('.remove-btn');
+        removeBtn.addEventListener('click', () => {
+          const idx = highlights.findIndex(x => x.id === h.id);
+          if (idx !== -1) {
+            highlights.splice(idx, 1);
+            renderHighlights();
           }
         });
 
-        menu.appendChild(renameItem);
-
-        menuBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const isOpen = menu.classList.contains("open");
-          // לסגור אחרים
-          document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
-          if (!isOpen) {
-            menu.classList.add("open");
-          }
-        });
-
-        wrapper.appendChild(mainBtn);
-        wrapper.appendChild(menuBtn);
-        wrapper.appendChild(menu);
-
-        sessionListEl.appendChild(wrapper);
+        highlightsContainer.appendChild(card);
       });
     }
 
-    function createNewSession() {
-      const id = "s_" + Date.now();
-      const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [] };
-      sessions.unshift(session);
-      activeSessionId = id;
-      saveSessions();
-      renderSessionList();
-      renderMessagesForSession(session);
-      if (textarea) {
-        textarea.value = "";
-        autoResizeTextarea(textarea);
-        textarea.focus();
-      }
+    function handleSend() {
+      const text = (userInput.value || '').trim();
+      if (!text) return;
+
+      appendChatMessage(text, 'user');
+      userInput.value = '';
+      autoResizeTextarea();
+
+      // תשובת דמו – כאן מחברים ל-API האמיתי
+      const demoAnswer = 'דמו: קיבלתי את השאלה שלך ואחזיר כאן ניתוח. בגרסה מחוברת לשרת יופיע במקום זאת סיכום אמיתי.';
+      appendChatMessage(demoAnswer, 'assistant');
+      addHighlightFromText(demoAnswer);
     }
 
-    function migrateOldHistoryIfNeeded() {
-      try {
-        const raw = localStorage.getItem(OLD_STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed) || !parsed.length) return;
-        const id = "s_" + Date.now();
-        sessions = [{
-          id,
-          title: "שיחה קודמת",
-          createdAt: Date.now(),
-          messages: parsed
-        }];
-        activeSessionId = id;
-      } catch (e) { }
-    }
+    // האזנות
+    sendBtn.addEventListener('click', handleSend);
 
-    function loadSessions() {
-      try {
-        const raw = localStorage.getItem(SESSIONS_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.sessions)) {
-            sessions = parsed.sessions;
-            activeSessionId = parsed.activeSessionId || (sessions[0] && sessions[0].id) || null;
-          }
-        }
-        if (!sessions || !sessions.length) {
-          migrateOldHistoryIfNeeded();
-        }
-        if (!sessions || !sessions.length) {
-          const id = "s_" + Date.now();
-          sessions = [{
-            id,
-            title: "שיחה חדשה",
-            createdAt: Date.now(),
-            messages: []
-          }];
-          activeSessionId = id;
-        }
-      } catch (e) {
-        const id = "s_" + Date.now();
-        sessions = [{
-          id,
-          title: "שיחה חדשה",
-          createdAt: Date.now(),
-          messages: []
-        }];
-        activeSessionId = id;
-      }
-    }
-
-    function appendMessage(text, role, options = {}) {
-      const { persist = true, scroll = true } = options;
-      if (!messages) return;
-
-      const row = document.createElement("div");
-      row.className = "message-row " + role;
-
-      const content = document.createElement("div");
-      content.className = "message-content";
-      content.innerHTML = renderTextWithLinks(text);
-      row.appendChild(content);
-      messages.appendChild(row);
-
-      if (scroll && role === "user") {
-        messages.scrollTop = messages.scrollHeight;
-      }
-
-      if (persist) {
-        const session = getActiveSession();
-        if (session) {
-          if (role === "user" && Array.isArray(session.messages) && session.messages.length === 0) {
-            let t = text.replace(/\s+/g, " ").trim();
-            if (t.length > 28) t = t.slice(0, 28) + "…";
-            session.title = t || "שיחה חדשה";
-            renderSessionList();
-          }
-          if (!Array.isArray(session.messages)) session.messages = [];
-          session.messages.push({ role, text });
-          saveSessions();
-        }
-      }
-    }
-
-    function appendThinking() {
-      const row = document.createElement("div");
-      row.className = "message-row assistant";
-      const content = document.createElement("div");
-      content.className = "message-content";
-      content.innerHTML =
-        `<div class="thinking-dots">
-           <span class="thinking-dot"></span>
-           <span class="thinking-dot"></span>
-           <span class="thinking-dot"></span>
-         </div>`;
-      row.appendChild(content);
-      messages.appendChild(row);
-      return row;
-    }
-
-    async function callApi(query) {
-      const response = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query })
-      });
-      if (!response.ok) {
-        let err;
-        try {
-          err = await response.json();
-        } catch {
-          err = {};
-        }
-        throw new Error(err.error || "שגיאה בצד השרת.");
-      }
-      const data = await response.json();
-      if (!data.ok && data.answer === undefined) {
-        throw new Error(data.error || "שגיאה בצד השרת.");
-      }
-      return data.answer ?? "";
-    }
-
-    function getConversationPlainText() {
-      const session = getActiveSession();
-      if (session && Array.isArray(session.messages) && session.messages.length > 0) {
-        return session.messages
-          .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
-          .join("\n\n");
-      }
-      const rows = messages.querySelectorAll(".message-row");
-      const parts = [];
-      rows.forEach((row) => {
-        const isUser = row.classList.contains("user");
-        const label = isUser ? "YOU" : "DRAFFIQ";
-        const contentEl = row.querySelector(".message-content");
-        if (!contentEl) return;
-        const text = contentEl.innerText.trim();
-        if (!text) return;
-        parts.push(label + ":\n" + text);
-      });
-      return parts.join("\n\n");
-    }
-
-    if (printBtn) {
-      printBtn.addEventListener("click", () => {
-        window.print();
-      });
-    }
-
-    if (shareBtn) {
-      shareBtn.addEventListener("click", async () => {
-        const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
-        const title = "DRAFFIQ – שיחת מחקר";
-        const url = window.location.href;
-        if (navigator.share) {
-          try {
-            await navigator.share({ title, text, url });
-          } catch (e) { }
-        } else {
-          try {
-            await navigator.clipboard.writeText(text + "\n\n" + url);
-            alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק בכל אפליקציה.");
-          } catch {
-            alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
-          }
-        }
-      });
-    }
-
-    if (landingCta) {
-      landingCta.addEventListener("click", () => {
-        landingOverlay.classList.add("hidden");
-        if (chatSection && chatSection.scrollIntoView) {
-          chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      });
-    }
-
-    function handleNewChatClick() {
-      createNewSession();
-      if (menuDropdown) menuDropdown.classList.remove("open");
-    }
-
-    if (newBtn) newBtn.addEventListener("click", handleNewChatClick);
-    if (sidebarNewBtn) sidebarNewBtn.addEventListener("click", handleNewChatClick);
-
-    if (menuBtn) {
-      menuBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (!menuDropdown) return;
-        menuDropdown.classList.toggle("open");
-      });
-    }
-
-    if (homeLink) {
-      homeLink.addEventListener("click", () => {
-        window.location.href = "/";
-      });
-    }
-
-    if (chatLink) {
-      chatLink.addEventListener("click", () => {
-        if (chatSection && chatSection.scrollIntoView) {
-          chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-        if (menuDropdown) menuDropdown.classList.remove("open");
-      });
-    }
-
-    // סגירת תפריטי top bar + תפריטי שיחות בלחיצה בחוץ
-    document.addEventListener("click", (e) => {
-      const target = e.target;
-
-      // תפריט עליון
-      if (menuDropdown && menuDropdown.classList.contains("open")) {
-        if (target !== menuBtn && !(menuBtn && menuBtn.contains(target)) && !menuDropdown.contains(target)) {
-          menuDropdown.classList.remove("open");
-        }
-      }
-
-      // תפריטי שיחות – אם הלחיצה לא בתוך wrapper של שיחה
-      if (!target.closest(".session-item-wrapper")) {
-        document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
-      }
-    });
-
-    function renderPromptExamples() {
-      const container = document.getElementById("promptExamplesContainer");
-      if (!container || !textarea) return;
-      container.innerHTML = EXAMPLE_PROMPTS.map((ex, i) =>
-        `<button type="button" class="example-chip" data-idx="${i}">${ex.label}</button>`
-      ).join("");
-
-      container.addEventListener("click", (e) => {
-        const btn = e.target.closest(".example-chip");
-        if (!btn) return;
-        const idx = btn.getAttribute("data-idx");
-        const ex = EXAMPLE_PROMPTS[idx];
-        if (!ex) return;
-        textarea.value = ex.text;
-        autoResizeTextarea(textarea);
-        textarea.focus();
-      });
-    }
-
-    function setupModeToggle() {
-      if (!deepModeBtn) return;
-      deepModeBtn.addEventListener("click", () => {
-        const isActive = deepModeBtn.classList.contains("active");
-        if (isActive) {
-          deepModeBtn.classList.remove("active");
-          currentMode = "normal";
-        } else {
-          deepModeBtn.classList.add("active");
-          currentMode = "deep";
-        }
-      });
-    }
-
-    function setupWorkModes() {
-      const buttons = document.querySelectorAll(".work-mode-option");
-      if (!buttons.length) return;
-      buttons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          buttons.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          const mode = btn.getAttribute("data-mode");
-          currentWorkMode = mode || "stock";
-        });
-      });
-    }
-
-    async function loadMostActiveMarkets() {
-      if (!marketPanelBody) return;
-
-      marketPanelBody.innerHTML = '<div class="market-panel-empty">טוען נתוני שוק...</div>';
-      if (marketPanelMeta) {
-        marketPanelMeta.textContent = "";
-      }
-
-      try {
-        const res = await fetch('/api/markets/most-active');
-        if (!res.ok) {
-          throw new Error('Network error');
-        }
-        const data = await res.json();
-        const items = Array.isArray(data.items) ? data.items : [];
-
-        if (!items.length) {
-          marketPanelBody.innerHTML = '<div class="market-panel-empty">לא נמצאו נתוני מסחר.</div>';
-          if (marketPanelMeta && data.asOf) {
-            marketPanelMeta.textContent = 'מעודכן ל־ ' + new Date(data.asOf).toLocaleString('he-IL');
-          }
-          return;
-        }
-
-        marketPanelBody.innerHTML = '';
-
-        items.forEach((item) => {
-          const row = document.createElement('div');
-          row.className = 'market-row';
-
-          const sym = document.createElement('div');
-          sym.className = 'market-symbol';
-          sym.textContent = item.symbol || '-';
-
-          const name = document.createElement('div');
-          name.className = 'market-name';
-          name.textContent = item.name || '';
-
-          const change = document.createElement('div');
-          change.className = 'market-change';
-          const changeVal = typeof item.changePct === 'number' ? item.changePct : null;
-          if (changeVal !== null) {
-            const sign = changeVal > 0 ? '+' : '';
-            change.textContent = sign + changeVal.toFixed(2) + '%';
-            if (changeVal > 0) change.classList.add('positive');
-            if (changeVal < 0) change.classList.add('negative');
-          } else {
-            change.textContent = '-';
-          }
-
-          const value = document.createElement('div');
-          value.className = 'market-value';
-          if (typeof item.valueTraded === 'number') {
-            const millions = item.valueTraded / 1_000_000;
-            value.textContent = millions.toFixed(1) + ' מ׳ ₪';
-          } else {
-            value.textContent = '-';
-          }
-
-          const risk = document.createElement('div');
-          risk.className = 'market-risk-pill';
-          const riskSignal = item.riskSignal || 'normal';
-          const anomaly = !!item.anomalyFlag;
-
-          if (riskSignal === 'elevated') {
-            risk.classList.add('elevated');
-            risk.textContent = 'סיכון מוגבר';
-          } else {
-            risk.textContent = 'רגיל';
-          }
-
-          if (anomaly) {
-            risk.classList.add('anomaly');
-            risk.textContent = 'סיכון חריג';
-          }
-
-          row.appendChild(sym);
-          row.appendChild(name);
-          row.appendChild(change);
-          row.appendChild(value);
-          row.appendChild(risk);
-
-          marketPanelBody.appendChild(row);
-        });
-
-        if (marketPanelMeta && data.asOf) {
-          marketPanelMeta.textContent = 'מעודכן ל־ ' + new Date(data.asOf).toLocaleString('he-IL');
-        }
-      } catch (err) {
-        console.error('שגיאה בטעינת נתוני שוק:', err);
-        if (marketPanelBody) {
-          marketPanelBody.innerHTML = '<div class="market-panel-error">לא ניתן לטעון נתוני שוק כרגע.</div>';
-        }
-        if (marketPanelMeta) {
-          marketPanelMeta.textContent = '';
-        }
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      setViewportHeight();
-      loadSessions();
-      renderSessionList();
-      renderMessagesForSession(getActiveSession(), { scroll: false });
-      renderPromptExamples();
-      setupModeToggle();
-      setupWorkModes();
-      loadMostActiveMarkets();
-
-      if (refreshMarketBtn) {
-        refreshMarketBtn.addEventListener('click', () => {
-          loadMostActiveMarkets();
-        });
-      }
-    });
-
-    if (form) {
-      form.addEventListener("submit", async (e) => {
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        const raw = textarea ? textarea.value.trim() : "";
-        if (!raw) return;
+        handleSend();
+      }
+    });
 
-        appendMessage(raw, "user");
+    userInput.addEventListener('input', autoResizeTextarea);
 
-        const metaParts = [];
-        if (currentWorkMode) {
-          metaParts.push(`WORK_MODE=${currentWorkMode}`);
-        }
-        if (assetTypeSelect && assetTypeSelect.value) {
-          metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
-        }
+    toggleHighlightsBtn.addEventListener('click', () => {
+      const collapsed = highlightsPanel.classList.toggle('collapsed');
+      toggleHighlightsBtn.textContent = collapsed ? '▴' : '▾';
+    });
 
-        const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
-
-        const queryForApi =
-          currentMode === "deep"
-            ? metaPrefix + "DEEP_DIVE: " + raw
-            : metaPrefix + raw;
-
-        if (textarea) {
-          textarea.value = "";
-          autoResizeTextarea(textarea);
-          textarea.focus();
-        }
-
-        if (sendBtn) sendBtn.disabled = true;
-        const thinking = appendThinking();
-
-        try {
-          const ans = await callApi(queryForApi);
-          thinking.remove();
-
-          const safeAnswer = ans || "לא התקבלה תשובה מהשרת.";
-          appendMessage(safeAnswer, "assistant");
-        } catch (err) {
-          thinking.remove();
-          appendMessage("שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."), "assistant");
-        } finally {
-          if (sendBtn) sendBtn.disabled = false;
-        }
-      });
-    }
+    // אתחול
+    renderHighlights();
+    autoResizeTextarea();
   </script>
 </body>
-
 </html>
