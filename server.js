@@ -120,6 +120,43 @@ app.get("/health", (req, res) => {
   res.json({ ok: true, status: "healthy" });
 });
 
+// ===== NEW: דשבורד "Most Active" ל-DRAFFIQ =====
+app.get("/api/markets/most-active", (req, res) => {
+  // TODO: להחליף למנוע נתונים אמיתי (DB / סקרייפר / FEED)
+  const data = {
+    asOf: new Date().toISOString(),
+    universe: "TASE",
+    items: [
+      {
+        symbol: "POAL",
+        name: "בנק הפועלים",
+        lastPrice: 3124.5,
+        changeAbs: -35.5,
+        changePct: -1.12,
+        volume: 1820031,
+        valueTraded: 56800000,
+        sector: "בנקים",
+        riskSignal: "elevated",
+        anomalyFlag: true
+      },
+      {
+        symbol: "TEVA",
+        name: "טבע",
+        lastPrice: 4321.0,
+        changeAbs: 95.0,
+        changePct: 2.25,
+        volume: 2411000,
+        valueTraded: 97200000,
+        sector: "פארמה",
+        riskSignal: "normal",
+        anomalyFlag: false
+      }
+    ]
+  };
+
+  res.json(data);
+});
+
 // ===== Helper: זיהוי שאלות זהות / מודל =====
 function isIdentityQuestion(q) {
   const lower = q.toLowerCase();
@@ -250,24 +287,14 @@ app.post("/chat", async (req, res) => {
       max_output_tokens: 4000,
     });
 
-    // טקסט גלמי מהמערכת (helper הרשמי של ה-SDK)
     let text =
       apiResponse.output_text ||
       "[שגיאה בקריאת הפלט מהמנוע – output_text ריק או לא קיים]";
 
     // ===== שכבת סניטיזציה של מותג =====
-    // מחיקת כל זכר טקסטואלי ל-GPT / ChatGPT / OpenAI / LLM מהתגובה
-
-    // ChatGPT -> DRAFFIQ AI
     text = text.replace(/chatgpt/gi, "DRAFFIQ AI");
-
-    // GPT, GPT-4, GPT 5.1 וכו' -> DRAFFIQ AI
     text = text.replace(/\bgpt[\s\-]?[0-9.]*/gi, "DRAFFIQ AI");
-
-    // LLM -> מערכת ניתוח טקסט
     text = text.replace(/\bllm\b/gi, "מערכת ניתוח טקסט");
-
-    // OpenAI -> DRAFFIQ AI
     text = text.replace(/openai/gi, "DRAFFIQ AI");
 
     res.json({
