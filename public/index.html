@@ -524,129 +524,6 @@
       position: relative;
     }
 
-    /* ===== Market panel (most active) ===== */
-    .market-panel {
-      padding: 10px 24px 8px;
-      border-bottom: 1px solid var(--border-subtle);
-      background: #f9fafb;
-    }
-
-    .market-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .market-panel-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #111827;
-    }
-
-    .market-panel-meta {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-    }
-
-    .market-panel-body {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .market-row {
-      display: grid;
-      grid-template-columns: 1.2fr 0.9fr 0.8fr 0.9fr;
-      column-gap: 8px;
-      align-items: center;
-      font-size: 0.8rem;
-      padding: 4px 6px;
-      border-radius: 8px;
-      background: #ffffff;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .market-symbol {
-      font-weight: 600;
-      color: #111827;
-      white-space: nowrap;
-    }
-
-    .market-name {
-      color: #4b5563;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .market-change {
-      text-align: left;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .market-change.positive {
-      color: #15803d;
-    }
-
-    .market-change.negative {
-      color: #b91c1c;
-    }
-
-    .market-value {
-      text-align: left;
-      font-variant-numeric: tabular-nums;
-      color: #4b5563;
-    }
-
-    .market-risk-pill {
-      justify-self: flex-end;
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      color: #374151;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-    }
-
-    .market-risk-pill.elevated {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .market-risk-pill.anomaly {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .market-panel-empty,
-    .market-panel-error {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      padding: 4px 0;
-    }
-
-    .market-refresh-btn {
-      border: none;
-      background: transparent;
-      font-size: 0.85rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      cursor: pointer;
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .market-refresh-btn:hover {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
     #messages {
       flex: 1;
       overflow-y: auto;
@@ -1087,10 +964,6 @@
         border-radius: 16px;
       }
 
-      .market-panel {
-        padding: 8px 12px 6px;
-      }
-
       #messages {
         padding: 12px;
       }
@@ -1145,6 +1018,7 @@
         <div class="brand-logo-small">DF</div>
         <div class="brand-text">
           <h1>DRAFFIQ</h1>
+          <!-- כאן קיצרנו, בלי "הישראלי" -->
           <span>מודיעין עסקי לשוק ההון</span>
         </div>
       </div>
@@ -1177,22 +1051,6 @@
       </aside>
 
       <main class="chat-panel" id="chat-section">
-        <!-- פאנל נתוני שוק – מחובר לראוט /api/markets/most-active -->
-        <section class="market-panel">
-          <div class="market-panel-header">
-            <div>
-              <div class="market-panel-title">ניירות ערך – מחזורי מסחר גבוהים</div>
-              <div id="market-panel-meta" class="market-panel-meta"></div>
-            </div>
-            <button type="button" id="refresh-market-btn" class="market-refresh-btn">
-              ↻ רענן
-            </button>
-          </div>
-          <div id="market-panel-body" class="market-panel-body">
-            <div class="market-panel-empty">טוען נתוני שוק...</div>
-          </div>
-        </section>
-
         <div id="messages">
           <div class="message system">
             <div class="system-hero-title">יחידת מחקר לשוק ההון הישראלי</div>
@@ -1307,10 +1165,6 @@
     const sidebarNewBtn = document.getElementById("sidebar-new-btn");
     const deepModeBtn = document.getElementById("deep-mode-btn");
     const assetTypeSelect = document.getElementById("asset-type");
-
-    const marketPanelBody = document.getElementById("market-panel-body");
-    const marketPanelMeta = document.getElementById("market-panel-meta");
-    const refreshMarketBtn = document.getElementById("refresh-market-btn");
 
     let sessions = [];
     let activeSessionId = null;
@@ -1748,105 +1602,6 @@
       });
     }
 
-    async function loadMostActiveMarkets() {
-      if (!marketPanelBody) return;
-
-      marketPanelBody.innerHTML = '<div class="market-panel-empty">טוען נתוני שוק...</div>';
-      if (marketPanelMeta) {
-        marketPanelMeta.textContent = "";
-      }
-
-      try {
-        const res = await fetch('/api/markets/most-active');
-        if (!res.ok) {
-          throw new Error('Network error');
-        }
-        const data = await res.json();
-        const items = Array.isArray(data.items) ? data.items : [];
-
-        if (!items.length) {
-          marketPanelBody.innerHTML = '<div class="market-panel-empty">לא נמצאו נתוני מסחר.</div>';
-          if (marketPanelMeta && data.asOf) {
-            marketPanelMeta.textContent = 'מעודכן ל־ ' + new Date(data.asOf).toLocaleString('he-IL');
-          }
-          return;
-        }
-
-        marketPanelBody.innerHTML = '';
-
-        items.forEach((item) => {
-          const row = document.createElement('div');
-          row.className = 'market-row';
-
-          const sym = document.createElement('div');
-          sym.className = 'market-symbol';
-          sym.textContent = item.symbol || '-';
-
-          const name = document.createElement('div');
-          name.className = 'market-name';
-          name.textContent = item.name || '';
-
-          const change = document.createElement('div');
-          change.className = 'market-change';
-          const changeVal = typeof item.changePct === 'number' ? item.changePct : null;
-          if (changeVal !== null) {
-            const sign = changeVal > 0 ? '+' : '';
-            change.textContent = sign + changeVal.toFixed(2) + '%';
-            if (changeVal > 0) change.classList.add('positive');
-            if (changeVal < 0) change.classList.add('negative');
-          } else {
-            change.textContent = '-';
-          }
-
-          const value = document.createElement('div');
-          value.className = 'market-value';
-          if (typeof item.valueTraded === 'number') {
-            const millions = item.valueTraded / 1_000_000;
-            value.textContent = millions.toFixed(1) + ' מ׳ ₪';
-          } else {
-            value.textContent = '-';
-          }
-
-          const risk = document.createElement('div');
-          risk.className = 'market-risk-pill';
-          const riskSignal = item.riskSignal || 'normal';
-          const anomaly = !!item.anomalyFlag;
-
-          if (riskSignal === 'elevated') {
-            risk.classList.add('elevated');
-            risk.textContent = 'סיכון מוגבר';
-          } else {
-            risk.textContent = 'רגיל';
-          }
-
-          if (anomaly) {
-            risk.classList.add('anomaly');
-            risk.textContent = 'סיכון חריג';
-          }
-
-          row.appendChild(sym);
-          row.appendChild(name);
-          row.appendChild(change);
-          row.appendChild(value);
-          row.appendChild(risk);
-
-          marketPanelBody.appendChild(row);
-        });
-
-        if (marketPanelMeta && data.asOf) {
-          marketPanelMeta.textContent = 'מעודכן ל־ ' + new Date(data.asOf).toLocaleString('he-IL');
-        }
-      } catch (err) {
-        console.error('שגיאה בטעינת נתוני שוק:', err);
-        if (marketPanelBody) {
-          marketPanelBody.innerHTML = '<div class="market-panel-error">לא ניתן לטעון נתוני שוק כרגע.</div>';
-        }
-        if (marketPanelMeta) {
-          marketPanelMeta.textContent = '';
-        }
-      }
-    }
-
     window.addEventListener("DOMContentLoaded", () => {
       setViewportHeight();
       loadSessions();
@@ -1855,13 +1610,6 @@
       renderPromptExamples();
       setupModeToggle();
       setupWorkModes();
-      loadMostActiveMarkets();
-
-      if (refreshMarketBtn) {
-        refreshMarketBtn.addEventListener('click', () => {
-          loadMostActiveMarkets();
-        });
-      }
     });
 
     if (form) {
