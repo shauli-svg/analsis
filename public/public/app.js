@@ -1,5 +1,4 @@
-
-  <script>
+    <script>
     const SESSIONS_KEY = "draffiq-sessions-v2";
     const OLD_STORAGE_KEY = "draffiq-chat-v1";
 
