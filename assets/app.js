@@ -19,9 +19,16 @@ const sessionListEl = document.getElementById("session-list");
 const sidebarNewBtn = document.getElementById("sidebar-new-btn");
 const deepModeBtn = document.getElementById("deep-mode-btn");
 const assetTypeSelect = document.getElementById("asset-type");
+
+// מודול קוביות סיכום
 const highlightsWrapper = document.getElementById("highlights-wrapper");
 const highlightsListEl = document.getElementById("highlights-list");
 const clearHighlightsBtn = document.getElementById("clear-highlights-btn");
+
+// פנל סיכום נפתח
+const highlightDetail = document.getElementById("highlight-detail");
+const highlightDetailClose = document.getElementById("highlight-detail-close");
+const highlightDetailContent = document.getElementById("highlight-detail-content");
 
 let sessions = [];
 let activeSessionId = null;
@@ -73,7 +80,7 @@ function renderTextWithLinks(text) {
 function saveSessions() {
   try {
     localStorage.setItem(SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId }));
-  } catch (e) { }
+  } catch (e) {}
 }
 
 function getActiveSession() {
@@ -101,7 +108,9 @@ function renderMessagesForSession(session, options = {}) {
     appendMessage(m.text, m.role, { persist: false, scroll: false, messageId: m.id })
   );
 
-  if (scroll) messages.scrollTop = messages.scrollHeight;
+  if (scroll) {
+    messages.scrollTop = messages.scrollHeight;
+  }
 }
 
 function renderSessionList() {
@@ -211,13 +220,13 @@ function migrateOldHistoryIfNeeded() {
         createdAt: Date.now(),
         messages: parsed.map((m, idx) => ({
           ...m,
-          id: m.id || "m_" + Date.now() + "_" + idx
+          id: m.id || "m_" + Date.now() + "_" + idx,
         })),
-        highlights: []
+        highlights: [],
       },
     ];
     activeSessionId = id;
-  } catch (e) { }
+  } catch (e) {}
 }
 
 function loadSessions() {
@@ -230,9 +239,9 @@ function loadSessions() {
           ...s,
           messages: (s.messages || []).map((m, idx) => ({
             ...m,
-            id: m.id || "m_" + s.id + "_" + idx
+            id: m.id || "m_" + s.id + "_" + idx,
           })),
-          highlights: s.highlights || []
+          highlights: s.highlights || [],
         }));
         activeSessionId =
           parsed.activeSessionId || (sessions[0] && sessions[0].id) || null;
@@ -249,7 +258,7 @@ function loadSessions() {
           title: "שיחה חדשה",
           createdAt: Date.now(),
           messages: [],
-          highlights: []
+          highlights: [],
         },
       ];
       activeSessionId = id;
@@ -262,7 +271,7 @@ function loadSessions() {
         title: "שיחה חדשה",
         createdAt: Date.now(),
         messages: [],
-        highlights: []
+        highlights: [],
       },
     ];
     activeSessionId = id;
@@ -276,7 +285,8 @@ function appendMessage(text, role, options = {}) {
   const { persist = true, scroll = true, messageId = null } = options;
   if (!messages) return;
 
-  let msgId = messageId || ("m_" + Date.now() + "_" + Math.random().toString(36).slice(2));
+  const msgId =
+    messageId || "m_" + Date.now() + "_" + Math.random().toString(36).slice(2);
 
   const row = document.createElement("div");
   row.className = "message-row " + role;
@@ -314,14 +324,18 @@ function appendMessage(text, role, options = {}) {
   row.appendChild(content);
   messages.appendChild(row);
 
-  if (scroll && role === "user") {
+  if (scroll) {
     messages.scrollTop = messages.scrollHeight;
   }
 
   if (persist) {
     const session = getActiveSession();
     if (session) {
-      if (role === "user" && Array.isArray(session.messages) && session.messages.length === 0) {
+      if (
+        role === "user" &&
+        Array.isArray(session.messages) &&
+        session.messages.length === 0
+      ) {
         let t = text.replace(/\s+/g, " ").trim();
         if (t.length > 28) t = t.slice(0, 28) + "…";
         session.title = t || "שיחה חדשה";
@@ -350,6 +364,7 @@ function appendThinking() {
      </div>`;
   row.appendChild(content);
   messages.appendChild(row);
+  messages.scrollTop = messages.scrollHeight;
   return row;
 }
 
@@ -419,7 +434,7 @@ if (shareBtn) {
     if (navigator.share) {
       try {
         await navigator.share({ title, text, url });
-      } catch (e) { }
+      } catch (e) {}
     } else {
       try {
         await navigator.clipboard.writeText(text + "\n\n" + url);
@@ -559,6 +574,23 @@ function setupWorkModes() {
 }
 
 /**
+ * פתיחה/סגירה של פנל הסיכום המלא
+ */
+function openHighlightDetail(html) {
+  if (!highlightDetail || !highlightDetailContent) return;
+  highlightDetailContent.innerHTML = html;
+  highlightDetail.classList.remove("hidden");
+}
+
+if (highlightDetailClose) {
+  highlightDetailClose.addEventListener("click", () => {
+    if (!highlightDetail || !highlightDetailContent) return;
+    highlightDetail.classList.add("hidden");
+    highlightDetailContent.innerHTML = "";
+  });
+}
+
+/**
  * מודול קוביות סיכום
  */
 function toggleHighlightForMessage(messageId, text, starBtn) {
@@ -585,7 +617,7 @@ function toggleHighlightForMessage(messageId, text, starBtn) {
       messageId,
       snippet,
       text,
-      createdAt: Date.now()
+      createdAt: Date.now(),
     });
 
     if (starBtn) {
@@ -622,21 +654,11 @@ function renderHighlights() {
       <span class="highlight-toggle">▾</span>
     `;
 
-    const body = document.createElement("div");
-    body.className = "highlight-body";
-    body.innerHTML = renderTextWithLinks(h.text);
-
     header.addEventListener("click", () => {
-      const isOpen = item.classList.toggle("open");
-      if (isOpen) {
-        body.style.maxHeight = body.scrollHeight + "px";
-      } else {
-        body.style.maxHeight = "0px";
-      }
+      openHighlightDetail(renderTextWithLinks(h.text));
     });
 
     item.appendChild(header);
-    item.appendChild(body);
     highlightsListEl.appendChild(item);
   });
 }
