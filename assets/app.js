@@ -19,6 +19,9 @@ const sessionListEl = document.getElementById("session-list");
 const sidebarNewBtn = document.getElementById("sidebar-new-btn");
 const deepModeBtn = document.getElementById("deep-mode-btn");
 const assetTypeSelect = document.getElementById("asset-type");
+const highlightsWrapper = document.getElementById("highlights-wrapper");
+const highlightsListEl = document.getElementById("highlights-list");
+const clearHighlightsBtn = document.getElementById("clear-highlights-btn");
 
 let sessions = [];
 let activeSessionId = null;
@@ -74,7 +77,12 @@ function saveSessions() {
 }
 
 function getActiveSession() {
-  return sessions.find((s) => s.id === activeSessionId) || null;
+  const s = sessions.find((sess) => sess.id === activeSessionId) || null;
+  if (s) {
+    if (!Array.isArray(s.messages)) s.messages = [];
+    if (!Array.isArray(s.highlights)) s.highlights = [];
+  }
+  return s;
 }
 
 function renderMessagesForSession(session, options = {}) {
@@ -90,7 +98,7 @@ function renderMessagesForSession(session, options = {}) {
   }
 
   session.messages.forEach((m) =>
-    appendMessage(m.text, m.role, { persist: false, scroll: false })
+    appendMessage(m.text, m.role, { persist: false, scroll: false, messageId: m.id })
   );
 
   if (scroll) messages.scrollTop = messages.scrollHeight;
@@ -106,7 +114,6 @@ function renderSessionList() {
       "session-item-wrapper" + (sess.id === activeSessionId ? " active" : "");
     wrapper.dataset.sessionId = sess.id;
 
-    // כפתור ראשי – פתיחת השיחה
     const mainBtn = document.createElement("button");
     mainBtn.type = "button";
     mainBtn.className = "session-item-main";
@@ -125,15 +132,14 @@ function renderSessionList() {
       saveSessions();
       renderSessionList();
       renderMessagesForSession(sess);
+      renderHighlights();
     });
 
-    // כפתור שלוש נקודות
-    const menuBtn = document.createElement("button");
-    menuBtn.type = "button";
-    menuBtn.className = "session-item-menu-btn";
-    menuBtn.innerHTML = "⋮";
+    const threeDotsBtn = document.createElement("button");
+    threeDotsBtn.type = "button";
+    threeDotsBtn.className = "session-item-menu-btn";
+    threeDotsBtn.innerHTML = "⋮";
 
-    // תפריט שיחה
     const menu = document.createElement("div");
     menu.className = "session-item-menu";
 
@@ -156,10 +162,9 @@ function renderSessionList() {
 
     menu.appendChild(renameItem);
 
-    menuBtn.addEventListener("click", (e) => {
+    threeDotsBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const isOpen = menu.classList.contains("open");
-      // לסגור אחרים
       document
         .querySelectorAll(".session-item-menu.open")
         .forEach((m) => m.classList.remove("open"));
@@ -169,7 +174,7 @@ function renderSessionList() {
     });
 
     wrapper.appendChild(mainBtn);
-    wrapper.appendChild(menuBtn);
+    wrapper.appendChild(threeDotsBtn);
     wrapper.appendChild(menu);
 
     sessionListEl.appendChild(wrapper);
@@ -178,12 +183,13 @@ function renderSessionList() {
 
 function createNewSession() {
   const id = "s_" + Date.now();
-  const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [] };
+  const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [], highlights: [] };
   sessions.unshift(session);
   activeSessionId = id;
   saveSessions();
   renderSessionList();
   renderMessagesForSession(session);
+  renderHighlights();
   if (textarea) {
     textarea.value = "";
     autoResizeTextarea(textarea);
@@ -203,7 +209,11 @@ function migrateOldHistoryIfNeeded() {
         id,
         title: "שיחה קודמת",
         createdAt: Date.now(),
-        messages: parsed,
+        messages: parsed.map((m, idx) => ({
+          ...m,
+          id: m.id || "m_" + Date.now() + "_" + idx
+        })),
+        highlights: []
       },
     ];
     activeSessionId = id;
@@ -216,7 +226,14 @@ function loadSessions() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.sessions)) {
-        sessions = parsed.sessions;
+        sessions = parsed.sessions.map((s) => ({
+          ...s,
+          messages: (s.messages || []).map((m, idx) => ({
+            ...m,
+            id: m.id || "m_" + s.id + "_" + idx
+          })),
+          highlights: s.highlights || []
+        }));
         activeSessionId =
           parsed.activeSessionId || (sessions[0] && sessions[0].id) || null;
       }
@@ -232,6 +249,7 @@ function loadSessions() {
           title: "שיחה חדשה",
           createdAt: Date.now(),
           messages: [],
+          highlights: []
         },
       ];
       activeSessionId = id;
@@ -244,22 +262,55 @@ function loadSessions() {
         title: "שיחה חדשה",
         createdAt: Date.now(),
         messages: [],
+        highlights: []
       },
     ];
     activeSessionId = id;
   }
 }
 
+/**
+ * הוספת הודעה לדום ולשיחה
+ */
 function appendMessage(text, role, options = {}) {
-  const { persist = true, scroll = true } = options;
+  const { persist = true, scroll = true, messageId = null } = options;
   if (!messages) return;
+
+  let msgId = messageId || ("m_" + Date.now() + "_" + Math.random().toString(36).slice(2));
 
   const row = document.createElement("div");
   row.className = "message-row " + role;
+  row.dataset.messageId = msgId;
 
   const content = document.createElement("div");
   content.className = "message-content";
   content.innerHTML = renderTextWithLinks(text);
+
+  // כפתור כוכב רק על תשובות assistant
+  if (role === "assistant") {
+    const starBtn = document.createElement("button");
+    starBtn.type = "button";
+    starBtn.className = "highlight-star-btn";
+    starBtn.textContent = "☆";
+
+    const session = getActiveSession();
+    const isHighlighted =
+      session &&
+      Array.isArray(session.highlights) &&
+      session.highlights.some((h) => h.messageId === msgId);
+    if (isHighlighted) {
+      starBtn.classList.add("active");
+      starBtn.textContent = "★";
+    }
+
+    starBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleHighlightForMessage(msgId, text, starBtn);
+    });
+
+    content.appendChild(starBtn);
+  }
+
   row.appendChild(content);
   messages.appendChild(row);
 
@@ -277,12 +328,15 @@ function appendMessage(text, role, options = {}) {
         renderSessionList();
       }
       if (!Array.isArray(session.messages)) session.messages = [];
-      session.messages.push({ role, text });
+      session.messages.push({ role, text, id: msgId });
       saveSessions();
     }
   }
 }
 
+/**
+ * מוסיף "אני חושב…" זמני
+ */
 function appendThinking() {
   const row = document.createElement("div");
   row.className = "message-row assistant";
@@ -299,6 +353,9 @@ function appendThinking() {
   return row;
 }
 
+/**
+ * קריאה ל־API בצד שרת
+ */
 async function callApi(query) {
   const response = await fetch("/chat", {
     method: "POST",
@@ -321,6 +378,9 @@ async function callApi(query) {
   return data.answer ?? "";
 }
 
+/**
+ * טקסט גולמי של כל השיחה – לשיתוף
+ */
 function getConversationPlainText() {
   const session = getActiveSession();
   if (session && Array.isArray(session.messages) && session.messages.length > 0) {
@@ -342,6 +402,9 @@ function getConversationPlainText() {
   return parts.join("\n\n");
 }
 
+/**
+ * כפתורי PDF ושיתוף
+ */
 if (printBtn) {
   printBtn.addEventListener("click", () => {
     window.print();
@@ -368,6 +431,9 @@ if (shareBtn) {
   });
 }
 
+/**
+ * מסך כניסה
+ */
 if (landingCta) {
   landingCta.addEventListener("click", () => {
     landingOverlay.classList.add("hidden");
@@ -377,6 +443,9 @@ if (landingCta) {
   });
 }
 
+/**
+ * New Chat
+ */
 function handleNewChatClick() {
   createNewSession();
   if (menuDropdown) menuDropdown.classList.remove("open");
@@ -385,6 +454,9 @@ function handleNewChatClick() {
 if (newBtn) newBtn.addEventListener("click", handleNewChatClick);
 if (sidebarNewBtn) sidebarNewBtn.addEventListener("click", handleNewChatClick);
 
+/**
+ * תפריט עליון
+ */
 if (menuBtn) {
   menuBtn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -408,11 +480,12 @@ if (chatLink) {
   });
 }
 
-// סגירת תפריטי top bar + תפריטי שיחות בלחיצה בחוץ
+/**
+ * סגירת תפריטים בלחיצה בחוץ
+ */
 document.addEventListener("click", (e) => {
   const target = e.target;
 
-  // תפריט עליון
   if (menuDropdown && menuDropdown.classList.contains("open")) {
     if (
       target !== menuBtn &&
@@ -423,7 +496,6 @@ document.addEventListener("click", (e) => {
     }
   }
 
-  // תפריטי שיחות – אם הלחיצה לא בתוך wrapper של שיחה
   if (!target.closest(".session-item-wrapper")) {
     document
       .querySelectorAll(".session-item-menu.open")
@@ -431,6 +503,9 @@ document.addEventListener("click", (e) => {
   }
 });
 
+/**
+ * דוגמאות פרומפטים
+ */
 function renderPromptExamples() {
   const container = document.getElementById("promptExamplesContainer");
   if (!container || !textarea) return;
@@ -450,6 +525,9 @@ function renderPromptExamples() {
   });
 }
 
+/**
+ * מצב Deep / רגיל
+ */
 function setupModeToggle() {
   if (!deepModeBtn) return;
   deepModeBtn.addEventListener("click", () => {
@@ -464,6 +542,9 @@ function setupModeToggle() {
   });
 }
 
+/**
+ * מצבי עבודה – מניות / אג"ח / סקטור
+ */
 function setupWorkModes() {
   const buttons = document.querySelectorAll(".work-mode-option");
   if (!buttons.length) return;
@@ -477,6 +558,110 @@ function setupWorkModes() {
   });
 }
 
+/**
+ * מודול קוביות סיכום
+ */
+function toggleHighlightForMessage(messageId, text, starBtn) {
+  const session = getActiveSession();
+  if (!session) return;
+  if (!Array.isArray(session.highlights)) session.highlights = [];
+
+  const idx = session.highlights.findIndex((h) => h.messageId === messageId);
+  if (idx >= 0) {
+    // הסרה
+    session.highlights.splice(idx, 1);
+    if (starBtn) {
+      starBtn.classList.remove("active");
+      starBtn.textContent = "☆";
+    }
+  } else {
+    // הוספה
+    const plain = text.replace(/\s+/g, " ").trim();
+    let snippet = plain;
+    if (snippet.length > 80) snippet = snippet.slice(0, 80) + "…";
+
+    session.highlights.push({
+      id: "h_" + Date.now() + "_" + Math.random().toString(36).slice(2),
+      messageId,
+      snippet,
+      text,
+      createdAt: Date.now()
+    });
+
+    if (starBtn) {
+      starBtn.classList.add("active");
+      starBtn.textContent = "★";
+    }
+  }
+
+  saveSessions();
+  renderHighlights();
+}
+
+function renderHighlights() {
+  if (!highlightsWrapper || !highlightsListEl) return;
+  const session = getActiveSession();
+  highlightsListEl.innerHTML = "";
+
+  if (!session || !Array.isArray(session.highlights) || session.highlights.length === 0) {
+    highlightsWrapper.classList.add("hidden");
+    return;
+  }
+
+  highlightsWrapper.classList.remove("hidden");
+
+  session.highlights.forEach((h) => {
+    const item = document.createElement("div");
+    item.className = "highlight-item";
+
+    const header = document.createElement("button");
+    header.type = "button";
+    header.className = "highlight-header";
+    header.innerHTML = `
+      <span class="highlight-snippet">${h.snippet}</span>
+      <span class="highlight-toggle">▾</span>
+    `;
+
+    const body = document.createElement("div");
+    body.className = "highlight-body";
+    body.innerHTML = renderTextWithLinks(h.text);
+
+    header.addEventListener("click", () => {
+      const isOpen = item.classList.toggle("open");
+      if (isOpen) {
+        body.style.maxHeight = body.scrollHeight + "px";
+      } else {
+        body.style.maxHeight = "0px";
+      }
+    });
+
+    item.appendChild(header);
+    item.appendChild(body);
+    highlightsListEl.appendChild(item);
+  });
+}
+
+if (clearHighlightsBtn) {
+  clearHighlightsBtn.addEventListener("click", () => {
+    const session = getActiveSession();
+    if (!session || !Array.isArray(session.highlights) || !session.highlights.length) return;
+    if (!confirm("למחוק את כל נקודות המפתח בשיחה הזו?")) return;
+    session.highlights = [];
+    saveSessions();
+    renderHighlights();
+
+    // לעדכן את הכוכבים על ההודעות
+    const starBtns = messages.querySelectorAll(".highlight-star-btn");
+    starBtns.forEach((btn) => {
+      btn.classList.remove("active");
+      btn.textContent = "☆";
+    });
+  });
+}
+
+/**
+ * init
+ */
 window.addEventListener("DOMContentLoaded", () => {
   setViewportHeight();
   loadSessions();
@@ -485,8 +670,12 @@ window.addEventListener("DOMContentLoaded", () => {
   renderPromptExamples();
   setupModeToggle();
   setupWorkModes();
+  renderHighlights();
 });
 
+/**
+ * שליחת טופס
+ */
 if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
