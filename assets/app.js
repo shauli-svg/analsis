@@ -41,8 +41,8 @@ window.addEventListener("resize", setViewportHeight);
 
 function autoResizeTextarea(el) {
   if (!el) return;
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 80) + "px";
 }
 
 if (textarea) {
@@ -82,14 +82,14 @@ function renderMessagesForSession(session, options = {}) {
   if (!messages) return;
 
   const rows = messages.querySelectorAll(".message-row");
-  rows.forEach(r => r.remove());
+  rows.forEach((r) => r.remove());
 
   if (!session || !Array.isArray(session.messages)) {
     if (scroll) messages.scrollTop = messages.scrollHeight;
     return;
   }
 
-  session.messages.forEach(m =>
+  session.messages.forEach((m) =>
     appendMessage(m.text, m.role, { persist: false, scroll: false })
   );
 
@@ -100,16 +100,23 @@ function renderSessionList() {
   if (!sessionListEl) return;
   sessionListEl.innerHTML = "";
 
-  sessions.forEach(sess => {
+  sessions.forEach((sess) => {
     const wrapper = document.createElement("div");
-    wrapper.className = "session-item-wrapper" + (sess.id === activeSessionId ? " active" : "");
+    wrapper.className =
+      "session-item-wrapper" + (sess.id === activeSessionId ? " active" : "");
     wrapper.dataset.sessionId = sess.id;
 
+    // כפתור ראשי – פתיחת השיחה
     const mainBtn = document.createElement("button");
     mainBtn.type = "button";
     mainBtn.className = "session-item-main";
-    mainBtn.textContent = sess.title ||
-      ("שיחה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }));
+    mainBtn.textContent =
+      sess.title ||
+      "שיחה " +
+        new Date(sess.createdAt).toLocaleTimeString("he-IL", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
     mainBtn.title = "פתיחת שיחה";
 
     mainBtn.addEventListener("click", () => {
@@ -120,11 +127,13 @@ function renderSessionList() {
       renderMessagesForSession(sess);
     });
 
+    // כפתור שלוש נקודות
     const menuBtn = document.createElement("button");
     menuBtn.type = "button";
     menuBtn.className = "session-item-menu-btn";
     menuBtn.innerHTML = "⋮";
 
+    // תפריט שיחה
     const menu = document.createElement("div");
     menu.className = "session-item-menu";
 
@@ -150,7 +159,10 @@ function renderSessionList() {
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const isOpen = menu.classList.contains("open");
-      document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
+      // לסגור אחרים
+      document
+        .querySelectorAll(".session-item-menu.open")
+        .forEach((m) => m.classList.remove("open"));
       if (!isOpen) {
         menu.classList.add("open");
       }
@@ -186,12 +198,14 @@ function migrateOldHistoryIfNeeded() {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || !parsed.length) return;
     const id = "s_" + Date.now();
-    sessions = [{
-      id,
-      title: "שיחה קודמת",
-      createdAt: Date.now(),
-      messages: parsed
-    }];
+    sessions = [
+      {
+        id,
+        title: "שיחה קודמת",
+        createdAt: Date.now(),
+        messages: parsed,
+      },
+    ];
     activeSessionId = id;
   } catch (e) { }
 }
@@ -203,7 +217,8 @@ function loadSessions() {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.sessions)) {
         sessions = parsed.sessions;
-        activeSessionId = parsed.activeSessionId || (sessions[0] && sessions[0].id) || null;
+        activeSessionId =
+          parsed.activeSessionId || (sessions[0] && sessions[0].id) || null;
       }
     }
     if (!sessions || !sessions.length) {
@@ -211,22 +226,26 @@ function loadSessions() {
     }
     if (!sessions || !sessions.length) {
       const id = "s_" + Date.now();
-      sessions = [{
-        id,
-        title: "שיחה חדשה",
-        createdAt: Date.now(),
-        messages: []
-      }];
+      sessions = [
+        {
+          id,
+          title: "שיחה חדשה",
+          createdAt: Date.now(),
+          messages: [],
+        },
+      ];
       activeSessionId = id;
     }
   } catch (e) {
     const id = "s_" + Date.now();
-    sessions = [{
-      id,
-      title: "שיחה חדשה",
-      createdAt: Date.now(),
-      messages: []
-    }];
+    sessions = [
+      {
+        id,
+        title: "שיחה חדשה",
+        createdAt: Date.now(),
+        messages: [],
+      },
+    ];
     activeSessionId = id;
   }
 }
@@ -284,7 +303,7 @@ async function callApi(query) {
   const response = await fetch("/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query })
+    body: JSON.stringify({ query }),
   });
   if (!response.ok) {
     let err;
@@ -389,17 +408,26 @@ if (chatLink) {
   });
 }
 
+// סגירת תפריטי top bar + תפריטי שיחות בלחיצה בחוץ
 document.addEventListener("click", (e) => {
   const target = e.target;
 
+  // תפריט עליון
   if (menuDropdown && menuDropdown.classList.contains("open")) {
-    if (target !== menuBtn && !(menuBtn && menuBtn.contains(target)) && !menuDropdown.contains(target)) {
+    if (
+      target !== menuBtn &&
+      !(menuBtn && menuBtn.contains(target)) &&
+      !menuDropdown.contains(target)
+    ) {
       menuDropdown.classList.remove("open");
     }
   }
 
+  // תפריטי שיחות – אם הלחיצה לא בתוך wrapper של שיחה
   if (!target.closest(".session-item-wrapper")) {
-    document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
+    document
+      .querySelectorAll(".session-item-menu.open")
+      .forEach((m) => m.classList.remove("open"));
   }
 });
 
@@ -441,7 +469,7 @@ function setupWorkModes() {
   if (!buttons.length) return;
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      buttons.forEach(b => b.classList.remove("active"));
+      buttons.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       const mode = btn.getAttribute("data-mode");
       currentWorkMode = mode || "stock";
@@ -499,10 +527,12 @@ if (form) {
       appendMessage(safeAnswer, "assistant");
     } catch (err) {
       thinking.remove();
-      appendMessage("שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."), "assistant");
+      appendMessage(
+        "שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."),
+        "assistant"
+      );
     } finally {
       if (sendBtn) sendBtn.disabled = false;
     }
   });
 }
-
