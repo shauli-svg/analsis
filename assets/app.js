@@ -1,749 +1,664 @@
-const SESSIONS_KEY = "draffiq-sessions-v2";
-const OLD_STORAGE_KEY = "draffiq-chat-v1";
+// =========================
+// הגדרות כלליות
+// =========================
+const API_URL = "/chat"; // אם שינית נתיב בשרת – לעדכן כאן
 
-const form = document.getElementById("chat-form");
-const textarea = document.getElementById("query");
-const messages = document.getElementById("messages");
-const sendBtn = document.getElementById("send-btn");
-const printBtn = document.getElementById("print-btn");
-const shareBtn = document.getElementById("share-btn");
-const newBtn = document.getElementById("new-btn");
-const menuBtn = document.getElementById("menu-btn");
+// מצב גלובלי
+let sessions = {};
+let currentSessionId = null;
+let currentWorkMode = "stock"; // stock / bond / sector
+let deepMode = false;
+
+// DOM refs
 const landingOverlay = document.getElementById("landing-overlay");
 const landingCta = document.getElementById("landing-cta");
-const chatSection = document.getElementById("chat-section");
+
+const menuBtn = document.getElementById("menu-btn");
 const menuDropdown = document.getElementById("menu-dropdown");
 const homeLink = document.getElementById("home-link");
 const chatLink = document.getElementById("chat-link");
+
+const sidebar = document.querySelector(".sidebar");
 const sessionListEl = document.getElementById("session-list");
 const sidebarNewBtn = document.getElementById("sidebar-new-btn");
+const topNewBtn = document.getElementById("new-btn");
+
+const messagesContainer = document.getElementById("messages");
+const chatForm = document.getElementById("chat-form");
+const queryInput = document.getElementById("query");
+const sendBtn = document.getElementById("send-btn");
+
+const workModeButtons = document.querySelectorAll(".work-mode-option");
 const deepModeBtn = document.getElementById("deep-mode-btn");
 const assetTypeSelect = document.getElementById("asset-type");
 
-// מודול קוביות סיכום
+const examplesContainer = document.getElementById("promptExamplesContainer");
+
 const highlightsWrapper = document.getElementById("highlights-wrapper");
 const highlightsListEl = document.getElementById("highlights-list");
-const clearHighlightsBtn = document.getElementById("clear-highlights-btn");
+const highlightsClearBtn = document.getElementById("clear-highlights-btn");
 
-// פנל סיכום נפתח
+const shareBtn = document.getElementById("share-btn");
+const printBtn = document.getElementById("print-btn");
+
+// highlight-detail (אופציונלי – משאיר קיים)
 const highlightDetail = document.getElementById("highlight-detail");
 const highlightDetailClose = document.getElementById("highlight-detail-close");
 const highlightDetailContent = document.getElementById("highlight-detail-content");
 
-let sessions = [];
-let activeSessionId = null;
-let currentMode = "normal";
-let currentWorkMode = "stock";
-
-const EXAMPLE_PROMPTS = [
-  { label: "מפת סיכונים למניה", text: "בנה לי מפת סיכונים והזדמנויות למניית פועלים לשנתיים הקרובות." },
-  { label: "השוואת אג\"ח", text: "השווה בין אג\"ח ממשלתי שקלי ל-10 שנים לבין אג\"ח קונצרני בדירוג AA באותו מח\"מ." },
-  { label: "סקטור נדל\"ן", text: "מהם הסיכונים המרכזיים כיום בסקטור הנדל\"ן המניב בישראל, ואילו תרחישים יכולים לשנות את הכיוון?" },
-  { label: "דוח אחרון", text: "בצע ניתוח על הדוח האחרון של בזק, עם דגש על תזרים מזומנים ו-Red Flags פוטנציאליים." }
-];
-
-function setViewportHeight() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty("--vh", vh + "px");
-}
-window.addEventListener("load", setViewportHeight);
-window.addEventListener("resize", setViewportHeight);
-
-function autoResizeTextarea(el) {
-  if (!el) return;
-  el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 80) + "px";
-}
-
-if (textarea) {
-  textarea.addEventListener("input", () => autoResizeTextarea(textarea));
-  textarea.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (form) form.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
-    }
-  });
-}
-
-function renderTextWithLinks(text) {
-  if (!text) return "";
-  let escaped = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-  const urlRegex = /(https?:\/\/[^\s)]+)/g;
-  return escaped.replace(urlRegex, (url) => {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer">🔗 קישור</a>`;
-  });
+// =========================
+// עזרה – אחסון מקומי
+// =========================
+function loadSessions() {
+  try {
+    const raw = localStorage.getItem("draffiq_sessions_v1");
+    if (!raw) return {};
+    return JSON.parse(raw) || {};
+  } catch (e) {
+    console.error("loadSessions error", e);
+    return {};
+  }
 }
 
 function saveSessions() {
   try {
-    localStorage.setItem(SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId }));
-  } catch (e) {}
-}
-
-function getActiveSession() {
-  const s = sessions.find((sess) => sess.id === activeSessionId) || null;
-  if (s) {
-    if (!Array.isArray(s.messages)) s.messages = [];
-    if (!Array.isArray(s.highlights)) s.highlights = [];
-  }
-  return s;
-}
-
-function renderMessagesForSession(session, options = {}) {
-  const { scroll = true } = options;
-  if (!messages) return;
-
-  const rows = messages.querySelectorAll(".message-row");
-  rows.forEach((r) => r.remove());
-
-  if (!session || !Array.isArray(session.messages)) {
-    if (scroll) messages.scrollTop = messages.scrollHeight;
-    return;
-  }
-
-  session.messages.forEach((m) =>
-    appendMessage(m.text, m.role, { persist: false, scroll: false, messageId: m.id })
-  );
-
-  if (scroll) {
-    messages.scrollTop = messages.scrollHeight;
+    localStorage.setItem("draffiq_sessions_v1", JSON.stringify(sessions));
+  } catch (e) {
+    console.error("saveSessions error", e);
   }
 }
 
+function getCurrentSession() {
+  if (!currentSessionId || !sessions[currentSessionId]) return null;
+  return sessions[currentSessionId];
+}
+
+// =========================
+// יצירת שיחה חדשה
+// =========================
+function createNewSession() {
+  const id = "s_" + Date.now();
+  const session = {
+    id,
+    title: "שיחה חדשה",
+    createdAt: Date.now(),
+    messages: [],
+    highlights: []
+  };
+  sessions[id] = session;
+  currentSessionId = id;
+  saveSessions();
+  renderSessionList();
+  // לא מוחק את ההודעות המערכתיות הראשונות – הן כבר ב-HTML
+  // מוחק רק הודעות משתמש/סוכן קיימות
+  resetConversationView();
+}
+
+function resetConversationView() {
+  const rows = messagesContainer.querySelectorAll(".message-row");
+  rows.forEach((row) => row.remove());
+
+  // לשמור את בלוקי system שכבר קיימים ב-HTML
+  // שום פעולה על .message.system
+
+  clearHighlightsUI();
+}
+
+// =========================
+// רינדור צד שמאל – רשימת שיחות
+// =========================
 function renderSessionList() {
   if (!sessionListEl) return;
   sessionListEl.innerHTML = "";
 
-  sessions.forEach((sess) => {
+  const arr = Object.values(sessions).sort((a, b) => b.createdAt - a.createdAt);
+  arr.forEach((session) => {
     const wrapper = document.createElement("div");
-    wrapper.className =
-      "session-item-wrapper" + (sess.id === activeSessionId ? " active" : "");
-    wrapper.dataset.sessionId = sess.id;
+    wrapper.className = "session-item-wrapper";
+    if (session.id === currentSessionId) {
+      wrapper.classList.add("active");
+    }
 
     const mainBtn = document.createElement("button");
-    mainBtn.type = "button";
     mainBtn.className = "session-item-main";
-    mainBtn.textContent =
-      sess.title ||
-      "שיחה " +
-        new Date(sess.createdAt).toLocaleTimeString("he-IL", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-    mainBtn.title = "פתיחת שיחה";
-
+    mainBtn.textContent = session.title || "שיחה ללא כותרת";
     mainBtn.addEventListener("click", () => {
-      if (sess.id === activeSessionId) return;
-      activeSessionId = sess.id;
-      saveSessions();
-      renderSessionList();
-      renderMessagesForSession(sess);
-      renderHighlights();
+      switchSession(session.id);
     });
 
-    const threeDotsBtn = document.createElement("button");
-    threeDotsBtn.type = "button";
-    threeDotsBtn.className = "session-item-menu-btn";
-    threeDotsBtn.innerHTML = "⋮";
+    const menuBtn = document.createElement("button");
+    menuBtn.className = "session-item-menu-btn";
+    menuBtn.innerHTML = "⋯";
 
     const menu = document.createElement("div");
     menu.className = "session-item-menu";
 
     const renameItem = document.createElement("button");
-    renameItem.type = "button";
     renameItem.className = "session-item-menu-item";
-    renameItem.textContent = "שנה שם שיחה";
-
-    renameItem.addEventListener("click", (e) => {
-      e.stopPropagation();
-      menu.classList.remove("open");
-      const currentTitle = sess.title || "";
-      const newTitle = prompt("שם חדש לשיחה:", currentTitle);
+    renameItem.textContent = "שינוי שם";
+    renameItem.addEventListener("click", () => {
+      const newTitle = prompt("שם חדש לשיחה:", session.title || "");
       if (newTitle && newTitle.trim()) {
-        sess.title = newTitle.trim();
+        session.title = newTitle.trim();
         saveSessions();
         renderSessionList();
       }
+      menu.classList.remove("open");
+    });
+
+    const deleteItem = document.createElement("button");
+    deleteItem.className = "session-item-menu-item";
+    deleteItem.textContent = "מחיקה";
+    deleteItem.addEventListener("click", () => {
+      if (confirm("למחוק את השיחה הזאת?")) {
+        delete sessions[session.id];
+        if (currentSessionId === session.id) {
+          currentSessionId = null;
+          if (Object.keys(sessions).length === 0) {
+            createNewSession();
+          } else {
+            currentSessionId = Object.keys(sessions)[0];
+          }
+        }
+        saveSessions();
+        renderSessionList();
+        loadSessionToView();
+      }
+      menu.classList.remove("open");
     });
 
     menu.appendChild(renameItem);
+    menu.appendChild(deleteItem);
 
-    threeDotsBtn.addEventListener("click", (e) => {
+    menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isOpen = menu.classList.contains("open");
-      document
-        .querySelectorAll(".session-item-menu.open")
-        .forEach((m) => m.classList.remove("open"));
-      if (!isOpen) {
-        menu.classList.add("open");
-      }
+      const allMenus = document.querySelectorAll(".session-item-menu.open");
+      allMenus.forEach((m) => {
+        if (m !== menu) m.classList.remove("open");
+      });
+      menu.classList.toggle("open");
     });
 
     wrapper.appendChild(mainBtn);
-    wrapper.appendChild(threeDotsBtn);
+    wrapper.appendChild(menuBtn);
     wrapper.appendChild(menu);
-
     sessionListEl.appendChild(wrapper);
   });
 }
 
-function createNewSession() {
-  const id = "s_" + Date.now();
-  const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [], highlights: [] };
-  sessions.unshift(session);
-  activeSessionId = id;
-  saveSessions();
+function switchSession(id) {
+  if (!sessions[id]) return;
+  currentSessionId = id;
+  loadSessionToView();
   renderSessionList();
-  renderMessagesForSession(session);
-  renderHighlights();
-  if (textarea) {
-    textarea.value = "";
-    autoResizeTextarea(textarea);
-    textarea.focus();
-  }
 }
 
-function migrateOldHistoryIfNeeded() {
-  try {
-    const raw = localStorage.getItem(OLD_STORAGE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || !parsed.length) return;
-    const id = "s_" + Date.now();
-    sessions = [
-      {
-        id,
-        title: "שיחה קודמת",
-        createdAt: Date.now(),
-        messages: parsed.map((m, idx) => ({
-          ...m,
-          id: m.id || "m_" + Date.now() + "_" + idx,
-        })),
-        highlights: [],
-      },
-    ];
-    activeSessionId = id;
-  } catch (e) {}
-}
+function loadSessionToView() {
+  resetConversationView();
+  const session = getCurrentSession();
+  if (!session) return;
 
-function loadSessions() {
-  try {
-    const raw = localStorage.getItem(SESSIONS_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.sessions)) {
-        sessions = parsed.sessions.map((s) => ({
-          ...s,
-          messages: (s.messages || []).map((m, idx) => ({
-            ...m,
-            id: m.id || "m_" + s.id + "_" + idx,
-          })),
-          highlights: s.highlights || [],
-        }));
-        activeSessionId =
-          parsed.activeSessionId || (sessions[0] && sessions[0].id) || null;
-      }
+  session.messages.forEach((m) => {
+    if (m.role === "user") {
+      renderUserMessage(m.content, false);
+    } else if (m.role === "assistant") {
+      renderAssistantMessage(m.content, false, m.id);
     }
-    if (!sessions || !sessions.length) {
-      migrateOldHistoryIfNeeded();
-    }
-    if (!sessions || !sessions.length) {
-      const id = "s_" + Date.now();
-      sessions = [
-        {
-          id,
-          title: "שיחה חדשה",
-          createdAt: Date.now(),
-          messages: [],
-          highlights: [],
-        },
-      ];
-      activeSessionId = id;
-    }
-  } catch (e) {
-    const id = "s_" + Date.now();
-    sessions = [
-      {
-        id,
-        title: "שיחה חדשה",
-        createdAt: Date.now(),
-        messages: [],
-        highlights: [],
-      },
-    ];
-    activeSessionId = id;
-  }
-}
+  });
 
-/**
- * הוספת הודעה לדום ולשיחה
- */
-function appendMessage(text, role, options = {}) {
-  const { persist = true, scroll = true, messageId = null } = options;
-  if (!messages) return;
-
-  const msgId =
-    messageId || "m_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-
-  const row = document.createElement("div");
-  row.className = "message-row " + role;
-  row.dataset.messageId = msgId;
-
-  const content = document.createElement("div");
-  content.className = "message-content";
-  content.innerHTML = renderTextWithLinks(text);
-
-  // כפתור כוכב רק על תשובות assistant
-  if (role === "assistant") {
-    const starBtn = document.createElement("button");
-    starBtn.type = "button";
-    starBtn.className = "highlight-star-btn";
-    starBtn.textContent = "☆";
-
-    const session = getActiveSession();
-    const isHighlighted =
-      session &&
-      Array.isArray(session.highlights) &&
-      session.highlights.some((h) => h.messageId === msgId);
-    if (isHighlighted) {
-      starBtn.classList.add("active");
-      starBtn.textContent = "★";
-    }
-
-    starBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleHighlightForMessage(msgId, text, starBtn);
+  // highlights
+  clearHighlightsUI();
+  if (session.highlights && session.highlights.length) {
+    highlightsWrapper.classList.remove("hidden");
+    session.highlights.forEach((h) => {
+      addHighlightToUI(h);
     });
-
-    content.appendChild(starBtn);
   }
+}
 
-  row.appendChild(content);
-  messages.appendChild(row);
+// =========================
+// הודעות לצ'אט
+// =========================
+function renderUserMessage(text, scroll = true) {
+  const row = document.createElement("div");
+  row.className = "message-row user";
+
+  const bubble = document.createElement("div");
+  bubble.className = "message-content";
+  bubble.textContent = text;
+
+  row.appendChild(bubble);
+  messagesContainer.appendChild(row);
 
   if (scroll) {
-    messages.scrollTop = messages.scrollHeight;
-  }
-
-  if (persist) {
-    const session = getActiveSession();
-    if (session) {
-      if (
-        role === "user" &&
-        Array.isArray(session.messages) &&
-        session.messages.length === 0
-      ) {
-        let t = text.replace(/\s+/g, " ").trim();
-        if (t.length > 28) t = t.slice(0, 28) + "…";
-        session.title = t || "שיחה חדשה";
-        renderSessionList();
-      }
-      if (!Array.isArray(session.messages)) session.messages = [];
-      session.messages.push({ role, text, id: msgId });
-      saveSessions();
-    }
+    row.scrollIntoView({ behavior: "smooth", block: "end" });
   }
 }
 
-/**
- * מוסיף "אני חושב…" זמני
- */
-function appendThinking() {
+function renderAssistantThinking() {
   const row = document.createElement("div");
   row.className = "message-row assistant";
-  const content = document.createElement("div");
-  content.className = "message-content";
-  content.innerHTML =
-    `<div class="thinking-dots">
-       <span class="thinking-dot"></span>
-       <span class="thinking-dot"></span>
-       <span class="thinking-dot"></span>
-     </div>`;
-  row.appendChild(content);
-  messages.appendChild(row);
-  messages.scrollTop = messages.scrollHeight;
+
+  const bubble = document.createElement("div");
+  bubble.className = "message-content";
+
+  const dots = document.createElement("span");
+  dots.className = "thinking-dots";
+  dots.innerHTML =
+    '<span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span>';
+
+  bubble.appendChild(dots);
+  row.appendChild(bubble);
+  messagesContainer.appendChild(row);
+  row.scrollIntoView({ behavior: "smooth", block: "end" });
   return row;
 }
 
-/**
- * קריאה ל־API בצד שרת
- */
-async function callApi(query) {
-  const response = await fetch("/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
+function renderAssistantMessage(text, scroll = true, existingId = null) {
+  const row = document.createElement("div");
+  row.className = "message-row assistant";
+
+  const bubble = document.createElement("div");
+  bubble.className = "message-content";
+
+  const safeText = typeof text === "string" ? text : JSON.stringify(text, null, 2);
+  bubble.textContent = safeText;
+
+  const starBtn = document.createElement("button");
+  starBtn.className = "highlight-star-btn";
+  starBtn.type = "button";
+  starBtn.innerHTML = "★";
+
+  const messageId = existingId || "m_" + Date.now();
+  bubble.dataset.messageId = messageId;
+
+  starBtn.addEventListener("click", () => {
+    toggleHighlightForMessage(messageId, safeText, starBtn);
   });
-  if (!response.ok) {
-    let err;
-    try {
-      err = await response.json();
-    } catch {
-      err = {};
-    }
-    throw new Error(err.error || "שגיאה בצד השרת.");
-  }
-  const data = await response.json();
-  if (!data.ok && data.answer === undefined) {
-    throw new Error(data.error || "שגיאה בצד השרת.");
-  }
-  return data.answer ?? "";
-}
 
-/**
- * טקסט גולמי של כל השיחה – לשיתוף
- */
-function getConversationPlainText() {
-  const session = getActiveSession();
-  if (session && Array.isArray(session.messages) && session.messages.length > 0) {
-    return session.messages
-      .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
-      .join("\n\n");
-  }
-  const rows = messages.querySelectorAll(".message-row");
-  const parts = [];
-  rows.forEach((row) => {
-    const isUser = row.classList.contains("user");
-    const label = isUser ? "YOU" : "DRAFFIQ";
-    const contentEl = row.querySelector(".message-content");
-    if (!contentEl) return;
-    const text = contentEl.innerText.trim();
-    if (!text) return;
-    parts.push(label + ":\n" + text);
-  });
-  return parts.join("\n\n");
-}
+  bubble.appendChild(starBtn);
+  row.appendChild(bubble);
+  messagesContainer.appendChild(row);
 
-/**
- * כפתורי PDF ושיתוף
- */
-if (printBtn) {
-  printBtn.addEventListener("click", () => {
-    window.print();
-  });
-}
-
-if (shareBtn) {
-  shareBtn.addEventListener("click", async () => {
-    const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
-    const title = "DRAFFIQ – שיחת מחקר";
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text, url });
-      } catch (e) {}
-    } else {
-      try {
-        await navigator.clipboard.writeText(text + "\n\n" + url);
-        alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק בכל אפליקציה.");
-      } catch {
-        alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
-      }
-    }
-  });
-}
-
-/**
- * מסך כניסה
- */
-if (landingCta) {
-  landingCta.addEventListener("click", () => {
-    landingOverlay.classList.add("hidden");
-    if (chatSection && chatSection.scrollIntoView) {
-      chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  });
-}
-
-/**
- * New Chat
- */
-function handleNewChatClick() {
-  createNewSession();
-  if (menuDropdown) menuDropdown.classList.remove("open");
-}
-
-if (newBtn) newBtn.addEventListener("click", handleNewChatClick);
-if (sidebarNewBtn) sidebarNewBtn.addEventListener("click", handleNewChatClick);
-
-/**
- * תפריט עליון
- */
-if (menuBtn) {
-  menuBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (!menuDropdown) return;
-    menuDropdown.classList.toggle("open");
-  });
-}
-
-if (homeLink) {
-  homeLink.addEventListener("click", () => {
-    window.location.href = "/";
-  });
-}
-
-if (chatLink) {
-  chatLink.addEventListener("click", () => {
-    if (chatSection && chatSection.scrollIntoView) {
-      chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-    if (menuDropdown) menuDropdown.classList.remove("open");
-  });
-}
-
-/**
- * סגירת תפריטים בלחיצה בחוץ
- */
-document.addEventListener("click", (e) => {
-  const target = e.target;
-
-  if (menuDropdown && menuDropdown.classList.contains("open")) {
-    if (
-      target !== menuBtn &&
-      !(menuBtn && menuBtn.contains(target)) &&
-      !menuDropdown.contains(target)
-    ) {
-      menuDropdown.classList.remove("open");
-    }
+  if (scroll) {
+    row.scrollIntoView({ behavior: "smooth", block: "end" });
   }
 
-  if (!target.closest(".session-item-wrapper")) {
-    document
-      .querySelectorAll(".session-item-menu.open")
-      .forEach((m) => m.classList.remove("open"));
-  }
-});
-
-/**
- * דוגמאות פרומפטים
- */
-function renderPromptExamples() {
-  const container = document.getElementById("promptExamplesContainer");
-  if (!container || !textarea) return;
-  container.innerHTML = EXAMPLE_PROMPTS.map((ex, i) =>
-    `<button type="button" class="example-chip" data-idx="${i}">${ex.label}</button>`
-  ).join("");
-
-  container.addEventListener("click", (e) => {
-    const btn = e.target.closest(".example-chip");
-    if (!btn) return;
-    const idx = btn.getAttribute("data-idx");
-    const ex = EXAMPLE_PROMPTS[idx];
-    if (!ex) return;
-    textarea.value = ex.text;
-    autoResizeTextarea(textarea);
-    textarea.focus();
-  });
+  return { row, bubble, messageId };
 }
 
-/**
- * מצב Deep / רגיל
- */
-function setupModeToggle() {
-  if (!deepModeBtn) return;
-  deepModeBtn.addEventListener("click", () => {
-    const isActive = deepModeBtn.classList.contains("active");
-    if (isActive) {
-      deepModeBtn.classList.remove("active");
-      currentMode = "normal";
-    } else {
-      deepModeBtn.classList.add("active");
-      currentMode = "deep";
-    }
-  });
-}
-
-/**
- * מצבי עבודה – מניות / אג"ח / סקטור
- */
-function setupWorkModes() {
-  const buttons = document.querySelectorAll(".work-mode-option");
-  if (!buttons.length) return;
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      buttons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      const mode = btn.getAttribute("data-mode");
-      currentWorkMode = mode || "stock";
-    });
-  });
-}
-
-/**
- * פתיחה/סגירה של פנל הסיכום המלא
- */
-function openHighlightDetail(html) {
-  if (!highlightDetail || !highlightDetailContent) return;
-  highlightDetailContent.innerHTML = html;
-  highlightDetail.classList.remove("hidden");
-}
-
-if (highlightDetailClose) {
-  highlightDetailClose.addEventListener("click", () => {
-    if (!highlightDetail || !highlightDetailContent) return;
-    highlightDetail.classList.add("hidden");
-    highlightDetailContent.innerHTML = "";
-  });
-}
-
-/**
- * מודול קוביות סיכום
- */
-function toggleHighlightForMessage(messageId, text, starBtn) {
-  const session = getActiveSession();
+// =========================
+// Highlights – קוביות סיכום
+// =========================
+function toggleHighlightForMessage(messageId, fullText, starBtn) {
+  const session = getCurrentSession();
   if (!session) return;
-  if (!Array.isArray(session.highlights)) session.highlights = [];
 
-  const idx = session.highlights.findIndex((h) => h.messageId === messageId);
-  if (idx >= 0) {
-    // הסרה
-    session.highlights.splice(idx, 1);
-    if (starBtn) {
-      starBtn.classList.remove("active");
-      starBtn.textContent = "☆";
-    }
-  } else {
-    // הוספה
-    const plain = text.replace(/\s+/g, " ").trim();
-    let snippet = plain;
-    if (snippet.length > 80) snippet = snippet.slice(0, 80) + "…";
+  if (!session.highlights) session.highlights = [];
+  const existingIdx = session.highlights.findIndex((h) => h.messageId === messageId);
 
-    session.highlights.push({
-      id: "h_" + Date.now() + "_" + Math.random().toString(36).slice(2),
-      messageId,
-      snippet,
-      text,
-      createdAt: Date.now(),
-    });
-
-    if (starBtn) {
-      starBtn.classList.add("active");
-      starBtn.textContent = "★";
-    }
-  }
-
-  saveSessions();
-  renderHighlights();
-}
-
-function renderHighlights() {
-  if (!highlightsWrapper || !highlightsListEl) return;
-  const session = getActiveSession();
-  highlightsListEl.innerHTML = "";
-
-  if (!session || !Array.isArray(session.highlights) || session.highlights.length === 0) {
-    highlightsWrapper.classList.add("hidden");
+  if (existingIdx >= 0) {
+    // קיים – למחוק
+    session.highlights.splice(existingIdx, 1);
+    saveSessions();
+    starBtn.classList.remove("active");
+    rebuildHighlightsUI(session.highlights);
     return;
   }
 
+  const snippet = fullText.length > 90 ? fullText.slice(0, 90) + "…" : fullText;
+  const highlight = {
+    id: "h_" + Date.now(),
+    messageId,
+    snippet,
+    fullText
+  };
+
+  session.highlights.push(highlight);
+  saveSessions();
+  starBtn.classList.add("active");
+  addHighlightToUI(highlight);
+}
+
+function addHighlightToUI(highlight) {
   highlightsWrapper.classList.remove("hidden");
 
-  session.highlights.forEach((h) => {
-    const item = document.createElement("div");
-    item.className = "highlight-item";
+  const item = document.createElement("div");
+  item.className = "highlight-item";
+  item.dataset.highlightId = highlight.id;
 
-    const header = document.createElement("button");
-    header.type = "button";
-    header.className = "highlight-header";
-    header.innerHTML = `
-      <span class="highlight-snippet">${h.snippet}</span>
-      <span class="highlight-toggle">▾</span>
-    `;
+  const headerBtn = document.createElement("button");
+  headerBtn.className = "highlight-header";
 
-    header.addEventListener("click", () => {
-      openHighlightDetail(renderTextWithLinks(h.text));
-    });
+  const snippetSpan = document.createElement("span");
+  snippetSpan.className = "highlight-snippet";
+  snippetSpan.textContent = highlight.snippet;
 
-    item.appendChild(header);
-    highlightsListEl.appendChild(item);
+  const toggleSpan = document.createElement("span");
+  toggleSpan.className = "highlight-toggle";
+  toggleSpan.textContent = "+";
+
+  headerBtn.appendChild(snippetSpan);
+  headerBtn.appendChild(toggleSpan);
+
+  const body = document.createElement("div");
+  body.className = "highlight-body";
+  body.textContent = highlight.fullText;
+
+  headerBtn.addEventListener("click", () => {
+    const isOpen = item.classList.toggle("open");
+    toggleSpan.textContent = isOpen ? "–" : "+";
   });
+
+  item.addEventListener("dblclick", () => {
+    // אופציונלי – תצוגת פירוט בצד
+    if (!highlightDetail || !highlightDetailContent) return;
+    highlightDetailContent.textContent = highlight.fullText;
+    highlightDetail.classList.remove("hidden");
+  });
+
+  item.appendChild(headerBtn);
+  item.appendChild(body);
+  highlightsListEl.appendChild(item);
 }
 
-if (clearHighlightsBtn) {
-  clearHighlightsBtn.addEventListener("click", () => {
-    const session = getActiveSession();
-    if (!session || !Array.isArray(session.highlights) || !session.highlights.length) return;
-    if (!confirm("למחוק את כל נקודות המפתח בשיחה הזו?")) return;
-    session.highlights = [];
+function clearHighlightsUI() {
+  if (!highlightsWrapper) return;
+  highlightsListEl.innerHTML = "";
+  highlightsWrapper.classList.add("hidden");
+  if (highlightDetail) highlightDetail.classList.add("hidden");
+}
+
+function rebuildHighlightsUI(list) {
+  clearHighlightsUI();
+  if (!list || !list.length) return;
+  highlightsWrapper.classList.remove("hidden");
+  list.forEach((h) => addHighlightToUI(h));
+}
+
+// =========================
+// שליחת שאלה לשרת
+// =========================
+async function handleSubmit(event) {
+  event.preventDefault();
+  const text = queryInput.value.trim();
+  if (!text) return;
+
+  const session = getCurrentSession();
+  if (!session) createNewSession();
+
+  renderUserMessage(text);
+
+  // כותרת לשיחה אם עדיין "שיחה חדשה"
+  if (session && (!session.title || session.title === "שיחה חדשה")) {
+    session.title = text.slice(0, 40);
     saveSessions();
-    renderHighlights();
+    renderSessionList();
+  }
 
-    // לעדכן את הכוכבים על ההודעות
-    const starBtns = messages.querySelectorAll(".highlight-star-btn");
-    starBtns.forEach((btn) => {
-      btn.classList.remove("active");
-      btn.textContent = "☆";
+  // לשמור הודעת משתמש למבנה השיחה
+  const s = getCurrentSession();
+  if (s) {
+    s.messages.push({ role: "user", content: text });
+    saveSessions();
+  }
+
+  queryInput.value = "";
+  queryInput.style.height = "20px";
+
+  sendBtn.disabled = true;
+  const thinkingRow = renderAssistantThinking();
+
+  try {
+    const payload = {
+      query: text,
+      work_mode: currentWorkMode,
+      deep: deepMode,
+      asset_type: assetTypeSelect ? assetTypeSelect.value || null : null,
+      session_id: currentSessionId
+    };
+
+    const resp = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok) {
+      throw new Error("שגיאה מהשרת: " + resp.status);
+    }
+
+    let data;
+    try {
+      data = await resp.json();
+    } catch (e) {
+      // אם זה לא JSON – נקרא כטקסט
+      const txt = await resp.text();
+      data = { answer: txt };
+    }
+
+    const answer =
+      data.answer || data.response || data.message || "לא התקבלה תשובה מהשרת.";
+
+    thinkingRow.remove();
+    const { messageId } = renderAssistantMessage(answer);
+
+    const cur = getCurrentSession();
+    if (cur) {
+      cur.messages.push({ id: messageId, role: "assistant", content: answer });
+      saveSessions();
+    }
+
+    // אם השרת מחזיר גם highlights מובנים
+    if (Array.isArray(data.highlights)) {
+      const curSession = getCurrentSession();
+      if (curSession) {
+        curSession.highlights = data.highlights.map((h) => ({
+          id: h.id || "h_" + Date.now(),
+          messageId: h.messageId || messageId,
+          snippet: h.snippet || (h.text ? h.text.slice(0, 90) + "…" : ""),
+          fullText: h.fullText || h.text || ""
+        }));
+        saveSessions();
+        rebuildHighlightsUI(curSession.highlights);
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    thinkingRow.remove();
+    renderAssistantMessage("הייתה תקלה בחיבור לשרת. נסה שוב מאוחר יותר.", true);
+
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+// =========================
+// אינטראקציות UI – מצבים, כפתורים, לנדינג
+// =========================
+function initWorkModes() {
+  workModeButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      workModeButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentWorkMode = btn.dataset.mode || "stock";
     });
   });
 }
 
-/**
- * init
- */
-window.addEventListener("DOMContentLoaded", () => {
-  setViewportHeight();
-  loadSessions();
-  renderSessionList();
-  renderMessagesForSession(getActiveSession(), { scroll: false });
-  renderPromptExamples();
-  setupModeToggle();
-  setupWorkModes();
-  renderHighlights();
-});
-
-/**
- * שליחת טופס
- */
-if (form) {
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const raw = textarea ? textarea.value.trim() : "";
-    if (!raw) return;
-
-    appendMessage(raw, "user");
-
-    const metaParts = [];
-    if (currentWorkMode) {
-      metaParts.push(`WORK_MODE=${currentWorkMode}`);
-    }
-    if (assetTypeSelect && assetTypeSelect.value) {
-      metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
-    }
-
-    const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
-
-    const queryForApi =
-      currentMode === "deep"
-        ? metaPrefix + "DEEP_DIVE: " + raw
-        : metaPrefix + raw;
-
-    if (textarea) {
-      textarea.value = "";
-      autoResizeTextarea(textarea);
-      textarea.focus();
-    }
-
-    if (sendBtn) sendBtn.disabled = true;
-    const thinking = appendThinking();
-
-    try {
-      const ans = await callApi(queryForApi);
-      thinking.remove();
-
-      const safeAnswer = ans || "לא התקבלה תשובה מהשרת.";
-      appendMessage(safeAnswer, "assistant");
-    } catch (err) {
-      thinking.remove();
-      appendMessage(
-        "שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."),
-        "assistant"
-      );
-    } finally {
-      if (sendBtn) sendBtn.disabled = false;
-    }
+function initDeepMode() {
+  if (!deepModeBtn) return;
+  deepModeBtn.addEventListener("click", () => {
+    deepMode = !deepMode;
+    deepModeBtn.classList.toggle("active", deepMode);
   });
 }
+
+function initLandingOverlay() {
+  if (!landingOverlay || !landingCta) return;
+
+  const seen = localStorage.getItem("draffiq_landing_seen");
+  if (seen === "1") {
+    landingOverlay.classList.add("hidden");
+    return;
+  }
+
+  landingCta.addEventListener("click", () => {
+    landingOverlay.classList.add("hidden");
+    localStorage.setItem("draffiq_landing_seen", "1");
+  });
+}
+
+function initMenu() {
+  if (!menuBtn || !menuDropdown) return;
+
+  menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menuDropdown.classList.toggle("open");
+  });
+
+  document.addEventListener("click", () => {
+    menuDropdown.classList.remove("open");
+  });
+
+  if (homeLink) {
+    homeLink.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      menuDropdown.classList.remove("open");
+    });
+  }
+
+  if (chatLink) {
+    chatLink.addEventListener("click", () => {
+      if (messagesContainer) {
+        messagesContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      menuDropdown.classList.remove("open");
+    });
+  }
+}
+
+function initNewChatButtons() {
+  if (topNewBtn) {
+    topNewBtn.addEventListener("click", () => {
+      createNewSession();
+    });
+  }
+  if (sidebarNewBtn) {
+    sidebarNewBtn.addEventListener("click", () => {
+      createNewSession();
+    });
+  }
+}
+
+// כפתורי highlights
+function initHighlightsControls() {
+  if (highlightsClearBtn) {
+    highlightsClearBtn.addEventListener("click", () => {
+      const session = getCurrentSession();
+      if (!session) return;
+      session.highlights = [];
+      saveSessions();
+      clearHighlightsUI();
+    });
+  }
+
+  if (highlightDetailClose && highlightDetail) {
+    highlightDetailClose.addEventListener("click", () => {
+      highlightDetail.classList.add("hidden");
+    });
+  }
+}
+
+// כפתורי שיתוף / PDF
+function initShareAndPrint() {
+  if (shareBtn && navigator.share) {
+    shareBtn.addEventListener("click", async () => {
+      try {
+        await navigator.share({
+          title: "DRAFFIQ AI – TASE Chat",
+          url: window.location.href
+        });
+      } catch (_) {}
+    });
+  } else if (shareBtn) {
+    shareBtn.addEventListener("click", () => {
+      navigator.clipboard
+        .writeText(window.location.href)
+        .then(() => alert("קישור הועתק ללוח."));
+    });
+  }
+
+  if (printBtn) {
+    printBtn.addEventListener("click", () => {
+      window.print();
+    });
+  }
+}
+
+// דוגמאות לשאלות
+function initExamples() {
+  if (!examplesContainer) return;
+  const examples = [
+    "נתח עבורי את מניית POLI – סיכונים, הזדמנויות והערכת שווי גסה.",
+    "מה מצב המינוף והתזרים של בנק הפועלים מול בנק לאומי?",
+    "אני מחזיק קרן אג\"ח ממשלתית ארוכת טווח – אילו סיכוני ריבית עליי לקחת בחשבון?",
+    "סכם לי את מצב הסקטור הסולארי בישראל ובארה\"ב, כולל הזדמנויות בולטות.",
+    "בדוק אם יש סימני אזהרה בדוחות האחרונים של חברה בולטת במדד ת\"א 125."
+  ];
+
+  examples.forEach((ex) => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "example-chip";
+    chip.textContent = ex;
+    chip.addEventListener("click", () => {
+      queryInput.value = ex;
+      queryInput.focus();
+    });
+    examplesContainer.appendChild(chip);
+  });
+}
+
+// התאמת גובה textarea בזמן כתיבה
+function initAutoResizeTextarea() {
+  if (!queryInput) return;
+  const resize = () => {
+    queryInput.style.height = "20px";
+    queryInput.style.height = queryInput.scrollHeight + "px";
+  };
+  queryInput.addEventListener("input", resize);
+}
+
+// =========================
+// init ראשי
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+  // לטעון שיחות קודמות
+  sessions = loadSessions();
+  if (!Object.keys(sessions).length) {
+    createNewSession();
+  } else {
+    // לבחור אחרונה
+    const latest = Object.values(sessions).sort(
+      (a, b) => b.createdAt - a.createdAt
+    )[0];
+    currentSessionId = latest.id;
+    renderSessionList();
+    loadSessionToView();
+  }
+
+  initLandingOverlay();
+  initMenu();
+  initNewChatButtons();
+  initWorkModes();
+  initDeepMode();
+  initHighlightsControls();
+  initShareAndPrint();
+  initExamples();
+  initAutoResizeTextarea();
+
+  if (chatForm) {
+    chatForm.addEventListener("submit", handleSubmit);
+  }
+});
