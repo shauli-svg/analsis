@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>DRAFFIQ AI – TASE Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+ <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <!-- Landing -->
+  <div id="landing-overlay" class="landing-overlay">
+    <div class="landing-content">
+      <div class="landing-icon"></div>
+      <div style="text-align:center;">
+        <h1 class="landing-title">DRAFFIQ AI</h1>
+        <div class="landing-subtitle">מודיעין עסקי לשוק ההון הישראלי</div>
+      </div>
+      <button type="button" id="landing-cta" class="landing-cta">
+        <span>כניסה למערכת</span>
+        <span>←</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <div class="brand">
+        <div class="brand-logo-small">DF</div>
+        <div class="brand-text">
+          <h1>DRAFFIQ</h1>
+          <!-- כאן קיצרנו, בלי "הישראלי" -->
+          <span>מודיעין עסקי לשוק ההון</span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div class="status-badge">TASE LIVE</div>
+        <button id="new-btn" class="new-chat-btn-top">+ שיחה חדשה</button>
+        <button id="menu-btn" class="icon-btn">☰</button>
+
+        <div id="menu-dropdown" class="menu-dropdown">
+          <button class="menu-item" id="home-link">מסך הבית</button>
+          <button class="menu-item" id="chat-link">קפיצה לצ'אט</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout -->
+  <div class="app-shell">
+    <div class="app-container">
+
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title">היסטוריית שיחות</span>
+          <div class="sidebar-header-actions">
+            <button id="sidebar-new-btn" title="שיחה חדשה">+</button>
+          </div>
+        </div>
+        <div class="session-list" id="session-list"></div>
+      </aside>
+
+      <main class="chat-panel" id="chat-section">
+        <div id="messages">
+          <div class="message system">
+            <div class="system-hero-title">יחידת מחקר לשוק ההון הישראלי</div>
+            <div class="system-hero-sub">
+              כתוב שאלת מחקר כפי שהיית מנסח לאנליסט בכיר – DRAFFIQ AI ממפה עבורך סיכונים, הזדמנויות ותסריטים קדימה.
+            </div>
+            <ul class="system-hero-list">
+              <li>ניתוח מניות, אג"ח וסקטורים עם דגש על איכות דוחות, מינוף ותזרים.</li>
+              <li>מיצוב החברה מול מתחרות, מגמות סקטור ותמחור ביחס לסיכון.</li>
+              <li>מיקוד בנקודות שכדאי לחפור בהן ידנית – לא החלפה של בדיקה אנושית.</li>
+            </ul>
+            <div class="system-hero-hint">
+              ברירת המחדל היא מענה רגיל. אפשר להדליק <strong>Deep Dive</strong> לניתוח מעמיק יותר באותה שיחה.
+              <br>
+              מומלץ לבחור סוג נכס כדי לחדד את התשובה.
+            </div>
+          </div>
+
+          <div class="message system">
+            <div class="system-about-title">מי עומד מאחורי DRAFFIQ?</div>
+            <div>
+              המערכת נשענת על ניתוח טקסטואלי מתקדם, שילוב בין קריאת דוחות, חדשות ושיח שוק, יחד עם מתודולוגיות מחקר
+              מעולמות פיננסים וניתוח התנהגותי.
+              המטרה: לא "צ'אט־בוט חכם", אלא שכבת חשיבה שעוזרת לך להבין מה חשוב לקרוא ומה אפשר לדלג.
+            </div>
+            <div class="system-about-cta">
+              רוצה לחבר את DRAFFIQ למחלקת המחקר או לקבל גישה מתקדמת (API / התאמה ספציפית)?
+              ניתן לפנות לכתובת המייל: <a href="mailto:info@draffiq.com">info@draffiq.com</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-area-wrapper">
+          <form id="chat-form">
+            <div class="input-box-container">
+              <div class="textarea-row">
+                <textarea id="query" name="query" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
+                <button type="submit" id="send-btn" class="send-btn">➤</button>
+              </div>
+
+              <!-- מצבי עבודה + שדות מטא -->
+              <div class="meta-row">
+                <div class="work-modes">
+                  <span class="work-modes-label">מצב מחקר:</span>
+                  <div class="work-modes-pills">
+                    <button type="button" class="work-mode-option active" data-mode="stock">מניות</button>
+                    <button type="button" class="work-mode-option" data-mode="bond">אג"ח</button>
+                    <button type="button" class="work-mode-option" data-mode="sector">סקטורים</button>
+                  </div>
+                </div>
+
+                <div class="meta-inline">
+                  <div class="meta-field">
+                    <label for="asset-type">סוג נכס</label>
+                    <select id="asset-type">
+                      <option value="">ללא</option>
+                      <option value="equity">מניה</option>
+                      <option value="bond_gov">אג"ח ממשלתי</option>
+                      <option value="bond_corp">אג"ח קונצרני</option>
+                      <option value="fund">קרן / ETF</option>
+                      <option value="index">מדד</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tools-row">
+                <div class="mode-switch">
+                  <button type="button" class="mode-option" id="deep-mode-btn" data-mode="deep">
+                    Deep Dive
+                  </button>
+                </div>
+
+                <div class="extra-actions">
+                  <button type="button" class="action-pill" id="share-btn">שתף</button>
+                  <button type="button" class="action-pill" id="print-btn">PDF</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="promptExamplesContainer" class="examples-container"></div>
+
+            <div style="text-align:center; margin-top:10px; font-size:0.65rem; color:#9ca3af;">
+              המידע אינו מהווה ייעוץ השקעות. ט.ל.ח.
+            </div>
+          </form>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+
+</html>
