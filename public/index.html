@@ -4,13 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <title>DRAFFIQ AI – TASE Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
+  <!-- פונט – אתה יכול להחליף ל-Rubik אם תרצה -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap"
+    rel="stylesheet">
 
-  <!-- CSS החיצוני -->
+  <!-- CSS החיצוני (עם כל התיקונים של overflow / mobile וכו') -->
   <link rel="stylesheet" href="/assets/app.css" />
 </head>
 
@@ -31,7 +35,7 @@
   </div>
 
   <!-- Top bar -->
-  <div class="top-bar">
+  <header class="top-bar">
     <div class="top-bar-inner">
       <div class="brand">
         <div class="brand-logo-small">DF</div>
@@ -44,7 +48,7 @@
       <div class="top-actions">
         <div class="status-badge">TASE LIVE</div>
         <button id="new-btn" class="new-chat-btn-top">+ שיחה חדשה</button>
-        <button id="menu-btn" class="icon-btn">☰</button>
+        <button id="menu-btn" class="icon-btn" aria-label="תפריט ראשי">☰</button>
 
         <div id="menu-dropdown" class="menu-dropdown">
           <button class="menu-item" id="home-link">מסך הבית</button>
@@ -52,14 +56,14 @@
         </div>
       </div>
     </div>
-  </div>
+  </header>
 
   <!-- Layout -->
   <div class="app-shell">
     <div class="app-container">
 
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside class="sidebar" aria-label="היסטוריית שיחות">
         <div class="sidebar-header">
           <span class="sidebar-title">היסטוריית שיחות</span>
           <div class="sidebar-header-actions">
@@ -76,7 +80,8 @@
           <div class="message system">
             <div class="system-hero-title">יחידת מחקר לשוק ההון הישראלי</div>
             <div class="system-hero-sub">
-              כתוב שאלת מחקר כפי שהיית מנסח לאנליסט בכיר – DRAFFIQ AI ממפה עבורך סיכונים, הזדמנויות ותסריטים קדימה.
+              כתוב שאלת מחקר כפי שהיית מנסח לאנליסט בכיר – DRAFFIQ AI ממפה עבורך
+              סיכונים, הזדמנויות ותסריטים קדימה.
             </div>
             <ul class="system-hero-list">
               <li>ניתוח מניות, אג"ח וסקטורים עם דגש על איכות דוחות, מינוף ותזרים.</li>
@@ -84,8 +89,9 @@
               <li>מיקוד בנקודות שכדאי לחפור בהן ידנית – לא החלפה של בדיקה אנושית.</li>
             </ul>
             <div class="system-hero-hint">
-              ברירת המחדל היא מענה רגיל. אפשר להדליק <strong>Deep Dive</strong> לניתוח מעמיק יותר באותה שיחה.
-              <br>
+              ברירת המחדל היא מענה רגיל. אפשר להדליק <strong>Deep Dive</strong>
+              לניתוח מעמיק יותר באותה שיחה.
+              <br />
               מומלץ לבחור סוג נכס כדי לחדד את התשובה.
             </div>
           </div>
@@ -93,31 +99,46 @@
           <div class="message system">
             <div class="system-about-title">מי עומד מאחורי DRAFFIQ?</div>
             <div>
-              המערכת נשענת על ניתוח טקסטואלי מתקדם, שילוב בין קריאת דוחות, חדשות ושיח שוק, יחד עם מתודולוגיות מחקר
-              מעولמות פיננסים וניתוח התנהגותי.
-              המטרה: לא "צ'אט־בוט חכם", אלא שכבת חשיבה שעוזרת לך להבין מה חשוב לקרוא ומה אפשר לדלג.
+              המערכת נשענת על ניתוח טקסטואלי מתקדם, שילוב בין קריאת דוחות, חדשות ושיח שוק,
+              יחד עם מתודולוגיות מחקר מעולמות פיננסים וניתוח התנהגותי.
+              המטרה: לא "צ'אט־בוט חכם", אלא שכבת חשיבה שעוזרת לך להבין
+              מה חשוב לקרוא ומה אפשר לדלג.
             </div>
             <div class="system-about-cta">
               רוצה לחבר את DRAFFIQ למחלקת המחקר או לקבל גישה מתקדמת (API / התאמה ספציפית)?
-              ניתן לפנות לכתובת המייל: <a href="mailto:info@draffiq.com">info@draffiq.com</a>
+              ניתן לפנות לכתובת המייל:
+              <a href="mailto:info@draffiq.com">info@draffiq.com</a>
             </div>
           </div>
         </div>
 
         <!-- פנל תצוגת סיכום נפתח -->
         <div id="highlight-detail" class="highlight-detail hidden">
-          <button type="button" id="highlight-detail-close" class="highlight-detail-close">✕</button>
+          <button type="button"
+                  id="highlight-detail-close"
+                  class="highlight-detail-close"
+                  aria-label="סגור סיכום">
+            ✕
+          </button>
           <div id="highlight-detail-content"></div>
         </div>
 
         <!-- Input + מודול קוביות סיכום -->
         <div class="input-area-wrapper">
-          <form id="chat-form">
+          <form id="chat-form" autocomplete="off">
             <div class="input-box-container">
               <div class="textarea-row">
-                <textarea id="query" name="query" rows="1"
-                  placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
-                <button type="submit" id="send-btn" class="send-btn">➤</button>
+                <textarea id="query"
+                          name="query"
+                          rows="1"
+                          placeholder="שאל שאלה על מניה, דוח או סקטור..."
+                          required></textarea>
+                <button type="submit"
+                        id="send-btn"
+                        class="send-btn"
+                        aria-label="שלח הודעה">
+                  ➤
+                </button>
               </div>
 
               <!-- מצבי עבודה + שדות מטא -->
@@ -125,9 +146,21 @@
                 <div class="work-modes">
                   <span class="work-modes-label">מצב מחקר:</span>
                   <div class="work-modes-pills">
-                    <button type="button" class="work-mode-option active" data-mode="stock">מניות</button>
-                    <button type="button" class="work-mode-option" data-mode="bond">אג"ח</button>
-                    <button type="button" class="work-mode-option" data-mode="sector">סקטורים</button>
+                    <button type="button"
+                            class="work-mode-option active"
+                            data-mode="stock">
+                      מניות
+                    </button>
+                    <button type="button"
+                            class="work-mode-option"
+                            data-mode="bond">
+                      אג"ח
+                    </button>
+                    <button type="button"
+                            class="work-mode-option"
+                            data-mode="sector">
+                      סקטורים
+                    </button>
                   </div>
                 </div>
 
@@ -148,25 +181,39 @@
 
               <div class="tools-row">
                 <div class="mode-switch">
-                  <button type="button" class="mode-option" id="deep-mode-btn" data-mode="deep">
+                  <button type="button"
+                          class="mode-option"
+                          id="deep-mode-btn"
+                          data-mode="deep">
                     Deep Dive
                   </button>
                 </div>
 
                 <div class="extra-actions">
-                  <button type="button" class="action-pill" id="share-btn">שתף</button>
-                  <button type="button" class="action-pill" id="print-btn">PDF</button>
+                  <button type="button"
+                          class="action-pill"
+                          id="share-btn">
+                    שתף
+                  </button>
+                  <button type="button"
+                          class="action-pill"
+                          id="print-btn">
+                    PDF
+                  </button>
                 </div>
               </div>
             </div>
 
+            <!-- כפתורי דוגמאות לשאלות -->
             <div id="promptExamplesContainer" class="examples-container"></div>
 
             <!-- מודול קוביות סיכום -->
             <div id="highlights-wrapper" class="highlights-wrapper hidden">
               <div class="highlights-header">
                 <span>נקודות מפתח בשיחה</span>
-                <button type="button" id="clear-highlights-btn" class="highlights-clear-btn">
+                <button type="button"
+                        id="clear-highlights-btn"
+                        class="highlights-clear-btn">
                   נקה הכל
                 </button>
               </div>
