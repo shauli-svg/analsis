@@ -1,3 +1,6 @@
+הנה הגרסה *המלאה והמתוקנת* (כולל תיקון גלילה במובייל ובדפדפן – אין יותר `overflow: hidden` שחונק את הדף):
+
+```css
 :root {
   /* Palette - Clean Fintech */
   --primary: #111827;
@@ -37,6 +40,9 @@ html,
 body {
   margin: 0;
   padding: 0;
+}
+
+html {
   height: 100%;
 }
 
@@ -46,7 +52,11 @@ body {
   color: var(--primary);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+
+  /* גלילה לאורך הדף, בלי גלילה אופקית */
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100vh;
 }
 
 /* Scrollbar */
@@ -342,10 +352,12 @@ body {
 /* ===== Main Layout ===== */
 .app-shell {
   flex: 1;
-  overflow: hidden;
   display: flex;
   justify-content: center;
   padding: 20px;
+
+  /* לא חונקים גלילה פנימית */
+  overflow: visible;
 }
 
 .app-container {
@@ -353,7 +365,9 @@ body {
   max-width: 1400px;
   display: flex;
   gap: 20px;
-  height: 100%;
+
+  /* בלי height:100% – שלא ינעל את הגובה */
+  min-height: 0;
 }
 
 /* Sidebar */
@@ -987,13 +1001,13 @@ textarea::placeholder {
 /* ===== Mobile Layout Tweaks ===== */
 @media (max-width: 900px) {
   .app-shell {
-    padding: 8px;
+    padding: 8px 4px;
   }
 
   .app-container {
     flex-direction: column;
-    height: calc(100vh - 64px);
     gap: 8px;
+    max-width: 100%;
   }
 
   .sidebar {
@@ -1159,3 +1173,4 @@ textarea::placeholder {
   border-top: 1px solid #e5e7eb;
   max-height: 400px;
 }
+```
