@@ -58,6 +58,7 @@
   <div class="app-shell">
     <div class="app-container">
 
+      <!-- Sidebar -->
       <aside class="sidebar">
         <div class="sidebar-header">
           <span class="sidebar-title">היסטוריית שיחות</span>
@@ -68,7 +69,9 @@
         <div class="session-list" id="session-list"></div>
       </aside>
 
+      <!-- Chat panel -->
       <main class="chat-panel" id="chat-section">
+        <!-- הודעות -->
         <div id="messages">
           <div class="message system">
             <div class="system-hero-title">יחידת מחקר לשוק ההון הישראלי</div>
@@ -91,7 +94,7 @@
             <div class="system-about-title">מי עומד מאחורי DRAFFIQ?</div>
             <div>
               המערכת נשענת על ניתוח טקסטואלי מתקדם, שילוב בין קריאת דוחות, חדשות ושיח שוק, יחד עם מתודולוגיות מחקר
-              מעולמות פיננסים וניתוח התנהגותי.
+              מעولמות פיננסים וניתוח התנהגותי.
               המטרה: לא "צ'אט־בוט חכם", אלא שכבת חשיבה שעוזרת לך להבין מה חשוב לקרוא ומה אפשר לדלג.
             </div>
             <div class="system-about-cta">
@@ -101,30 +104,19 @@
           </div>
         </div>
 
-        <main class="chat-panel" id="chat-section">
-  <div id="messages">
-    <!-- ההודעות הקיימות שלך נשארות כאן כמו עכשיו -->
-  </div>
+        <!-- פנל תצוגת סיכום נפתח -->
+        <div id="highlight-detail" class="highlight-detail hidden">
+          <button type="button" id="highlight-detail-close" class="highlight-detail-close">✕</button>
+          <div id="highlight-detail-content"></div>
+        </div>
 
-  <!-- NEW: סטריפ כרטיסיות הסיכום -->
-  <div id="highlights-strip" class="highlights-strip"></div>
-
-  <!-- NEW: פנל תצוגת סיכום נפתח -->
-  <div id="highlight-detail" class="highlight-detail hidden">
-    <button type="button" id="highlight-detail-close" class="highlight-detail-close">✕</button>
-    <div id="highlight-detail-content"></div>
-  </div>
-
-  <div class="input-area-wrapper">
-    <!-- הטופס כמו שהיה -->
-  </div>
-</main>
-        
+        <!-- Input + מודול קוביות סיכום -->
         <div class="input-area-wrapper">
           <form id="chat-form">
             <div class="input-box-container">
               <div class="textarea-row">
-                <textarea id="query" name="query" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
+                <textarea id="query" name="query" rows="1"
+                  placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
                 <button type="submit" id="send-btn" class="send-btn">➤</button>
               </div>
 
@@ -170,7 +162,7 @@
 
             <div id="promptExamplesContainer" class="examples-container"></div>
 
-             <!-- ✅ מודול קוביות סיכום -->
+            <!-- מודול קוביות סיכום -->
             <div id="highlights-wrapper" class="highlights-wrapper hidden">
               <div class="highlights-header">
                 <span>נקודות מפתח בשיחה</span>
