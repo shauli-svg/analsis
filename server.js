@@ -166,7 +166,6 @@ app.get("/api/markets/most-active", (req, res) => {
 });
 
 // ===== Analytics endpoint – קבלת אירועים מהפרונט =====
-// כאן הפרונט יכול לקרוא ל-POST /analytics/event עם eventName + context
 app.post("/analytics/event", async (req, res) => {
   try {
     const { eventName, context, source } = req.body || {};
@@ -175,14 +174,13 @@ app.post("/analytics/event", async (req, res) => {
       return res.status(400).json({ ok: false, error: "eventName is required" });
     }
 
-    // כרגע אין אצלך auth, אז userId=null. בעתיד אפשר לשייך למשתמש.
-    const userId = null;
+    const userId = null; // כרגע בלי auth
 
     await trackUserEvent({
       userId,
       name: eventName,
       context: context || {},
-      sessionId: null, // אם תוסיף session-side, אפשר לשים כאן מזהה
+      sessionId: null,
       source: source || "web",
     });
 
@@ -371,7 +369,7 @@ app.post("/chat", async (req, res) => {
     // לוג אנליטי בסיסי – "שאלה נשלחה לצ'אט"
     try {
       await trackUserEvent({
-        userId: null, // בעתיד: לשייך למזהה משתמש
+        userId: null,
         name: "chat_request",
         context: {
           query_length: userQuery.length,
@@ -394,10 +392,6 @@ app.post("/chat", async (req, res) => {
       error: err.message || "Internal server error"
     });
   }
-  
-  // ===== Start server =====
-const PORT = process.env.PORT || 3000;
-
 });
 
 // ===== Start server =====
