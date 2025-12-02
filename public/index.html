@@ -59,7 +59,7 @@
       color: var(--primary);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto; /* היה hidden – עכשיו יש גלילה */
     }
 
     /* Scrollbar */
@@ -352,10 +352,76 @@
       background: #f9fafb;
     }
 
+    /* ===== Research Menu in Top Bar ===== */
+    .research-menu {
+      position: relative;
+    }
+
+    .research-dropdown {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      padding: 8px 10px;
+      min-width: 230px;
+      display: none;
+      z-index: 210;
+    }
+
+    .research-dropdown.open {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .research-section {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .research-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .research-select {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      background: #f9fafb;
+      outline: none;
+      margin-top: 4px;
+    }
+
+    .research-item {
+      width: 100%;
+      text-align: right;
+      background: none;
+      border: none;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--primary);
+    }
+
+    .research-item:hover {
+      background: #f3f4f6;
+    }
+
     /* ===== Main Layout ===== */
     .app-shell {
       flex: 1;
-      overflow: hidden;
+      overflow: visible; /* היה hidden – עכשיו הגוף הוא זה שגולל */
       display: flex;
       justify-content: center;
       padding: 20px;
@@ -556,10 +622,11 @@
     }
 
     .message-row.assistant .message-content {
-      background: var(--bubble-ai);
+      background: #ffffff;
       color: var(--text-ai);
-      border-radius: 4px 20px 20px 20px;
-      border: 1px solid #f0f0f0;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      box-shadow: var(--shadow-md);
     }
 
     .message-content {
@@ -573,9 +640,9 @@
     }
 
     .message-content a {
-      color: inherit;
-      text-decoration: underline;
-      opacity: 0.9;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
     }
 
     .message-avatar {
@@ -1026,6 +1093,35 @@
       <div class="top-actions">
         <div class="status-badge">TASE LIVE</div>
         <button id="new-btn" class="new-chat-btn-top">+ שיחה חדשה</button>
+
+        <!-- תפריט מחקר וכלים -->
+        <div class="research-menu">
+          <button id="research-btn" class="icon-btn" title="כלי מחקר">⚙️</button>
+          <div id="research-dropdown" class="research-dropdown">
+            <div class="research-section">מצב מחקר</div>
+            <div class="research-pills">
+              <button type="button" class="work-mode-option active" data-mode="stock">מניות</button>
+              <button type="button" class="work-mode-option" data-mode="bond">אג"ח</button>
+              <button type="button" class="work-mode-option" data-mode="sector">סקטורים</button>
+            </div>
+
+            <div class="research-section">סוג נכס</div>
+            <select id="asset-type" class="research-select">
+              <option value="">ללא</option>
+              <option value="equity">מניה</option>
+              <option value="bond_gov">אג"ח ממשלתי</option>
+              <option value="bond_corp">אג"ח קונצרני</option>
+              <option value="fund">קרן / ETF</option>
+              <option value="index">מדד</option>
+            </select>
+
+            <div class="research-section">כלים</div>
+            <button type="button" class="research-item" id="deep-mode-btn">Deep Dive</button>
+            <button type="button" class="research-item" id="share-btn">שתף</button>
+            <button type="button" class="research-item" id="print-btn">PDF</button>
+          </div>
+        </div>
+
         <button id="menu-btn" class="icon-btn">☰</button>
 
         <div id="menu-dropdown" class="menu-dropdown">
@@ -1090,45 +1186,6 @@
                 <textarea id="query" name="query" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
                 <button type="submit" id="send-btn" class="send-btn">➤</button>
               </div>
-
-              <!-- מצבי עבודה + שדות מטא -->
-              <div class="meta-row">
-                <div class="work-modes">
-                  <span class="work-modes-label">מצב מחקר:</span>
-                  <div class="work-modes-pills">
-                    <button type="button" class="work-mode-option active" data-mode="stock">מניות</button>
-                    <button type="button" class="work-mode-option" data-mode="bond">אג"ח</button>
-                    <button type="button" class="work-mode-option" data-mode="sector">סקטורים</button>
-                  </div>
-                </div>
-
-                <div class="meta-inline">
-                  <div class="meta-field">
-                    <label for="asset-type">סוג נכס</label>
-                    <select id="asset-type">
-                      <option value="">ללא</option>
-                      <option value="equity">מניה</option>
-                      <option value="bond_gov">אג"ח ממשלתי</option>
-                      <option value="bond_corp">אג"ח קונצרני</option>
-                      <option value="fund">קרן / ETF</option>
-                      <option value="index">מדד</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tools-row">
-                <div class="mode-switch">
-                  <button type="button" class="mode-option" id="deep-mode-btn" data-mode="deep">
-                    Deep Dive
-                  </button>
-                </div>
-
-                <div class="extra-actions">
-                  <button type="button" class="action-pill" id="share-btn">שתף</button>
-                  <button type="button" class="action-pill" id="print-btn">PDF</button>
-                </div>
-              </div>
             </div>
 
             <div id="promptExamplesContainer" class="examples-container"></div>
@@ -1165,6 +1222,8 @@
     const sidebarNewBtn = document.getElementById("sidebar-new-btn");
     const deepModeBtn = document.getElementById("deep-mode-btn");
     const assetTypeSelect = document.getElementById("asset-type");
+    const researchBtn = document.getElementById("research-btn");
+    const researchDropdown = document.getElementById("research-dropdown");
 
     let sessions = [];
     let activeSessionId = null;
@@ -1209,7 +1268,7 @@
         .replace(/>/g, "&gt;");
       const urlRegex = /(https?:\/\/[^\s)]+)/g;
       return escaped.replace(urlRegex, (url) => {
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">🔗 קישור</a>`;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">📎</a>`;
       });
     }
 
@@ -1231,7 +1290,7 @@
       rows.forEach(r => r.remove());
 
       if (!session || !Array.isArray(session.messages)) {
-        if (scroll) messages.scrollTop = messages.scrollHeight;
+        if (scroll) messages.scrollTop = 0;
         return;
       }
 
@@ -1239,7 +1298,7 @@
         appendMessage(m.text, m.role, { persist: false, scroll: false })
       );
 
-      if (scroll) messages.scrollTop = messages.scrollHeight;
+      if (scroll) messages.scrollTop = 0;
     }
 
     function renderSessionList() {
@@ -1268,10 +1327,10 @@
         });
 
         // כפתור שלוש נקודות
-        const menuBtn = document.createElement("button");
-        menuBtn.type = "button";
-        menuBtn.className = "session-item-menu-btn";
-        menuBtn.innerHTML = "⋮";
+        const menuBtnSession = document.createElement("button");
+        menuBtnSession.type = "button";
+        menuBtnSession.className = "session-item-menu-btn";
+        menuBtnSession.innerHTML = "⋮";
 
         // תפריט שיחה
         const menu = document.createElement("div");
@@ -1296,7 +1355,7 @@
 
         menu.appendChild(renameItem);
 
-        menuBtn.addEventListener("click", (e) => {
+        menuBtnSession.addEventListener("click", (e) => {
           e.stopPropagation();
           const isOpen = menu.classList.contains("open");
           // לסגור אחרים
@@ -1307,7 +1366,7 @@
         });
 
         wrapper.appendChild(mainBtn);
-        wrapper.appendChild(menuBtn);
+        wrapper.appendChild(menuBtnSession);
         wrapper.appendChild(menu);
 
         sessionListEl.appendChild(wrapper);
@@ -1394,8 +1453,13 @@
       row.appendChild(content);
       messages.appendChild(row);
 
-      if (scroll && role === "user") {
-        messages.scrollTop = messages.scrollHeight;
+      if (scroll) {
+        if (role === "assistant") {
+          // הצגת תחילת התשובה – לגלול כך שההודעה החדשה מתחילה למעלה
+          messages.scrollTop = row.offsetTop;
+        } else if (role === "user") {
+          messages.scrollTop = messages.scrollHeight;
+        }
       }
 
       if (persist) {
@@ -1539,6 +1603,14 @@
       });
     }
 
+    // פתיחה/סגירה של תפריט המחקר (⚙️)
+    if (researchBtn && researchDropdown) {
+      researchBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        researchDropdown.classList.toggle("open");
+      });
+    }
+
     // סגירת תפריטי top bar + תפריטי שיחות בלחיצה בחוץ
     document.addEventListener("click", (e) => {
       const target = e.target;
@@ -1547,6 +1619,13 @@
       if (menuDropdown && menuDropdown.classList.contains("open")) {
         if (target !== menuBtn && !(menuBtn && menuBtn.contains(target)) && !menuDropdown.contains(target)) {
           menuDropdown.classList.remove("open");
+        }
+      }
+
+      // תפריט מחקר
+      if (researchDropdown && researchDropdown.classList.contains("open")) {
+        if (!target.closest(".research-menu")) {
+          researchDropdown.classList.remove("open");
         }
       }
 
