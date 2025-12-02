@@ -299,17 +299,19 @@
       background: #f3f4f6;
     }
 
+    /* כפתור "חדש" למעלה – טקסט קצר */
     .new-chat-btn-top {
       background: var(--primary);
       color: #fff;
       border: none;
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 99px;
       font-size: 0.85rem;
       font-weight: 500;
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       transition: transform 0.1s;
+      white-space: nowrap;
     }
 
     .new-chat-btn-top:hover {
@@ -355,6 +357,24 @@
     /* ===== Research Menu in Top Bar ===== */
     .research-menu {
       position: relative;
+    }
+
+    /* כפתור כלי מחקר – אייקון SVG במקום אימוג'י */
+    .icon-btn-settings {
+      padding: 6px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: var(--primary);
+    }
+
+    .icon-btn-settings:hover {
+      background: #e5e7eb;
+    }
+
+    .settings-icon {
+      width: 18px;
+      height: 18px;
+      display: block;
     }
 
     .research-dropdown {
@@ -488,6 +508,47 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+    }
+
+    /* ===== Sidebar mobile dropdown ===== */
+    .sidebar-mobile {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-mobile-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .sidebar-mobile-select {
+      flex: 1;
+      min-width: 0;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      background: #f9fafb;
+      color: var(--primary);
+      outline: none;
+    }
+
+    .sidebar-mobile-new {
+      border: none;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      background: #111827;
+      color: #ffffff;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .sidebar-mobile-new:hover {
+      background: #000000;
     }
 
     /* ===== Session items with 3-dots menu ===== */
@@ -661,10 +722,11 @@
       align-items: center;
     }
 
+    /* כפתור סימון – טקסט שחור, אייקון ✦, צבע משתנה אחרי בחירה */
     .star-btn {
       border: none;
       background: transparent;
-      color: #e5e7eb;
+      color: var(--primary);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -678,10 +740,9 @@
     }
 
     .star-btn:hover {
-      color: #f59e0b;
+      color: #4b5563;
     }
 
-    /* צבע הכוכב אחרי סימון לפי רמת החשיבות/סיכון */
     .star-btn.star-low {
       color: #10b981;
     }
@@ -1199,36 +1260,24 @@
 
       .sidebar {
         width: 100%;
-        flex-direction: row;
-        align-items: center;
-        padding: 8px 10px;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px 12px;
         border-radius: 14px;
         margin-bottom: 4px;
       }
 
+      /* במובייל – משתמשים רק בדרופ-דאון לשיחות */
+      .sidebar-mobile {
+        display: flex;
+      }
+
       .sidebar-header {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-        flex-shrink: 0;
+        display: none;
       }
 
       .session-list {
-        flex: 1;
-        flex-direction: row;
-        gap: 6px;
-        overflow-x: auto;
-        overflow-y: hidden;
-      }
-
-      .session-item-wrapper {
-        min-width: 140px;
-      }
-
-      .session-item-main {
-        font-size: 0.75rem;
-        padding: 6px 10px;
-        max-width: 180px;
+        display: none;
       }
 
       .chat-panel {
@@ -1303,11 +1352,22 @@
 
       <div class="top-actions">
         <div class="status-badge">TASE LIVE</div>
-        <button id="new-btn" class="new-chat-btn-top">+ שיחה חדשה</button>
+        <!-- טקסט כפתור מקוצר: "חדש" -->
+        <button id="new-btn" class="new-chat-btn-top">חדש</button>
 
         <!-- תפריט מחקר וכלים -->
         <div class="research-menu">
-          <button id="research-btn" class="icon-btn" title="כלי מחקר">⚙️</button>
+          <button id="research-btn" class="icon-btn icon-btn-settings" title="כלי מחקר">
+            <!-- SVG: אייקון סליידרים עדין בצבע primary -->
+            <svg viewBox="0 0 20 20" class="settings-icon" aria-hidden="true">
+              <line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+              <circle cx="9" cy="6" r="1.6" fill="currentColor" />
+              <line x1="4" y1="10" x2="16" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+              <circle cx="12.5" cy="10" r="1.6" fill="currentColor" />
+              <line x1="4" y1="14" x2="16" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+              <circle cx="7" cy="14" r="1.6" fill="currentColor" />
+            </svg>
+          </button>
           <div id="research-dropdown" class="research-dropdown">
             <div class="research-section">מצב מחקר</div>
             <div class="research-pills">
@@ -1348,6 +1408,13 @@
     <div class="app-container">
 
       <aside class="sidebar">
+        <!-- מובייל: דרופ-דאון ברור לשיחות -->
+        <div class="sidebar-mobile">
+          <span class="sidebar-mobile-label">שיחה פעילה</span>
+          <select id="mobile-session-select" class="sidebar-mobile-select"></select>
+          <button id="mobile-new-session-btn" type="button" class="sidebar-mobile-new">חדש</button>
+        </div>
+
         <div class="sidebar-header">
           <span class="sidebar-title">היסטוריית שיחות</span>
           <div class="sidebar-header-actions">
@@ -1399,7 +1466,7 @@
           </div>
           <div id="highlights-list" class="highlights-list"></div>
           <div id="highlights-empty" class="highlights-empty">
-            עדיין לא סימנת שום דבר. בלחיצה על ⭐ ליד תשובה מעניינת – היא תרד לכאן עם צבע לפי רמת החשיבות/סיכון.
+            עדיין לא סימנת שום דבר. בלחיצה על ✦ ליד תשובה מעניינת – היא תרד לכאן עם צבע לפי רמת החשיבות/סיכון.
           </div>
         </section>
 
@@ -1452,6 +1519,10 @@
     const highlightsEmptyEl = document.getElementById("highlights-empty");
     const highlightsHintEl = document.getElementById("highlights-hint");
 
+    // מובייל – דרופ דאון לשיחה פעילה
+    const mobileSessionSelect = document.getElementById("mobile-session-select");
+    const mobileNewSessionBtn = document.getElementById("mobile-new-session-btn");
+
     let sessions = [];
     let activeSessionId = null;
     let currentMode = "normal";
@@ -1462,9 +1533,9 @@
 
     // טקסטים קצרים לתזכורות פסיביות בפאנל הכוכבים
     const HIGHLIGHT_HINT_MESSAGES = [
-      "טיפ: אפשר לסמן תשובה מעניינת בכוכב ⭐ והיא תרד למטה עם צבע לפי חשיבות/סיכון.",
+      "טיפ: אפשר לסמן תשובה מעניינת ב-✦ והיא תרד למטה עם צבע לפי חשיבות/סיכון.",
       "כוכבים יוצרים לך מיני-ארכיון של נקודות חשובות בשיחה הזו.",
-      "יש חלק שהיית רוצה לחזור אליו לקראת החלטה? סימון בכוכב משאיר אותו בקובייה למטה."
+      "יש חלק שהיית רוצה לחזור אליו לקראת החלטה? סימון ב-✦ משאיר אותו בקובייה למטה."
     ];
     let lastHintIndex = -1;
 
@@ -1674,7 +1745,7 @@
 
       const starIconSpan = document.createElement("span");
       starIconSpan.className = "icon";
-      starIconSpan.textContent = "⭐";
+      starIconSpan.textContent = "✦";
 
       const starTextSpan = document.createElement("span");
       starTextSpan.textContent = "סימון";
@@ -1759,6 +1830,24 @@
       updateHighlightsHint(true);
     }
 
+    // פונקציה עזר: רינדור דרופ-דאון מובייל לשיחות
+    function renderMobileSessionSelect() {
+      if (!mobileSessionSelect) return;
+      mobileSessionSelect.innerHTML = "";
+
+      sessions.forEach(sess => {
+        const opt = document.createElement("option");
+        opt.value = sess.id;
+        opt.textContent = sess.title ||
+          ("שיחה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }));
+        mobileSessionSelect.appendChild(opt);
+      });
+
+      if (activeSessionId) {
+        mobileSessionSelect.value = activeSessionId;
+      }
+    }
+
     // פונקציה: רינדור רשימת השיחות בצד + בחירת שיחה
     function renderSessionList() {
       if (!sessionListEl) return;
@@ -1781,6 +1870,7 @@
           activeSessionId = sess.id;
           saveSessions();
           renderSessionList();
+          renderMobileSessionSelect();
           renderMessagesForSession(sess);
         });
 
@@ -1806,6 +1896,7 @@
             sess.title = newTitle.trim();
             saveSessions();
             renderSessionList();
+            renderMobileSessionSelect();
           }
         });
 
@@ -1826,6 +1917,8 @@
 
         sessionListEl.appendChild(wrapper);
       });
+
+      renderMobileSessionSelect();
     }
 
     // פונקציה: יצירת שיחה חדשה (ריקה) + איפוס כוכבים לשיחה
@@ -1894,6 +1987,7 @@
             title: "שיחה חדשה",
             createdAt: Date.now(),
             messages: [],
+
             highlights: []
           }];
           activeSessionId = id;
@@ -2060,7 +2154,7 @@
       });
     }
 
-    // כפתורי פתיחת שיחה חדשה (למעלה ובצד)
+    // כפתורי פתיחת שיחה חדשה (למעלה, בצד, ובמובייל)
     function handleNewChatClick() {
       createNewSession();
       if (menuDropdown) menuDropdown.classList.remove("open");
@@ -2068,6 +2162,7 @@
 
     if (newBtn) newBtn.addEventListener("click", handleNewChatClick);
     if (sidebarNewBtn) sidebarNewBtn.addEventListener("click", handleNewChatClick);
+    if (mobileNewSessionBtn) mobileNewSessionBtn.addEventListener("click", handleNewChatClick);
 
     // תפריט ראשי (☰)
     if (menuBtn) {
@@ -2093,7 +2188,7 @@
       });
     }
 
-    // פתיחה/סגירה של תפריט המחקר (⚙️)
+    // פתיחה/סגירה של תפריט המחקר
     if (researchBtn && researchDropdown) {
       researchBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -2126,6 +2221,19 @@
         document.querySelectorAll(".highlight-picker.open").forEach(p => p.classList.remove("open"));
       }
     });
+
+    // שינוי שיחה אקטיבית מדרופ-דאון מובייל
+    if (mobileSessionSelect) {
+      mobileSessionSelect.addEventListener("change", () => {
+        const newId = mobileSessionSelect.value;
+        if (!newId || newId === activeSessionId) return;
+        activeSessionId = newId;
+        saveSessions();
+        renderSessionList();
+        const sess = getActiveSession();
+        renderMessagesForSession(sess);
+      });
+    }
 
     // רינדור כפתורי הדוגמאות מתחת לאינפוט
     function renderPromptExamples() {
