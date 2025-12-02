@@ -394,6 +394,10 @@ app.post("/chat", async (req, res) => {
       error: err.message || "Internal server error"
     });
   }
+  
+  // ===== Start server =====
+const PORT = process.env.PORT || 3000;
+
 });
 
 // ===== Start server =====
