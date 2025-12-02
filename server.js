@@ -293,6 +293,29 @@ app.post("/chat", async (req, res) => {
         error: "Missing 'query' in request body"
       });
     }
+// ===== DEBUG: להחזיר את 100 האירועים האחרונים של האנליטיקות =====
+app.get("/analytics/debug/events", async (req, res) => {
+  try {
+    const result = await query(
+      `
+        SELECT id, event_name, event_time, context
+        FROM user_events
+        ORDER BY event_time DESC
+        LIMIT 100
+      `,
+      []
+    );
+
+    res.json({
+      ok: true,
+      total: result.rowCount,
+      events: result.rows,
+    });
+  } catch (err) {
+    console.error("Error in /analytics/debug/events:", err);
+    res.status(500).json({ ok: false, error: "failed to fetch events" });
+  }
+});
 
     // 🔒 חסימה רק כשברור שזה לא פיננסי ולא שאלה על זהות
     if (isClearlyNonFinance(userQuery) && !isIdentityQuestion(userQuery)) {
