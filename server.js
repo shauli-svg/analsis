@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import bodyParser from "body-parser";
 import OpenAI from "openai";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -13,7 +12,7 @@ const app = express();
 
 // ===== Middlewares =====
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json()); // במקום bodyParser.json()
 
 // קבצים סטטיים – HTML מתוך public
 app.use(express.static(path.join(__dirname, "public")));
@@ -126,7 +125,6 @@ app.get("/health", (req, res) => {
 
 // ===== NEW: דשבורד "Most Active" ל-DRAFFIQ =====
 app.get("/api/markets/most-active", (req, res) => {
-  // TODO: להחליף למנוע נתונים אמיתי (DB / סקרייפר / FEED)
   const data = {
     asOf: new Date().toISOString(),
     universe: "TASE",
@@ -163,6 +161,7 @@ app.get("/api/markets/most-active", (req, res) => {
 
 // ===== Helper: זיהוי שאלות זהות / מודל =====
 function isIdentityQuestion(q) {
+  if (!q) return false;
   const lower = q.toLowerCase();
   return (
     lower.includes("מי אתה") ||
@@ -180,6 +179,7 @@ function isIdentityQuestion(q) {
 
 // ===== Helper: זיהוי ברור של שאלות לא־פיננסיות (blocklist) =====
 function isClearlyNonFinance(q) {
+  if (!q) return false;
   const lower = q.toLowerCase();
 
   const nonFinanceKeywords = [
