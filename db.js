@@ -4,14 +4,13 @@ import pkg from "pg";
 
 const { Pool } = pkg;
 
-// מתחברים ל-Postgres לפי הכתובת שב-DATABASE_URL
+// חיבור למסד הנתונים
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // אם ברנדר תצטרך SSL – נוסיף פה, בינתיים אפשר בלי
+  // אם אתה מריץ על Render או Heroku, ייתכן שתצטרך לבטל את ההערה בשורה הבאה:
   // ssl: { rejectUnauthorized: false },
 });
 
-// פונקציה נוחה להריץ שאילתות: query("SELECT ...", [param1, param2])
 export function query(text, params) {
   return pool.query(text, params);
 }
