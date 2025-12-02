@@ -1,0 +1,3 @@
+mkdir analytics            # יוצר תיקייה
+cd analytics
+touch trackUserEvent.js    # יוצר קובץ ריק בתוך התיקייה
