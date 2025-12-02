@@ -10,8 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-  <!-- Markdown renderer -->
+  <!-- Markdown + Sanitizer -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 
   <style>
     :root {
@@ -54,11 +55,12 @@
       margin: 0;
       padding: 0;
       height: 100%;
+      /* חלון אחד – גלילה רק בתוך אזור ההודעות, לא על כל העמוד */
       overflow: hidden;
     }
 
     body {
-      font-family: 'Heebo', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Heebo', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background-color: var(--bg-app);
       color: var(--primary);
       display: flex;
@@ -449,7 +451,7 @@
       display: flex;
       justify-content: center;
       padding: 20px;
-      height: calc(var(--vh, 1vh) * 100 - 64px);
+      height: calc(100vh - 64px);
       overflow: hidden;
     }
 
@@ -523,7 +525,7 @@
       gap: 4px;
     }
 
-    /* ===== Sidebar mobile dropdown ===== */
+    /* Sidebar mobile dropdown */
     .sidebar-mobile {
       display: none;
       align-items: center;
@@ -668,7 +670,6 @@
       flex-direction: column;
       position: relative;
       height: 100%;
-      overflow: hidden;
     }
 
     .chat-panel::before,
@@ -706,7 +707,7 @@
       opacity: 1;
     }
 
-    /* Messages */
+    /* Messages area */
     #messages {
       flex: 1;
       overflow-y: auto;
@@ -714,7 +715,6 @@
       display: flex;
       flex-direction: column;
       gap: 24px;
-      scroll-behavior: smooth;
     }
 
     .message-row {
@@ -761,115 +761,123 @@
       line-height: 1.6;
       position: relative;
       word-wrap: break-word;
-      white-space: normal;
     }
 
     .message-text {
+      /* markdown יוצר HTML, אין צורך ב-pre-wrap */
       white-space: normal;
       word-wrap: break-word;
     }
 
-    /* Markdown styling inside bubbles */
-    .message-text h1,
-    .message-text h2,
-    .message-text h3 {
-      margin: 0 0 6px;
+    /* Markdown inside messages */
+    .message-content p {
+      margin: 0 0 6px 0;
+    }
+
+    .message-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-content ul,
+    .message-content ol {
+      margin: 6px 0 6px 1rem;
+      padding: 0;
+    }
+
+    .message-content li {
+      margin-bottom: 3px;
+    }
+
+    .message-content h1,
+    .message-content h2,
+    .message-content h3,
+    .message-content h4 {
+      margin: 6px 0;
       font-weight: 700;
       line-height: 1.3;
     }
 
-    .message-text h1 {
-      font-size: 1.2rem;
+    .message-content h1 {
+      font-size: 1.15rem;
     }
 
-    .message-text h2 {
+    .message-content h2 {
       font-size: 1.05rem;
     }
 
-    .message-text h3 {
-      font-size: 0.95rem;
+    .message-content h3 {
+      font-size: 0.98rem;
     }
 
-    .message-text p {
-      margin: 0 0 6px;
-    }
-
-    .message-text ul,
-    .message-text ol {
-      margin: 0 0 6px 0;
-      padding-left: 1.2em;
-    }
-
-    .message-text li {
-      margin-bottom: 2px;
-    }
-
-    .message-text code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.8rem;
-      background: #f3f4f6;
-      padding: 2px 4px;
-      border-radius: 4px;
-    }
-
-    .message-text pre {
-      background: #0b1120;
-      color: #e5e7eb;
-      padding: 10px 12px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: 0.8rem;
-      margin: 6px 0;
-    }
-
-    .message-text pre code {
-      background: transparent;
-      padding: 0;
-      border-radius: 0;
-      color: inherit;
-    }
-
-    .message-text table {
+    .message-content table {
       width: 100%;
       border-collapse: collapse;
       margin: 8px 0;
       font-size: 0.85rem;
+      background: #f9fafb;
+      border-radius: 8px;
+      overflow: hidden;
     }
 
-    .message-text th,
-    .message-text td {
+    .message-content th,
+    .message-content td {
       border: 1px solid var(--border-subtle);
       padding: 6px 8px;
       text-align: right;
     }
 
-    .message-text th {
-      background: #f3f4f6;
+    .message-content th {
+      background: #eef2ff;
       font-weight: 600;
     }
 
-    .message-text tr:nth-child(even) td {
-      background: #f9fafb;
+    .message-content pre {
+      background: #020617;
+      color: #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin: 8px 0;
     }
 
-    /* Link bubble */
-    .message-content a.link-bubble {
+    .message-content code {
+      background: rgba(15, 23, 42, 0.06);
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.85em;
+    }
+
+    .message-content pre code {
+      background: transparent;
+      padding: 0;
+    }
+
+    /* קישורים – בועות קטנות בתשובות האסיסטנט בלבד */
+    .message-row.assistant .message-content a.link-bubble {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 22px;
       height: 22px;
       border-radius: 999px;
-      background: #e5e7eb;
       border: 1px solid #cbd5e1;
-      font-size: 0.85rem;
+      background: #eff6ff;
       text-decoration: none;
-      color: #111827;
-      margin-inline: 2px;
+      margin: 0 2px;
+      font-size: 0.8rem;
+      color: #1d4ed8;
+      position: relative;
     }
 
-    .message-content a.link-bubble:hover {
-      background: #cbd5e1;
+    .message-row.assistant .message-content a.link-bubble:hover {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+
+    .message-row.assistant .message-content a.link-bubble-icon {
+      line-height: 1;
     }
 
     .message-actions {
@@ -1289,6 +1297,7 @@
       transform: scale(1.05);
     }
 
+    /* תיק דמי */
     .paper-portfolio-row {
       margin-top: 6px;
       border-top: 1px dashed var(--border-subtle);
@@ -1467,10 +1476,11 @@
       }
     }
 
+    /* ===== Mobile Layout Tweaks ===== */
     @media (max-width: 900px) {
       .app-shell {
         padding: 8px;
-        height: calc(var(--vh, 1vh) * 100 - 64px);
+        height: calc(100vh - 64px);
       }
 
       .app-container {
@@ -1665,13 +1675,14 @@
           </div>
         </div>
 
-        <!-- פאנל כוכבים -->
+        <!-- פאנל כוכבים: ריכוז נקודות מסומנות מהשיחה -->
         <section id="highlights-panel" class="highlights-panel">
           <div class="highlights-header">
             <span class="highlights-title">נקודות שסימנת</span>
             <span id="highlights-hint" class="highlights-hint"></span>
           </div>
 
+          <!-- פילטרים לכוכבים -->
           <div class="highlights-filters">
             <label class="highlights-filter-label">
               רמת סיכון
@@ -1707,7 +1718,7 @@
                 <button type="submit" id="send-btn" class="send-btn">➤</button>
               </div>
 
-              <!-- תיק דמי -->
+              <!-- מצב תיק דמי – בחירת רשימת ניירות -->
               <div class="paper-portfolio-row">
                 <div class="paper-portfolio-header">
                   <button type="button" id="paper-portfolio-toggle" class="paper-portfolio-toggle">
@@ -1773,9 +1784,11 @@
     const highlightsFilterLevelEl = document.getElementById("highlights-filter-level");
     const highlightsFilterSourceEl = document.getElementById("highlights-filter-source");
 
+    // מובייל – דרופ דאון לשיחה פעילה
     const mobileSessionSelect = document.getElementById("mobile-session-select");
     const mobileNewSessionBtn = document.getElementById("mobile-new-session-btn");
 
+    // תיק דמי – אלמנטים
     const paperPortfolioToggle = document.getElementById("paper-portfolio-toggle");
     const paperPortfolioBody = document.getElementById("paper-portfolio-body");
     const paperPortfolioInput = document.getElementById("paper-portfolio-input");
@@ -1861,29 +1874,32 @@
       }
     }
 
-    // --- Markdown + link bubble renderer ---
-    function renderMessageHtml(text) {
+    // Markdown renderer
+    function renderMarkdownToHtml(text) {
       if (!text) return "";
-      let raw = String(text);
+      try {
+        if (window.marked) {
+          marked.setOptions({
+            gfm: true,
+            breaks: true
+          });
+          const rawHtml = marked.parse(text);
+          if (window.DOMPurify) {
+            return DOMPurify.sanitize(rawHtml);
+          }
+          return rawHtml;
+        }
+      } catch (e) {
+        // fallback below
+      }
 
-      // בסיסי: שימוש ב-marked לרינדור Markdown
-      let html = marked.parse(raw, { breaks: true });
+      // Fallback פשוט – בלי markdown מלא
+      const escaped = String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 
-      // פוסט-פרוסס: להפוך כל לינק לבועית 📎
-      const temp = document.createElement("div");
-      temp.innerHTML = html;
-
-      const links = temp.querySelectorAll("a");
-      links.forEach((a) => {
-        const href = a.getAttribute("href") || "";
-        a.setAttribute("target", "_blank");
-        a.setAttribute("rel", "noopener noreferrer");
-        a.classList.add("link-bubble");
-        a.textContent = "📎";
-        a.title = href;
-      });
-
-      return temp.innerHTML;
+      return escaped.replace(/\n/g, "<br>");
     }
 
     function saveSessions() {
@@ -2213,7 +2229,7 @@
       );
 
       if (scroll) {
-        messages.scrollTop = 0;
+        messages.scrollTop = messages.scrollHeight;
       }
 
       updateScrollShadows();
@@ -2243,4 +2259,659 @@
       sessionListEl.innerHTML = "";
 
       sessions.forEach(sess => {
-        const wrapper = document.createElement
+        const wrapper = document.createElement("div");
+        wrapper.className = "session-item-wrapper" + (sess.id === activeSessionId ? " active" : "");
+        wrapper.dataset.sessionId = sess.id;
+
+        const mainBtn = document.createElement("button");
+        mainBtn.type = "button";
+        mainBtn.className = "session-item-main";
+        mainBtn.textContent = sess.title ||
+          ("שיחה " + new Date(sess.createdAt).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }));
+        mainBtn.title = "פתיחת שיחה";
+
+        mainBtn.addEventListener("click", () => {
+          if (sess.id === activeSessionId) return;
+          activeSessionId = sess.id;
+          saveSessions();
+          renderSessionList();
+          renderMobileSessionSelect();
+          renderMessagesForSession(sess);
+        });
+
+        const whatChangedBtn = document.createElement("button");
+        whatChangedBtn.type = "button";
+        whatChangedBtn.className = "session-item-menu-btn session-item-whatchanged-btn";
+        whatChangedBtn.innerHTML = "⟲";
+        whatChangedBtn.title = "עדכן את הניתוח הזה לפי מה שקרה מאז התשובה הקודמת";
+
+        whatChangedBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          triggerWhatChangedForSession(sess.id);
+        });
+
+        const menuBtnSession = document.createElement("button");
+        menuBtnSession.type = "button";
+        menuBtnSession.className = "session-item-menu-btn";
+        menuBtnSession.innerHTML = "⋮";
+
+        const menu = document.createElement("div");
+        menu.className = "session-item-menu";
+
+        const renameItem = document.createElement("button");
+        renameItem.type = "button";
+        renameItem.className = "session-item-menu-item";
+        renameItem.textContent = "שנה שם שיחה";
+
+        renameItem.addEventListener("click", (e) => {
+          e.stopPropagation();
+          menu.classList.remove("open");
+          const currentTitle = sess.title || "";
+          const newTitle = prompt("שם חדש לשיחה:", currentTitle);
+          if (newTitle && newTitle.trim()) {
+            sess.title = newTitle.trim();
+            saveSessions();
+            renderSessionList();
+            renderMobileSessionSelect();
+          }
+        });
+
+        menu.appendChild(renameItem);
+
+        menuBtnSession.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isOpen = menu.classList.contains("open");
+          document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
+          if (!isOpen) {
+            menu.classList.add("open");
+          }
+        });
+
+        wrapper.appendChild(mainBtn);
+        wrapper.appendChild(whatChangedBtn);
+        wrapper.appendChild(menuBtnSession);
+        wrapper.appendChild(menu);
+
+        sessionListEl.appendChild(wrapper);
+      });
+
+      renderMobileSessionSelect();
+    }
+
+    function createNewSession() {
+      const id = "s_" + Date.now();
+      const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [], highlights: [] };
+      sessions.unshift(session);
+      activeSessionId = id;
+      saveSessions();
+      renderSessionList();
+      renderMessagesForSession(session);
+      renderHighlights();
+      updateHighlightsHint(true);
+      if (textarea) {
+        textarea.value = "";
+        autoResizeTextarea(textarea);
+        textarea.focus();
+      }
+    }
+
+    function migrateOldHistoryIfNeeded() {
+      try {
+        const raw = localStorage.getItem(OLD_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || !parsed.length) return;
+        const id = "s_" + Date.now();
+        sessions = [{
+          id,
+          title: "שיחה קודמת",
+          createdAt: Date.now(),
+          messages: parsed,
+          highlights: []
+        }];
+        activeSessionId = id;
+      } catch (e) { }
+    }
+
+    function loadSessions() {
+      try {
+        const raw = localStorage.getItem(SESSIONS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.sessions)) {
+            sessions = parsed.sessions;
+
+            sessions.forEach(s => {
+              if (!Array.isArray(s.highlights)) {
+                s.highlights = [];
+              }
+            });
+
+            activeSessionId = parsed.activeSessionId || (sessions[0] && sessions[0].id) || null;
+          }
+        }
+        if (!sessions || !sessions.length) {
+          migrateOldHistoryIfNeeded();
+        }
+        if (!sessions || !sessions.length) {
+          const id = "s_" + Date.now();
+          sessions = [{
+            id,
+            title: "שיחה חדשה",
+            createdAt: Date.now(),
+            messages: [],
+            highlights: []
+          }];
+          activeSessionId = id;
+        }
+      } catch (e) {
+        const id = "s_" + Date.now();
+        sessions = [{
+          id,
+          title: "שיחה חדשה",
+          createdAt: Date.now(),
+          messages: [],
+          highlights: []
+        }];
+        activeSessionId = id;
+      }
+    }
+
+    function appendMessage(text, role, options = {}) {
+      const { persist = true, scroll = true } = options;
+      if (!messages) return;
+
+      const row = document.createElement("div");
+      row.className = "message-row " + role;
+
+      const content = document.createElement("div");
+      content.className = "message-content";
+
+      const textEl = document.createElement("div");
+      textEl.className = "message-text";
+
+      const html = renderMarkdownToHtml(text);
+      textEl.innerHTML = html;
+
+      content.appendChild(textEl);
+      row.appendChild(content);
+      messages.appendChild(row);
+
+      // קישורים כבּועות קטנות בתשובת האסיסטנט
+      if (role === "assistant") {
+        const anchors = content.querySelectorAll("a[href]");
+        anchors.forEach(a => {
+          a.classList.add("link-bubble");
+          const href = a.getAttribute("href") || "";
+          a.setAttribute("title", href);
+          a.innerHTML = "";
+          const iconSpan = document.createElement("span");
+          iconSpan.className = "link-bubble-icon";
+          iconSpan.textContent = "🔗";
+          a.appendChild(iconSpan);
+        });
+      }
+
+      attachStarControlsToMessage(content, text, role);
+
+      if (role === "assistant") {
+        attachFollowupSuggestions(content, text);
+      }
+
+      if (scroll) {
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      updateScrollShadows();
+
+      if (persist) {
+        const session = getActiveSession();
+        if (session) {
+          if (role === "user" && Array.isArray(session.messages) && session.messages.length === 0) {
+            let t = text.replace(/\s+/g, " ").trim();
+            if (t.length > 28) t = t.slice(0, 28) + "…";
+            session.title = t || "שיחה חדשה";
+            renderSessionList();
+          }
+          if (!Array.isArray(session.messages)) session.messages = [];
+          session.messages.push({ role, text });
+          saveSessions();
+        }
+      }
+    }
+
+    function appendThinking() {
+      const row = document.createElement("div");
+      row.className = "message-row assistant";
+      const content = document.createElement("div");
+      content.className = "message-content";
+      content.innerHTML =
+        '<div class="thinking-dots">' +
+        '<span class="thinking-dot"></span>' +
+        '<span class="thinking-dot"></span>' +
+        '<span class="thinking-dot"></span>' +
+        '</div>';
+      row.appendChild(content);
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+      updateScrollShadows();
+      return row;
+    }
+
+    async function callApi(query) {
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+      });
+      if (!response.ok) {
+        let err;
+        try {
+          err = await response.json();
+        } catch {
+          err = {};
+        }
+        throw new Error(err.error || "שגיאה בצד השרת.");
+      }
+      const data = await response.json();
+      if (!data.ok && data.answer === undefined) {
+        throw new Error(data.error || "שגיאה בצד השרת.");
+      }
+      return data.answer ?? "";
+    }
+
+    function getConversationPlainText() {
+      const session = getActiveSession();
+      if (session && Array.isArray(session.messages) && session.messages.length > 0) {
+        return session.messages
+          .map((m) => (m.role === "user" ? "YOU" : "DRAFFIQ") + ":\n" + m.text)
+          .join("\n\n");
+      }
+      const rows = messages.querySelectorAll(".message-row");
+      const parts = [];
+      rows.forEach((row) => {
+        const isUser = row.classList.contains("user");
+        const label = isUser ? "YOU" : "DRAFFIQ";
+
+        const contentEl = row.querySelector(".message-text") || row.querySelector(".message-content");
+        if (!contentEl) return;
+        const text = contentEl.innerText.trim();
+        if (!text) return;
+        parts.push(label + ":\n" + text);
+      });
+      return parts.join("\n\n");
+    }
+
+    if (printBtn) {
+      printBtn.addEventListener("click", () => {
+        window.print();
+      });
+    }
+
+    if (shareBtn) {
+      shareBtn.addEventListener("click", async () => {
+        const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
+        const title = "DRAFFIQ – שיחת מחקר";
+        const url = window.location.href;
+        if (navigator.share) {
+          try {
+            await navigator.share({ title, text, url });
+          } catch (e) { }
+        } else {
+          try {
+            await navigator.clipboard.writeText(text + "\n\n" + url);
+            alert("הטקסט והקישור הועתקו ללוח. ניתן להדביק בכל אפליקציה.");
+          } catch {
+            alert("שיתוף אוטומטי לא נתמך בדפדפן זה. נסה להעתיק ידנית.");
+          }
+        }
+      });
+    }
+
+    if (landingCta) {
+      landingCta.addEventListener("click", () => {
+        landingOverlay.classList.add("hidden");
+        if (chatSection && chatSection.scrollIntoView) {
+          chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    }
+
+    function handleNewChatClick() {
+      createNewSession();
+      if (menuDropdown) menuDropdown.classList.remove("open");
+    }
+
+    if (newBtn) newBtn.addEventListener("click", handleNewChatClick);
+    if (sidebarNewBtn) sidebarNewBtn.addEventListener("click", handleNewChatClick);
+    if (mobileNewSessionBtn) mobileNewSessionBtn.addEventListener("click", handleNewChatClick);
+
+    if (menuBtn) {
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!menuDropdown) return;
+        menuDropdown.classList.toggle("open");
+      });
+    }
+
+    if (homeLink) {
+      homeLink.addEventListener("click", () => {
+        window.location.href = "/";
+      });
+    }
+
+    if (chatLink) {
+      chatLink.addEventListener("click", () => {
+        if (chatSection && chatSection.scrollIntoView) {
+          chatSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        if (menuDropdown) menuDropdown.classList.remove("open");
+      });
+    }
+
+    if (researchBtn && researchDropdown) {
+      researchBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        researchDropdown.classList.toggle("open");
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      const target = e.target;
+
+      if (menuDropdown && menuDropdown.classList.contains("open")) {
+        if (target !== menuBtn && !(menuBtn && menuBtn.contains(target)) && !menuDropdown.contains(target)) {
+          menuDropdown.classList.remove("open");
+        }
+      }
+
+      if (researchDropdown && researchDropdown.classList.contains("open")) {
+        if (!target.closest(".research-menu")) {
+          researchDropdown.classList.remove("open");
+        }
+      }
+
+      if (!target.closest(".session-item-wrapper")) {
+        document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
+      }
+
+      if (!target.closest(".message-actions")) {
+        document.querySelectorAll(".highlight-picker.open").forEach(p => p.classList.remove("open"));
+      }
+    });
+
+    if (mobileSessionSelect) {
+      mobileSessionSelect.addEventListener("change", () => {
+        const newId = mobileSessionSelect.value;
+        if (!newId || newId === activeSessionId) return;
+        activeSessionId = newId;
+        saveSessions();
+        renderSessionList();
+        const sess = getActiveSession();
+        renderMessagesForSession(sess);
+      });
+    }
+
+    function renderPromptExamples() {
+      const container = document.getElementById("promptExamplesContainer");
+      if (!container || !textarea) return;
+      container.innerHTML = EXAMPLE_PROMPTS.map((ex, i) =>
+        `<button type="button" class="example-chip" data-idx="${i}">${ex.label}</button>`
+      ).join("");
+
+      container.addEventListener("click", (e) => {
+        const btn = e.target.closest(".example-chip");
+        if (!btn) return;
+        const idx = btn.getAttribute("data-idx");
+        const ex = EXAMPLE_PROMPTS[idx];
+        if (!ex) return;
+        textarea.value = ex.text;
+        autoResizeTextarea(textarea);
+        textarea.focus();
+      });
+    }
+
+    function setupModeToggle() {
+      if (!deepModeBtn) return;
+      deepModeBtn.addEventListener("click", () => {
+        const isActive = deepModeBtn.classList.contains("active");
+        if (isActive) {
+          deepModeBtn.classList.remove("active");
+          currentMode = "normal";
+        } else {
+          deepModeBtn.classList.add("active");
+          currentMode = "deep";
+        }
+      });
+    }
+
+    function setupWorkModes() {
+      const buttons = document.querySelectorAll(".work-mode-option");
+      if (!buttons.length) return;
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const mode = btn.getAttribute("data-mode");
+          currentWorkMode = mode || "stock";
+        });
+      });
+    }
+
+    function normalizeTicker(value) {
+      return (value || "").trim().toUpperCase().replace(/\s+/g, "");
+    }
+
+    function renderPaperPortfolioChips() {
+      if (!paperPortfolioChipsEl) return;
+      if (!paperPortfolioTickers.length) {
+        paperPortfolioChipsEl.innerHTML = '<span class="paper-portfolio-empty">לא נבחרו עדיין ניירות.</span>';
+        return;
+      }
+      paperPortfolioChipsEl.innerHTML = paperPortfolioTickers
+        .map(ticker =>
+          `<div class="paper-portfolio-chip" data-ticker="${ticker}">
+             <span>${ticker}</span>
+             <button type="button" class="paper-portfolio-chip-remove" title="הסרה">✕</button>
+           </div>`
+        )
+        .join("");
+    }
+
+    function setupPaperPortfolioControls() {
+      if (!paperPortfolioToggle || !paperPortfolioBody || !paperPortfolioInput || !paperPortfolioChipsEl) return;
+
+      paperPortfolioToggle.addEventListener("click", () => {
+        paperPortfolioEnabled = !paperPortfolioEnabled;
+        if (paperPortfolioEnabled) {
+          paperPortfolioToggle.classList.add("active");
+          paperPortfolioBody.classList.add("open");
+          paperPortfolioInput.focus();
+        } else {
+          paperPortfolioToggle.classList.remove("active");
+          paperPortfolioBody.classList.remove("open");
+        }
+      });
+
+      function addTickerFromInput() {
+        const raw = paperPortfolioInput.value;
+        const ticker = normalizeTicker(raw);
+        if (!ticker) return;
+        if (!paperPortfolioTickers.includes(ticker)) {
+          paperPortfolioTickers.push(ticker);
+          renderPaperPortfolioChips();
+        }
+        paperPortfolioInput.value = "";
+      }
+
+      if (paperPortfolioAddBtn) {
+        paperPortfolioAddBtn.addEventListener("click", addTickerFromInput);
+      }
+
+      paperPortfolioInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addTickerFromInput();
+        }
+      });
+
+      paperPortfolioChipsEl.addEventListener("click", (e) => {
+        const removeBtn = e.target.closest(".paper-portfolio-chip-remove");
+        if (!removeBtn) return;
+        const chip = removeBtn.closest(".paper-portfolio-chip");
+        if (!chip) return;
+        const ticker = chip.getAttribute("data-ticker");
+        paperPortfolioTickers = paperPortfolioTickers.filter(t => t !== ticker);
+        renderPaperPortfolioChips();
+      });
+
+      renderPaperPortfolioChips();
+    }
+
+    async function triggerWhatChangedForSession(sessionId) {
+      const session = sessions.find(s => s.id === sessionId);
+      if (!session) return;
+
+      activeSessionId = sessionId;
+      saveSessions();
+      renderSessionList();
+      renderMessagesForSession(session);
+
+      if (!session.messages || !session.messages.length) {
+        alert("אין עדיין תוכן בשיחה הזו לעדכן.");
+        return;
+      }
+
+      const userLabel = "עדכן את הניתוח הזה לפי מה שקרה מאז התשובה הקודמת.";
+      appendMessage(userLabel, "user");
+
+      interactionCount++;
+      updateHighlightsHint(false);
+
+      const historyText = session.messages
+        .map(m => (m.role === "user" ? "USER" : "ASSISTANT") + ":\n" + m.text)
+        .join("\n\n");
+
+      const metaParts = [];
+      if (currentWorkMode) metaParts.push(`WORK_MODE=${currentWorkMode}`);
+      if (assetTypeSelect && assetTypeSelect.value) metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
+      if (paperPortfolioEnabled && paperPortfolioTickers.length > 0) {
+        metaParts.push(`PAPER_PORTFOLIO=${paperPortfolioTickers.join(",")}`);
+      }
+      metaParts.push("WHAT_CHANGED=1");
+
+      const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
+
+      const queryForApi =
+        metaPrefix +
+        "WHAT_CHANGED_SINCE_LAST_ANSWER:\n\n" +
+        "CONTEXT (FULL_CONVERSATION_HISTORY):\n" +
+        historyText;
+
+      if (sendBtn) sendBtn.disabled = true;
+      const thinking = appendThinking();
+
+      try {
+        const ans = await callApi(queryForApi);
+        thinking.remove();
+        const safeAnswer = ans || "לא התקבלה תשובה מהשרת.";
+        appendMessage(safeAnswer, "assistant");
+      } catch (err) {
+        thinking.remove();
+        appendMessage("שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."), "assistant");
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      setViewportHeight();
+
+      loadSessions();
+      renderSessionList();
+      renderMessagesForSession(getActiveSession(), { scroll: false });
+
+      renderPromptExamples();
+      setupModeToggle();
+      setupWorkModes();
+      setupPaperPortfolioControls();
+
+      renderHighlights();
+      updateHighlightsHint(true);
+
+      if (messages) {
+        messages.addEventListener("scroll", updateScrollShadows);
+        updateScrollShadows();
+      }
+
+      if (highlightsFilterLevelEl) {
+        highlightsFilterLevelEl.addEventListener("change", () => {
+          highlightFilterLevel = highlightsFilterLevelEl.value || "all";
+          renderHighlights();
+        });
+      }
+
+      if (highlightsFilterSourceEl) {
+        highlightsFilterSourceEl.addEventListener("change", () => {
+          highlightFilterSource = highlightsFilterSourceEl.value || "all";
+          renderHighlights();
+        });
+      }
+    });
+
+    if (form) {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const raw = textarea ? textarea.value.trim() : "";
+        if (!raw) return;
+
+        appendMessage(raw, "user");
+
+        interactionCount++;
+        updateHighlightsHint(false);
+
+        const metaParts = [];
+        if (currentWorkMode) {
+          metaParts.push(`WORK_MODE=${currentWorkMode}`);
+        }
+        if (assetTypeSelect && assetTypeSelect.value) {
+          metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
+        }
+        if (paperPortfolioEnabled && paperPortfolioTickers.length > 0) {
+          metaParts.push(`PAPER_PORTFOLIO=${paperPortfolioTickers.join(",")}`);
+        }
+
+        const modeMarker = currentMode === "deep" ? "DEEP_DIVE" : "NORMAL";
+        metaParts.push(`MODE=${modeMarker}`);
+
+        const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
+
+        const queryForApi = metaPrefix + raw;
+
+        if (textarea) {
+          textarea.value = "";
+          autoResizeTextarea(textarea);
+          textarea.focus();
+        }
+
+        if (sendBtn) sendBtn.disabled = true;
+        const thinking = appendThinking();
+
+        try {
+          const ans = await callApi(queryForApi);
+          thinking.remove();
+
+          const safeAnswer = ans || "לא התקבלה תשובה מהשרת.";
+          appendMessage(safeAnswer, "assistant");
+        } catch (err) {
+          thinking.remove();
+          appendMessage("שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."), "assistant");
+        } finally {
+          if (sendBtn) sendBtn.disabled = false;
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
