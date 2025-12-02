@@ -1,8 +1,15 @@
+// server.js
+// שרת DRAFFIQ – Express + OpenAI + Analytics
+
+import "dotenv/config"; // טעינת .env בלוקאל, ב-Render זה מתעלם
 import express from "express";
 import cors from "cors";
 import OpenAI from "openai";
 import path from "path";
 import { fileURLToPath } from "url";
+
+// פונקציה לרישום אירוע אנליטי (יוסבר בקובץ analytics/trackUserEvent.js)
+import { trackUserEvent } from "./analytics/trackUserEvent.js";
 
 // ===== Path setup =====
 const __filename = fileURLToPath(import.meta.url);
@@ -12,12 +19,12 @@ const app = express();
 
 // ===== Middlewares =====
 app.use(cors());
-app.use(express.json()); // במקום bodyParser.json()
+app.use(express.json()); // JSON body parser
 
 // קבצים סטטיים – HTML מתוך public
 app.use(express.static(path.join(__dirname, "public")));
 
-// קבצי CSS/JS מתוך התיקייה assets (app.css, app.js וכו')
+// קבצי CSS/JS מתוך התיקייה assets (app.css וכו')
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 // ===== OpenAI client – משתמש ב-OPENAI_API_KEY מה-ENV =====
@@ -106,7 +113,7 @@ const DRAFFIQ_INSTRUCTIONS = [
   "אינני יועץ השקעות מורשה, וכל האמור אינו מהווה ייעוץ השקעות, שיווק השקעות או תחליף לייעוץ המתחשב בנתונים, בצרכים ובמאפיינים הייחודיים של כל אדם."
 ].join("\n");
 
-// ===== Routes בסיסיים =====
+// ===== Routes בסיסיים – דפי HTML =====
 
 // דף כניסה – landing.html
 app.get("/", (req, res) => {
@@ -157,6 +164,34 @@ app.get("/api/markets/most-active", (req, res) => {
   };
 
   res.json(data);
+});
+
+// ===== Analytics endpoint – קבלת אירועים מהפרונט =====
+// כאן הפרונט יכול לקרוא ל-POST /analytics/event עם eventName + context
+app.post("/analytics/event", async (req, res) => {
+  try {
+    const { eventName, context, source } = req.body || {};
+
+    if (!eventName) {
+      return res.status(400).json({ ok: false, error: "eventName is required" });
+    }
+
+    // כרגע אין אצלך auth, אז userId=null. בעתיד אפשר לשייך למשתמש.
+    const userId = null;
+
+    await trackUserEvent({
+      userId,
+      name: eventName,
+      context: context || {},
+      sessionId: null, // אם תוסיף session-side, אפשר לשים כאן מזהה
+      source: source || "web",
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Error in /analytics/event:", err);
+    res.status(500).json({ ok: false, error: "internal analytics error" });
+  }
 });
 
 // ===== Helper: זיהוי שאלות זהות / מודל =====
@@ -301,6 +336,21 @@ app.post("/chat", async (req, res) => {
     text = text.replace(/\bllm\b/gi, "מערכת ניתוח טקסט");
     text = text.replace(/openai/gi, "DRAFFIQ AI");
 
+    // לוג אנליטי בסיסי – "שאלה נשלחה לצ'אט"
+    try {
+      await trackUserEvent({
+        userId: null, // בעתיד: לשייך למזהה משתמש
+        name: "chat_request",
+        context: {
+          query_length: userQuery.length,
+        },
+        sessionId: null,
+        source: "server",
+      });
+    } catch (e) {
+      console.warn("Failed to log chat_request analytics", e);
+    }
+
     res.json({
       ok: true,
       answer: text
@@ -314,6 +364,7 @@ app.post("/chat", async (req, res) => {
   }
 });
 
+// ===== Start server =====
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("DRAFFIQ API listening on port", PORT);
