@@ -8,8 +8,6 @@ import OpenAI from "openai";
 import path from "path";
 import { fileURLToPath } from "url";
 import { query } from "./db.js";
-
-// פונקציה לרישום אירוע אנליטי (יוסבר בקובץ analytics/trackUserEvent.js)
 import { trackUserEvent } from "./analytics/trackUserEvent.js";
 
 // ===== Path setup =====
@@ -282,17 +280,11 @@ function isClearlyNonFinance(q) {
   return nonFinanceKeywords.some((kw) => lower.includes(kw));
 }
 
-// ===== Main chat endpoint =====
-app.post("/chat", async (req, res) => {
-  try {
-    const userQuery = (req.body?.query || "").trim();
+// ===== DEBUG: בדיקת חיבור פשוטה (בלי DB) =====
+app.get("/analytics/debug/ping", (req, res) => {
+  res.json({ ok: true, message: "analytics ping ok" });
+});
 
-    if (!userQuery) {
-      return res.status(400).json({
-        ok: false,
-        error: "Missing 'query' in request body"
-      });
-    }
 // ===== DEBUG: להחזיר את 100 האירועים האחרונים של האנליטיקות =====
 app.get("/analytics/debug/events", async (req, res) => {
   try {
@@ -313,9 +305,25 @@ app.get("/analytics/debug/events", async (req, res) => {
     });
   } catch (err) {
     console.error("Error in /analytics/debug/events:", err);
-    res.status(500).json({ ok: false, error: "failed to fetch events" });
+    res.status(500).json({
+      ok: false,
+      error: "failed to fetch events",
+      details: err.message,
+    });
   }
 });
+
+// ===== Main chat endpoint =====
+app.post("/chat", async (req, res) => {
+  try {
+    const userQuery = (req.body?.query || "").trim();
+
+    if (!userQuery) {
+      return res.status(400).json({
+        ok: false,
+        error: "Missing 'query' in request body"
+      });
+    }
 
     // 🔒 חסימה רק כשברור שזה לא פיננסי ולא שאלה על זהות
     if (isClearlyNonFinance(userQuery) && !isIdentityQuestion(userQuery)) {
