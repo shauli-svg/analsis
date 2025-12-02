@@ -7,6 +7,7 @@ import cors from "cors";
 import OpenAI from "openai";
 import path from "path";
 import { fileURLToPath } from "url";
+import { query } from "./db.js";
 
 // פונקציה לרישום אירוע אנליטי (יוסבר בקובץ analytics/trackUserEvent.js)
 import { trackUserEvent } from "./analytics/trackUserEvent.js";
