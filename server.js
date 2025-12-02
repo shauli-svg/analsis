@@ -399,3 +399,60 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("DRAFFIQ API listening on port", PORT);
 });
+// ==========================================
+// 🛠️ הרובוט שבונה את המוח (העתק לסוף server.js)
+// ==========================================
+
+app.get("/setup-brain", async (req, res) => {
+  const secret = req.query.secret;
+  
+  // 1. הגנה: בודק שרק אתה מפעיל את זה (לפי הסיסמה שהגדרת ברנדר)
+  if (secret !== process.env.ADMIN_SECRET) {
+    return res.status(401).send("⛔ גישה נדחתה: סיסמה שגויה.");
+  }
+
+  try {
+    // 2. בניית הטבלאות (במקום בתוכנה חיצונית)
+    await query("CREATE EXTENSION IF NOT EXISTS vector");
+    await query(`
+      CREATE TABLE IF NOT EXISTS report_chunks (
+        id BIGSERIAL PRIMARY KEY,
+        company_name TEXT,
+        report_type TEXT,
+        chunk_text TEXT,
+        embedding vector(1536),
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    await query("CREATE INDEX IF NOT EXISTS idx_embedding ON report_chunks USING hnsw (embedding vector_cosine_ops)");
+    
+    // 3. הכנת מידע לדוגמה (במקום סקריפט מהמחשב)
+    const sampleData = [
+      { c: "בנק הפועלים", t: "דוח רבעון 3", txt: "הרווח הנקי של בנק הפועלים ברבעון השלישי הסתכם ב-1.9 מיליארד שקל. התשואה להון עמדה על 15.2%." },
+      { c: "טבע", t: "סקירה שנתית", txt: "חברת טבע מתמקדת באסטרטגיית צמיחה. החוב הפיננסי נטו ירד מתחת ל-16 מיליארד דולר." },
+      { c: "אל על", t: "דיווח מיידי", txt: "אל על מדווחת על עלייה בביקוש לטיסות לצפון אמריקה עקב המצב הביטחוני." }
+    ];
+
+    // 4. הכנסת המידע למוח
+    let log = "<h2>תהליך הבנייה:</h2><ul>";
+    
+    for (const item of sampleData) {
+      // הופך טקסט לוקטור (שימוש בפונקציה שכבר קיימת לך ב-server.js)
+      const vector = await getEmbedding(item.txt);
+      
+      // שומר בדאטה-בייס
+      await query(
+        `INSERT INTO report_chunks (company_name, report_type, chunk_text, embedding) VALUES ($1, $2, $3, $4)`,
+        [item.c, item.t, item.txt, JSON.stringify(vector)]
+      );
+      log += `<li>✅ ${item.c} - נשמר בהצלחה!</li>`;
+    }
+    
+    log += "</ul><h3>✨ המוח מוכן לעבודה! עכשיו אפשר לשאול שאלות בצ'אט.</h3>";
+    res.send(log);
+
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("❌ שגיאה: " + e.message);
+  }
+});
