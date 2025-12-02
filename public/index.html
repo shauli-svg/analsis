@@ -319,17 +319,18 @@
       transform: translateY(-1px);
     }
 
+    /* ===== General menu (☰) – מובחן מהתפריט המחקרי ===== */
     .menu-dropdown {
       position: absolute;
       top: 60px;
-      left: 24px;
-      background: #fff;
-      border: 1px solid var(--border-subtle);
+      right: 24px;
+      left: auto;
+      background: #111827;
       border-radius: var(--radius-md);
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.35);
       padding: 6px;
       display: none;
-      min-width: 180px;
+      min-width: 190px;
       z-index: 200;
     }
 
@@ -345,13 +346,16 @@
       padding: 10px 14px;
       width: 100%;
       border-radius: 6px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      color: var(--primary);
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .menu-item:hover {
-      background: #f9fafb;
+      background: rgba(55, 65, 81, 0.9);
     }
 
     /* ===== Research Menu in Top Bar ===== */
@@ -722,11 +726,11 @@
       align-items: center;
     }
 
-    /* כפתור סימון – טקסט שחור, אייקון ✦, צבע משתנה אחרי בחירה */
+    /* כפתור סימון – טקסט מותאם לשני הרקעים, אייקון ⭐, צבע משתנה אחרי בחירה */
     .star-btn {
       border: none;
       background: transparent;
-      color: var(--primary);
+      color: #4b5563;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -740,9 +744,19 @@
     }
 
     .star-btn:hover {
-      color: #4b5563;
+      color: #111827;
     }
 
+    /* על בועת המשתמש – טקסט בהיר כברירת מחדל */
+    .message-row.user .star-btn {
+      color: #e5e7eb;
+    }
+
+    .message-row.user .star-btn:hover {
+      color: #f9fafb;
+    }
+
+    /* צבע הכוכב אחרי סימון לפי רמת החשיבות/סיכון */
     .star-btn.star-low {
       color: #10b981;
     }
@@ -974,6 +988,21 @@
 
     .highlight-delete-btn:hover {
       color: #ef4444;
+    }
+
+    /* כפתור פתיחה/סגירה לקריאה מלאה של התמצית */
+    .highlight-expand-btn {
+      margin-top: 3px;
+      border: none;
+      background: transparent;
+      padding: 0;
+      font-size: 0.7rem;
+      color: #2563eb;
+      cursor: pointer;
+    }
+
+    .highlight-expand-btn:hover {
+      text-decoration: underline;
     }
 
     /* Input Area */
@@ -1396,8 +1425,14 @@
         <button id="menu-btn" class="icon-btn">☰</button>
 
         <div id="menu-dropdown" class="menu-dropdown">
-          <button class="menu-item" id="home-link">מסך הבית</button>
-          <button class="menu-item" id="chat-link">קפיצה לצ'אט</button>
+          <button class="menu-item" id="home-link">
+            <span>⌂</span>
+            <span>מסך הבית</span>
+          </button>
+          <button class="menu-item" id="chat-link">
+            <span>➤</span>
+            <span>קפיצה לצ'אט</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1466,7 +1501,7 @@
           </div>
           <div id="highlights-list" class="highlights-list"></div>
           <div id="highlights-empty" class="highlights-empty">
-            עדיין לא סימנת שום דבר. בלחיצה על ✦ ליד תשובה מעניינת – היא תרד לכאן עם צבע לפי רמת החשיבות/סיכון.
+            עדיין לא סימנת שום דבר. בלחיצה על ⭐ ליד תשובה מעניינת – היא תרד לכאן עם צבע לפי רמת החשיבות/סיכון.
           </div>
         </section>
 
@@ -1474,7 +1509,8 @@
           <form id="chat-form">
             <div class="input-box-container">
               <div class="textarea-row">
-                <textarea id="query" name="query" rows="1" placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
+                <textarea id="query" name="query" rows="1"
+                  placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
                 <button type="submit" id="send-btn" class="send-btn">➤</button>
               </div>
             </div>
@@ -1533,20 +1569,33 @@
 
     // טקסטים קצרים לתזכורות פסיביות בפאנל הכוכבים
     const HIGHLIGHT_HINT_MESSAGES = [
-      "טיפ: אפשר לסמן תשובה מעניינת ב-✦ והיא תרד למטה עם צבע לפי חשיבות/סיכון.",
+      "טיפ: אפשר לסמן תשובה מעניינת ב-⭐ והיא תרד למטה עם צבע לפי חשיבות/סיכון.",
       "כוכבים יוצרים לך מיני-ארכיון של נקודות חשובות בשיחה הזו.",
-      "יש חלק שהיית רוצה לחזור אליו לקראת החלטה? סימון ב-✦ משאיר אותו בקובייה למטה."
+      "יש חלק שהיית רוצה לחזור אליו לקראת החלטה? סימון ב-⭐ משאיר אותו בקובייה למטה."
     ];
     let lastHintIndex = -1;
 
+    // כפתורי מאקרו – עם קו תחתון כמו במסמך משפטי
     const EXAMPLE_PROMPTS = [
-      { label: "מפת סיכונים למניה", text: "בנה לי מפת סיכונים והזדמנויות למניית פועלים לשנתיים הקרובות." },
-      { label: "השוואת אג\"ח", text: "השווה בין אג\"ח ממשלתי שקלי ל-10 שנים לבין אג\"ח קונצרני בדירוג AA באותו מח\"מ." },
-      { label: "סקטור נדל\"ן", text: "מהם הסיכונים המרכזיים כיום בסקטור הנדל\"ן המניב בישראל, ואילו תרחישים יכולים לשנות את הכיוון?" },
-      { label: "דוח אחרון", text: "בצע ניתוח על הדוח האחרון של בזק, עם דגש על תזרים מזומנים ו-Red Flags פוטנציאליים." }
+      {
+        label: "סביבת ריבית גבוהה",
+        text: "נתח את ההשפעה של סביבת ריבית גבוהה על ______ בשנתיים הקרובות, כולל סיכונים והזדמנויות מרכזיים."
+      },
+      {
+        label: "אינפלציה וצמיחה",
+        text: "איך שילוב של אינפלציה גבוהה וצמיחה נמוכה עשוי להשפיע על ______ מבחינת תמחור, רווחיות ומינוף?"
+      },
+      {
+        label: "רגולציה חדשה",
+        text: "אילו תרחישים רגולטוריים סביב ______ יכולים להיות Game Changer, ומה המשמעות של כל תרחיש למשקיעים?"
+      },
+      {
+        label: "גיאופוליטיקה",
+        text: "כיצד סיכונים גיאופוליטיים הקשורים ל ______ עשויים להשפיע על תמחור, נזילות ויכולת גיוס הון?"
+      }
     ];
 
-    // פונקציה: התאמת vh אמיתי למסכים ניידים (גולל דפדפן)
+    // התאמת vh אמיתי למסכים ניידים (גלילת דפדפן)
     function setViewportHeight() {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--vh", vh + "px");
@@ -1554,7 +1603,7 @@
     window.addEventListener("load", setViewportHeight);
     window.addEventListener("resize", setViewportHeight);
 
-    // פונקציה: אוטו-ריסייז לטקסט־אריה של השאלה
+    // אוטו-ריסייז לטקסט־אריה של השאלה
     function autoResizeTextarea(el) {
       if (!el) return;
       el.style.height = 'auto';
@@ -1571,7 +1620,7 @@
       });
     }
 
-    // פונקציה: הפיכת טקסט ללינקים (עם איקון סיכה)
+    // הפיכת טקסט ללינקים (עם איקון סיכה)
     function renderTextWithLinks(text) {
       if (!text) return "";
       let escaped = text
@@ -1584,19 +1633,19 @@
       });
     }
 
-    // פונקציה: שמירת כל מצב השיחות (כולל כוכבים) ל-localStorage
+    // שמירת כל מצב השיחות (כולל כוכבים) ל-localStorage
     function saveSessions() {
       try {
         localStorage.setItem(SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId }));
       } catch (e) { }
     }
 
-    // פונקציה: החזרת השיחה הפעילה כרגע
+    // החזרת השיחה הפעילה כרגע
     function getActiveSession() {
       return sessions.find((s) => s.id === activeSessionId) || null;
     }
 
-    // פונקציה: החזרת רשימת הכוכבים של השיחה הפעילה
+    // החזרת רשימת הכוכבים של השיחה הפעילה
     function getHighlightsForActiveSession() {
       const session = getActiveSession();
       if (!session) return [];
@@ -1606,7 +1655,7 @@
       return session.highlights;
     }
 
-    // פונקציה: תרגום רמת הכוכב לטקסט קריא למשתמש
+    // תרגום רמת הכוכב לטקסט קריא למשתמש
     function getHighlightLevelLabel(level) {
       switch (level) {
         case "high":
@@ -1618,7 +1667,7 @@
       }
     }
 
-    // פונקציה: יצירת טקסט מקוצר לתצוגה בפאנל הכוכבים
+    // יצירת טקסט מקוצר לתצוגה בפאנל הכוכבים
     function buildHighlightPreview(text) {
       if (!text) return "";
       let clean = text.replace(/\s+/g, " ").trim();
@@ -1628,7 +1677,7 @@
       return clean;
     }
 
-    // פונקציה: הוספת כוכב (נקודה מסומנת) לשיחה הפעילה
+    // הוספת כוכב (נקודה מסומנת) לשיחה הפעילה
     function addHighlight(text, role, level) {
       const session = getActiveSession();
       if (!session) return;
@@ -1650,7 +1699,7 @@
       updateHighlightsHint(true);
     }
 
-    // פונקציה: מחיקת כוכב מהשיחה הפעילה
+    // מחיקת כוכב מהשיחה הפעילה
     function removeHighlight(id) {
       const session = getActiveSession();
       if (!session || !Array.isArray(session.highlights)) return;
@@ -1660,7 +1709,7 @@
       updateHighlightsHint(true);
     }
 
-    // פונקציה: רינדור כל הכוכבים בפאנל התחתון עבור השיחה הפעילה
+    // רינדור כל הכוכבים בפאנל התחתון עבור השיחה הפעילה
     function renderHighlights() {
       if (!highlightsListEl || !highlightsEmptyEl) return;
 
@@ -1677,6 +1726,7 @@
       highlights.forEach((h) => {
         const item = document.createElement("div");
         item.className = "highlight-item level-" + (h.level || "low");
+        item.dataset.expanded = "false";
 
         const meta = document.createElement("div");
         meta.className = "highlight-meta";
@@ -1696,6 +1746,25 @@
         textDiv.textContent = buildHighlightPreview(h.text);
         textDiv.title = h.text;
 
+        const expandBtn = document.createElement("button");
+        expandBtn.type = "button";
+        expandBtn.className = "highlight-expand-btn";
+        expandBtn.textContent = "פתיחה";
+
+        expandBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const expanded = item.dataset.expanded === "true";
+          if (expanded) {
+            item.dataset.expanded = "false";
+            textDiv.textContent = buildHighlightPreview(h.text);
+            expandBtn.textContent = "פתיחה";
+          } else {
+            item.dataset.expanded = "true";
+            textDiv.textContent = h.text;
+            expandBtn.textContent = "סגירה";
+          }
+        });
+
         const deleteBtn = document.createElement("button");
         deleteBtn.type = "button";
         deleteBtn.className = "highlight-delete-btn";
@@ -1708,30 +1777,29 @@
 
         item.appendChild(meta);
         item.appendChild(textDiv);
+        item.appendChild(expandBtn);
         item.appendChild(deleteBtn);
         highlightsListEl.appendChild(item);
       });
     }
 
-    // פונקציה: עדכון טקסט התזכורת בפאנל הכוכבים (פסיבי, כל כמה אינטראקציות)
+    // עדכון טקסט התזכורת בפאנל הכוכבים (פסיבי, כל כמה אינטראקציות)
     function updateHighlightsHint(force = false) {
       if (!highlightsHintEl) return;
       const highlights = getHighlightsForActiveSession();
 
-      // אם כבר יש כוכבים – מסר קבוע: יש לך ארכיון אישי
       if (highlights.length > 0) {
         highlightsHintEl.textContent = "כאן מרוכזות הנקודות שסימנת לאורך השיחה – אפשר לחזור אליהן גם בעוד כמה דקות.";
         return;
       }
 
-      // אין כוכבים – להציג/לרענן טיפ מדי כמה אינטראקציות
       if (force || interactionCount % 3 === 0 || lastHintIndex === -1) {
         lastHintIndex = (lastHintIndex + 1) % HIGHLIGHT_HINT_MESSAGES.length;
         highlightsHintEl.textContent = HIGHLIGHT_HINT_MESSAGES[lastHintIndex];
       }
     }
 
-    // פונקציה: יצירת כפתור כוכב ותפריט רמות עבור הודעה אחת
+    // יצירת כפתור כוכב ותפריט רמות עבור הודעה אחת
     function attachStarControlsToMessage(contentEl, text, role) {
       if (!contentEl) return;
 
@@ -1745,7 +1813,7 @@
 
       const starIconSpan = document.createElement("span");
       starIconSpan.className = "icon";
-      starIconSpan.textContent = "✦";
+      starIconSpan.textContent = "⭐";
 
       const starTextSpan = document.createElement("span");
       starTextSpan.textContent = "סימון";
@@ -1781,7 +1849,6 @@
           addHighlight(text, role, lvl.key);
           picker.classList.remove("open");
 
-          // צביעת הכוכב לפי הרמה שנבחרה
           starBtn.classList.remove("star-low", "star-medium", "star-high");
           starBtn.classList.add("star-" + lvl.key);
         });
@@ -1793,7 +1860,6 @@
         e.stopPropagation();
         const isOpen = picker.classList.contains("open");
 
-        // סגירת כל תפריטי הרמות האחרים
         document.querySelectorAll(".highlight-picker.open").forEach(p => p.classList.remove("open"));
 
         if (!isOpen) {
@@ -1806,7 +1872,7 @@
       contentEl.appendChild(actions);
     }
 
-    // פונקציה: רינדור ההודעות של שיחה מסוימת (כולל חיבור כוכבים)
+    // רינדור ההודעות של שיחה מסוימת (כולל כוכבים)
     function renderMessagesForSession(session, options = {}) {
       const { scroll = true } = options;
       if (!messages) return;
@@ -1825,12 +1891,11 @@
 
       if (scroll) messages.scrollTop = 0;
 
-      // אחרי החלפת שיחה – גם הכוכבים מתעדכנים
       renderHighlights();
       updateHighlightsHint(true);
     }
 
-    // פונקציה עזר: רינדור דרופ-דאון מובייל לשיחות
+    // רינדור דרופ-דאון מובייל לשיחות
     function renderMobileSessionSelect() {
       if (!mobileSessionSelect) return;
       mobileSessionSelect.innerHTML = "";
@@ -1848,7 +1913,7 @@
       }
     }
 
-    // פונקציה: רינדור רשימת השיחות בצד + בחירת שיחה
+    // רינדור רשימת השיחות בצד + בחירת שיחה
     function renderSessionList() {
       if (!sessionListEl) return;
       sessionListEl.innerHTML = "";
@@ -1921,7 +1986,7 @@
       renderMobileSessionSelect();
     }
 
-    // פונקציה: יצירת שיחה חדשה (ריקה) + איפוס כוכבים לשיחה
+    // יצירת שיחה חדשה (ריקה) + איפוס כוכבים לשיחה
     function createNewSession() {
       const id = "s_" + Date.now();
       const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [], highlights: [] };
@@ -1939,7 +2004,7 @@
       }
     }
 
-    // פונקציה: מיגרציה מאחסון ישן (גרסה v1)
+    // מיגרציה מאחסון ישן (גרסה v1)
     function migrateOldHistoryIfNeeded() {
       try {
         const raw = localStorage.getItem(OLD_STORAGE_KEY);
@@ -1958,7 +2023,7 @@
       } catch (e) { }
     }
 
-    // פונקציה: טעינת היסטוריית השיחות מהאחסון המקומי
+    // טעינת היסטוריית השיחות מהאחסון המקומי
     function loadSessions() {
       try {
         const raw = localStorage.getItem(SESSIONS_KEY);
@@ -1967,7 +2032,6 @@
           if (parsed && Array.isArray(parsed.sessions)) {
             sessions = parsed.sessions;
 
-            // וידוא שלכל שיחה תהיה רשימת highlights
             sessions.forEach(s => {
               if (!Array.isArray(s.highlights)) {
                 s.highlights = [];
@@ -1987,7 +2051,6 @@
             title: "שיחה חדשה",
             createdAt: Date.now(),
             messages: [],
-
             highlights: []
           }];
           activeSessionId = id;
@@ -2005,7 +2068,7 @@
       }
     }
 
-    // פונקציה: הוספת הודעה לדום (ולשיחה, אם persist=true)
+    // הוספת הודעה לדום (ולשיחה, אם persist=true)
     function appendMessage(text, role, options = {}) {
       const { persist = true, scroll = true } = options;
       if (!messages) return;
@@ -2016,7 +2079,6 @@
       const content = document.createElement("div");
       content.className = "message-content";
 
-      // טקסט ההודעה עצמו
       const textEl = document.createElement("div");
       textEl.className = "message-text";
       textEl.innerHTML = renderTextWithLinks(text);
@@ -2025,7 +2087,6 @@
       row.appendChild(content);
       messages.appendChild(row);
 
-      // חיבור ממשק הכוכב לכל הודעה (משתמש + מערכת)
       attachStarControlsToMessage(content, text, role);
 
       if (scroll) {
@@ -2052,7 +2113,7 @@
       }
     }
 
-    // פונקציה: בועת "חושב..." בזמן המתנה לשרת
+    // בועת "חושב..." בזמן המתנה לשרת
     function appendThinking() {
       const row = document.createElement("div");
       row.className = "message-row assistant";
@@ -2069,7 +2130,7 @@
       return row;
     }
 
-    // פונקציה: קריאה לשרת /chat עם הטקסט המעובד
+    // קריאה לשרת /chat עם הטקסט המעובד
     async function callApi(query) {
       const response = await fetch("/chat", {
         method: "POST",
@@ -2092,7 +2153,7 @@
       return data.answer ?? "";
     }
 
-    // פונקציה: יצוא השיחה בפורמט טקסט (לשיתוף / העתקה) – מתעלמת מטקסטי הכפתורים
+    // יצוא השיחה בפורמט טקסט (לשיתוף / העתקה) – מתעלמת מטקסטי הכפתורים
     function getConversationPlainText() {
       const session = getActiveSession();
       if (session && Array.isArray(session.messages) && session.messages.length > 0) {
@@ -2106,7 +2167,6 @@
         const isUser = row.classList.contains("user");
         const label = isUser ? "YOU" : "DRAFFIQ";
 
-        // נעדיף את התוכן הטהור (message-text) כדי לא להעתיק את הכפתורים
         const contentEl = row.querySelector(".message-text") || row.querySelector(".message-content");
         if (!contentEl) return;
         const text = contentEl.innerText.trim();
@@ -2196,7 +2256,7 @@
       });
     }
 
-    // סגירת תפריטים + תפריטי כוכבים בלחיצה מחוץ
+    // סגירת תפריטים + תפריטי שיחות + תפריטי כוכבים בלחיצה מחוץ
     document.addEventListener("click", (e) => {
       const target = e.target;
 
@@ -2216,7 +2276,6 @@
         document.querySelectorAll(".session-item-menu.open").forEach(m => m.classList.remove("open"));
       }
 
-      // סגירת כל תפריטי בחירת הרמה של הכוכבים אם הלחיצה מחוץ להם
       if (!target.closest(".message-actions")) {
         document.querySelectorAll(".highlight-picker.open").forEach(p => p.classList.remove("open"));
       }
@@ -2306,7 +2365,6 @@
 
         appendMessage(raw, "user");
 
-        // מגדילים מונה אינטראקציות – כדי לעדכן תזכורות כוכבים מדי פעם
         interactionCount++;
         updateHighlightsHint(false);
 
