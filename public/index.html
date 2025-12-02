@@ -51,15 +51,16 @@
       margin: 0;
       padding: 0;
       height: 100%;
+      /* חלון אחד – אין גלילה אינסופית על body */
+      overflow: hidden;
     }
 
     body {
-      font-family: 'Rubik', Rubik, Rubik, sans-serif;
+      font-family: 'Rubik', Rubik, sans-serif;
       background-color: var(--bg-app);
       color: var(--primary);
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
     }
 
     /* Scrollbar */
@@ -319,7 +320,7 @@
       transform: translateY(-1px);
     }
 
-    /* ===== General menu (☰) – מובחן מהתפריט המחקרי ===== */
+    /* ===== General menu (☰) ===== */
     .menu-dropdown {
       position: absolute;
       top: 60px;
@@ -363,7 +364,6 @@
       position: relative;
     }
 
-    /* כפתור כלי מחקר – אייקון SVG במקום אימוג'י */
     .icon-btn-settings {
       padding: 6px;
       border-radius: 999px;
@@ -445,10 +445,12 @@
     /* ===== Main Layout ===== */
     .app-shell {
       flex: 1;
-      overflow: visible;
       display: flex;
       justify-content: center;
       padding: 20px;
+      /* גובה קבוע יחסית למסך (ללא הטופ-בר) */
+      height: calc(100vh - 64px);
+      overflow: hidden;
     }
 
     .app-container {
@@ -457,6 +459,13 @@
       display: flex;
       gap: 20px;
       height: 100%;
+    }
+
+    /* בדסקטופ – היפוך צדדים: צ'אט מימין, היסטוריה משמאל */
+    @media (min-width: 900px) {
+      .app-container {
+        flex-direction: row-reverse;
+      }
     }
 
     /* Sidebar */
@@ -470,6 +479,7 @@
       flex-direction: column;
       padding: 16px;
       box-shadow: var(--shadow-sm);
+      height: 100%;
     }
 
     .sidebar-header {
@@ -555,7 +565,7 @@
       background: #000000;
     }
 
-    /* ===== Session items with 3-dots menu ===== */
+    /* ===== Session items with 3-dots + "מה השתנה מאז" ===== */
     .session-item-wrapper {
       position: relative;
       display: flex;
@@ -563,6 +573,7 @@
       justify-content: space-between;
       padding: 2px 4px;
       border-radius: var(--radius-sm);
+      gap: 4px;
     }
 
     .session-item-main {
@@ -605,6 +616,10 @@
     .session-item-menu-btn:hover {
       background: #f3f4f6;
       color: #4b5563;
+    }
+
+    .session-item-whatchanged-btn {
+      font-size: 0.9rem;
     }
 
     .session-item-menu {
@@ -653,12 +668,50 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      height: 100%;
     }
 
+    /* Shadows למעלה/למטה לפי גלילה */
+    .chat-panel::before,
+    .chat-panel::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 18px;
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity 0.15s ease-out;
+    }
+
+    .chat-panel::before {
+      top: 0;
+      background: linear-gradient(to bottom,
+          rgba(243, 245, 249, 1),
+          rgba(243, 245, 249, 0));
+    }
+
+    .chat-panel::after {
+      bottom: 0;
+      background: linear-gradient(to top,
+          rgba(243, 245, 249, 1),
+          rgba(243, 245, 249, 0));
+    }
+
+    .chat-panel.has-scroll-top::before {
+      opacity: 1;
+    }
+
+    .chat-panel.has-scroll-bottom::after {
+      opacity: 1;
+    }
+
+    /* אזור ההודעות – חלון גלילה יחיד, עם טקסט מוגבל רוחב */
     #messages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 40px;
+      padding: 20px 0 32px;
       display: flex;
       flex-direction: column;
       gap: 24px;
@@ -669,6 +722,14 @@
       display: flex;
       width: 100%;
       margin-bottom: 8px;
+      padding: 0 40px;
+    }
+
+    @media (min-width: 1200px) {
+      #messages>.message-row {
+        max-width: 900px;
+        margin: 0 auto;
+      }
     }
 
     .message-row.user {
@@ -695,7 +756,7 @@
     }
 
     .message-content {
-      max-width: 80%;
+      max-width: 100%;
       padding: 14px 20px;
       font-size: 0.95rem;
       line-height: 1.6;
@@ -704,7 +765,6 @@
       white-space: pre-wrap;
     }
 
-    /* בלוק: טקסט ההודעה בלבד, בנפרד מהאזור של כפתורי הכוכב */
     .message-text {
       white-space: pre-wrap;
       word-wrap: break-word;
@@ -716,7 +776,6 @@
       font-weight: 500;
     }
 
-    /* בלוק: שורת כפתור הכוכב והבחירה של רמת החשיבות/סיכון */
     .message-actions {
       margin-top: 6px;
       display: flex;
@@ -726,7 +785,6 @@
       align-items: center;
     }
 
-    /* כפתור סימון – טקסט מותאם לשני הרקעים, אייקון ⭐, צבע משתנה אחרי בחירה */
     .star-btn {
       border: none;
       background: transparent;
@@ -747,7 +805,6 @@
       color: #111827;
     }
 
-    /* על בועת המשתמש – טקסט בהיר כברירת מחדל */
     .message-row.user .star-btn {
       color: #e5e7eb;
     }
@@ -756,7 +813,6 @@
       color: #f9fafb;
     }
 
-    /* צבע הכוכב אחרי סימון לפי רמת החשיבות/סיכון */
     .star-btn.star-low {
       color: #10b981;
     }
@@ -769,7 +825,6 @@
       color: #ef4444;
     }
 
-    /* בחירת צבע/רמה – תפריט קטן שמתפתח מתחת לכוכב */
     .highlight-picker {
       display: none;
       align-items: center;
@@ -887,7 +942,32 @@
       text-decoration: underline;
     }
 
-    /* ===== Highlights Panel ("קוביית הכוכבים" מתחת לצ'אט) ===== */
+    /* שאלות המשך – צ'יפים בסוף תשובת המערכת */
+    .followups-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .followup-chip {
+      border: none;
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .followup-chip:hover {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    /* ===== Highlights Panel ===== */
     .highlights-panel {
       padding: 10px 16px 12px;
       border-top: 1px solid var(--border-subtle);
@@ -899,7 +979,7 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .highlights-title {
@@ -914,6 +994,33 @@
       color: var(--text-muted);
       text-align: left;
       flex: 1;
+    }
+
+    /* פילטרים לכוכבים – רמת סיכון + מקור */
+    .highlights-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .highlights-filter-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .highlights-filter-select {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      background: #ffffff;
+      color: #374151;
+      outline: none;
     }
 
     .highlights-list {
@@ -967,6 +1074,12 @@
       margin-bottom: 2px;
       font-size: 0.7rem;
       color: #6b7280;
+      flex-wrap: wrap;
+    }
+
+    .highlight-tag {
+      font-weight: 500;
+      color: #111827;
     }
 
     .highlight-text {
@@ -990,7 +1103,6 @@
       color: #ef4444;
     }
 
-    /* כפתור פתיחה/סגירה לקריאה מלאה של התמצית */
     .highlight-expand-btn {
       margin-top: 3px;
       border: none;
@@ -1018,7 +1130,7 @@
       background: #ffffff;
       border: 1px solid var(--border-subtle);
       border-radius: 24px;
-      padding: 6px 8px 6px 16px;
+      padding: 6px 8px 10px 16px;
       box-shadow: var(--shadow-float);
       display: flex;
       flex-direction: column;
@@ -1082,134 +1194,120 @@
       transform: scale(1.05);
     }
 
-    .meta-row {
+    /* מצב "תיק דמי" – בחירת טיקרים לשאלה אחת */
+    .paper-portfolio-row {
+      margin-top: 6px;
+      border-top: 1px dashed var(--border-subtle);
+      padding-top: 6px;
       display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 8px;
-      margin-top: 2px;
-    }
-
-    .work-modes {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
+      flex-direction: column;
       gap: 6px;
     }
 
-    .work-modes-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .work-modes-pills {
+    .paper-portfolio-header {
       display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
     }
 
-    .work-mode-option {
+    .paper-portfolio-toggle {
       border: none;
       border-radius: 999px;
-      padding: 3px 10px;
+      padding: 4px 10px;
       font-size: 0.75rem;
       background: #f3f4f6;
       color: #4b5563;
       cursor: pointer;
-      transition: all 0.2s;
       white-space: nowrap;
     }
 
-    .work-mode-option.active {
+    .paper-portfolio-toggle.active {
       background: #111827;
       color: #ffffff;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
-    .meta-inline {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-inline-start: auto;
-    }
-
-    .meta-field {
-      display: flex;
-      flex-direction: column;
-      min-width: 120px;
-    }
-
-    .meta-field label {
+    .paper-portfolio-hint {
       font-size: 0.7rem;
       color: var(--text-muted);
-      margin-bottom: 2px;
+      flex: 1;
     }
 
-    .meta-field select {
+    .paper-portfolio-body {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .paper-portfolio-body.open {
+      display: flex;
+    }
+
+    .paper-portfolio-input-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .paper-portfolio-input {
+      flex: 1;
       border-radius: 999px;
       border: 1px solid var(--border-subtle);
-      padding: 3px 10px;
+      padding: 4px 10px;
       font-size: 0.8rem;
       background: #f9fafb;
-      outline: none;
+      color: #111827;
     }
 
-    .tools-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 2px;
-      padding-inline-end: 8px;
-    }
-
-    .mode-switch {
-      display: flex;
-      gap: 4px;
-      background: #f3f4f6;
-      padding: 3px;
-      border-radius: 99px;
-    }
-
-    .mode-option {
+    .paper-portfolio-add {
       border: none;
-      background: transparent;
-      font-size: 0.75rem;
-      padding: 4px 12px;
-      border-radius: 99px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      background: #e5e7eb;
+      color: #111827;
       cursor: pointer;
-      color: var(--text-muted);
-      transition: all 0.2s;
       white-space: nowrap;
     }
 
-    .mode-option.active {
-      background: #fff;
-      color: var(--primary);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      font-weight: 500;
+    .paper-portfolio-add:hover {
+      background: #d1d5db;
     }
 
-    .extra-actions {
+    .paper-portfolio-chips {
       display: flex;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
-    .action-pill {
-      background: transparent;
-      border: none;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 6px;
-    }
-
-    .action-pill:hover {
+    .paper-portfolio-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
       background: #f3f4f6;
-      color: var(--primary);
+      font-size: 0.75rem;
+      color: #374151;
     }
 
-    /* כפתורי השאלות – מתחת לאינפוט, בשורות מימין לשמאל */
+    .paper-portfolio-chip-remove {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .paper-portfolio-chip-remove:hover {
+      color: #ef4444;
+    }
+
+    .paper-portfolio-empty {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
     .examples-container {
       margin-top: 12px;
       display: flex;
@@ -1279,11 +1377,12 @@
     @media (max-width: 900px) {
       .app-shell {
         padding: 8px;
+        height: calc(100vh - 64px);
       }
 
       .app-container {
         flex-direction: column;
-        height: calc(100vh - 64px);
+        height: 100%;
         gap: 8px;
       }
 
@@ -1296,7 +1395,6 @@
         margin-bottom: 4px;
       }
 
-      /* במובייל – משתמשים רק בדרופ-דאון לשיחות */
       .sidebar-mobile {
         display: flex;
       }
@@ -1314,31 +1412,15 @@
       }
 
       #messages {
-        padding: 12px;
+        padding: 12px 8px 24px;
+      }
+
+      .message-row {
+        padding: 0 8px;
       }
 
       .message-content {
         max-width: 95%;
-      }
-
-      .meta-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-      }
-
-      .meta-inline {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      .tools-row {
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-
-      .mode-switch {
-        margin-bottom: 4px;
       }
 
       .highlights-panel {
@@ -1381,13 +1463,11 @@
 
       <div class="top-actions">
         <div class="status-badge">TASE LIVE</div>
-        <!-- טקסט כפתור מקוצר: "חדש" -->
         <button id="new-btn" class="new-chat-btn-top">חדש</button>
 
         <!-- תפריט מחקר וכלים -->
         <div class="research-menu">
           <button id="research-btn" class="icon-btn icon-btn-settings" title="כלי מחקר">
-            <!-- SVG: אייקון סליידרים עדין בצבע primary -->
             <svg viewBox="0 0 20 20" class="settings-icon" aria-hidden="true">
               <line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
               <circle cx="9" cy="6" r="1.6" fill="currentColor" />
@@ -1443,7 +1523,7 @@
     <div class="app-container">
 
       <aside class="sidebar">
-        <!-- מובייל: דרופ-דאון ברור לשיחות -->
+        <!-- מובייל: דרופ-דאון לשיחות -->
         <div class="sidebar-mobile">
           <span class="sidebar-mobile-label">שיחה פעילה</span>
           <select id="mobile-session-select" class="sidebar-mobile-select"></select>
@@ -1496,12 +1576,33 @@
         <section id="highlights-panel" class="highlights-panel">
           <div class="highlights-header">
             <span class="highlights-title">נקודות שסימנת</span>
-            <!-- טקסט הסבר פסיבי – מתעדכן כל כמה אינטראקציות -->
             <span id="highlights-hint" class="highlights-hint"></span>
           </div>
+
+          <!-- פילטרים לכוכבים -->
+          <div class="highlights-filters">
+            <label class="highlights-filter-label">
+              רמת סיכון
+              <select id="highlights-filter-level" class="highlights-filter-select">
+                <option value="all">הכל</option>
+                <option value="low">ירוק</option>
+                <option value="medium">צהוב</option>
+                <option value="high">אדום</option>
+              </select>
+            </label>
+            <label class="highlights-filter-label">
+              מקור
+              <select id="highlights-filter-source" class="highlights-filter-select">
+                <option value="all">הכל</option>
+                <option value="user">ממך</option>
+                <option value="assistant">מהמערכת</option>
+              </select>
+            </label>
+          </div>
+
           <div id="highlights-list" class="highlights-list"></div>
           <div id="highlights-empty" class="highlights-empty">
-            עדיין לא סימנת שום דבר. בלחיצה על ⭐ ליד תשובה מעניינת – היא תרד לכאן עם צבע לפי רמת החשיבות/סיכון.
+            עדיין לא סימנת שום דבר. בלחיצה על ⭐ ליד תשובה מעניינת – היא תרד לכאן עם צבע ותווית קצרה.
           </div>
         </section>
 
@@ -1512,6 +1613,28 @@
                 <textarea id="query" name="query" rows="1"
                   placeholder="שאל שאלה על מניה, דוח או סקטור..."></textarea>
                 <button type="submit" id="send-btn" class="send-btn">➤</button>
+              </div>
+
+              <!-- מצב תיק דמי – בחירת רשימת ניירות -->
+              <div class="paper-portfolio-row">
+                <div class="paper-portfolio-header">
+                  <button type="button" id="paper-portfolio-toggle" class="paper-portfolio-toggle">
+                    תיק דמי
+                  </button>
+                  <span class="paper-portfolio-hint">
+                    להריץ את אותה שאלה על כמה ניירות בבת אחת.
+                  </span>
+                </div>
+                <div id="paper-portfolio-body" class="paper-portfolio-body">
+                  <div class="paper-portfolio-input-row">
+                    <input type="text" id="paper-portfolio-input" class="paper-portfolio-input"
+                      placeholder="הקלד טיקר (למשל: TASE:XXXXX) ולחץ Enter או הוסף">
+                    <button type="button" id="paper-portfolio-add" class="paper-portfolio-add">
+                      הוסף
+                    </button>
+                  </div>
+                  <div id="paper-portfolio-chips" class="paper-portfolio-chips"></div>
+                </div>
               </div>
             </div>
 
@@ -1551,31 +1674,44 @@
     const assetTypeSelect = document.getElementById("asset-type");
     const researchBtn = document.getElementById("research-btn");
     const researchDropdown = document.getElementById("research-dropdown");
+
     const highlightsListEl = document.getElementById("highlights-list");
     const highlightsEmptyEl = document.getElementById("highlights-empty");
     const highlightsHintEl = document.getElementById("highlights-hint");
+    const highlightsFilterLevelEl = document.getElementById("highlights-filter-level");
+    const highlightsFilterSourceEl = document.getElementById("highlights-filter-source");
 
     // מובייל – דרופ דאון לשיחה פעילה
     const mobileSessionSelect = document.getElementById("mobile-session-select");
     const mobileNewSessionBtn = document.getElementById("mobile-new-session-btn");
+
+    // תיק דמי – אלמנטים
+    const paperPortfolioToggle = document.getElementById("paper-portfolio-toggle");
+    const paperPortfolioBody = document.getElementById("paper-portfolio-body");
+    const paperPortfolioInput = document.getElementById("paper-portfolio-input");
+    const paperPortfolioAddBtn = document.getElementById("paper-portfolio-add");
+    const paperPortfolioChipsEl = document.getElementById("paper-portfolio-chips");
 
     let sessions = [];
     let activeSessionId = null;
     let currentMode = "normal";
     let currentWorkMode = "stock";
 
-    // מונה אינטראקציות – כדי לשנות מדי פעם את טקסט התזכורת על הכוכבים
     let interactionCount = 0;
 
-    // טקסטים קצרים לתזכורות פסיביות בפאנל הכוכבים
+    let paperPortfolioEnabled = false;
+    let paperPortfolioTickers = [];
+
+    let highlightFilterLevel = "all";
+    let highlightFilterSource = "all";
+
     const HIGHLIGHT_HINT_MESSAGES = [
-      "טיפ: אפשר לסמן תשובה מעניינת ב-⭐ והיא תרד למטה עם צבע לפי חשיבות/סיכון.",
+      "טיפ: אפשר לסמן תשובה מעניינת ב-⭐ והיא תרד למטה עם צבע ותווית קצרה.",
       "כוכבים יוצרים לך מיני-ארכיון של נקודות חשובות בשיחה הזו.",
       "יש חלק שהיית רוצה לחזור אליו לקראת החלטה? סימון ב-⭐ משאיר אותו בקובייה למטה."
     ];
     let lastHintIndex = -1;
 
-    // כפתורי מאקרו – עם קו תחתון כמו במסמך משפטי
     const EXAMPLE_PROMPTS = [
       {
         label: "סביבת ריבית גבוהה",
@@ -1595,7 +1731,7 @@
       }
     ];
 
-    // התאמת vh אמיתי למסכים ניידים (גלילת דפדפן)
+    // התאמת vh למסכי מובייל
     function setViewportHeight() {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--vh", vh + "px");
@@ -1603,7 +1739,7 @@
     window.addEventListener("load", setViewportHeight);
     window.addEventListener("resize", setViewportHeight);
 
-    // אוטו-ריסייז לטקסט־אריה של השאלה
+    // אוטו-ריסייז לטקסטאריה
     function autoResizeTextarea(el) {
       if (!el) return;
       el.style.height = 'auto';
@@ -1620,32 +1756,48 @@
       });
     }
 
-    // הפיכת טקסט ללינקים (עם איקון סיכה)
+    // גלילה: עדכון shadows למעלה/למטה
+    function updateScrollShadows() {
+      if (!messages || !chatSection) return;
+      const { scrollTop, scrollHeight, clientHeight } = messages;
+
+      if (scrollTop > 0) {
+        chatSection.classList.add("has-scroll-top");
+      } else {
+        chatSection.classList.remove("has-scroll-top");
+      }
+
+      if (scrollTop + clientHeight < scrollHeight - 1) {
+        chatSection.classList.add("has-scroll-bottom");
+      } else {
+        chatSection.classList.remove("has-scroll-bottom");
+      }
+    }
+
+    // הפיכת טקסט ללינקים
     function renderTextWithLinks(text) {
       if (!text) return "";
       let escaped = text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
+
       const urlRegex = /(https?:\/\/[^\s)]+)/g;
       return escaped.replace(urlRegex, (url) => {
         return `<a href="${url}" target="_blank" rel="noopener noreferrer">📎</a>`;
       });
     }
 
-    // שמירת כל מצב השיחות (כולל כוכבים) ל-localStorage
     function saveSessions() {
       try {
         localStorage.setItem(SESSIONS_KEY, JSON.stringify({ sessions, activeSessionId }));
       } catch (e) { }
     }
 
-    // החזרת השיחה הפעילה כרגע
     function getActiveSession() {
       return sessions.find((s) => s.id === activeSessionId) || null;
     }
 
-    // החזרת רשימת הכוכבים של השיחה הפעילה
     function getHighlightsForActiveSession() {
       const session = getActiveSession();
       if (!session) return [];
@@ -1655,7 +1807,6 @@
       return session.highlights;
     }
 
-    // תרגום רמת הכוכב לטקסט קריא למשתמש
     function getHighlightLevelLabel(level) {
       switch (level) {
         case "high":
@@ -1667,7 +1818,6 @@
       }
     }
 
-    // יצירת טקסט מקוצר לתצוגה בפאנל הכוכבים
     function buildHighlightPreview(text) {
       if (!text) return "";
       let clean = text.replace(/\s+/g, " ").trim();
@@ -1677,8 +1827,8 @@
       return clean;
     }
 
-    // הוספת כוכב (נקודה מסומנת) לשיחה הפעילה
-    function addHighlight(text, role, level) {
+    // הוספת כוכב עם רמת סיכון + תגית
+    function addHighlight(text, role, level, tag) {
       const session = getActiveSession();
       if (!session) return;
       if (!Array.isArray(session.highlights)) {
@@ -1691,6 +1841,7 @@
         text,
         role,
         level: level || "low",
+        tag: tag || "",
         createdAt: Date.now()
       });
 
@@ -1699,7 +1850,6 @@
       updateHighlightsHint(true);
     }
 
-    // מחיקת כוכב מהשיחה הפעילה
     function removeHighlight(id) {
       const session = getActiveSession();
       if (!session || !Array.isArray(session.highlights)) return;
@@ -1709,7 +1859,7 @@
       updateHighlightsHint(true);
     }
 
-    // רינדור כל הכוכבים בפאנל התחתון עבור השיחה הפעילה
+    // רינדור הכוכבים לפי פילטרים
     function renderHighlights() {
       if (!highlightsListEl || !highlightsEmptyEl) return;
 
@@ -1717,19 +1867,41 @@
       highlightsListEl.innerHTML = "";
 
       if (!highlights.length) {
+        highlightsEmptyEl.textContent = "עדיין לא סימנת שום דבר. בלחיצה על ⭐ ליד תשובה מעניינת – היא תרד לכאן עם צבע ותווית קצרה.";
+        highlightsEmptyEl.style.display = "block";
+        return;
+      }
+
+      const filtered = highlights.filter(h => {
+        const lvl = h.level || "low";
+        if (highlightFilterLevel !== "all" && lvl !== highlightFilterLevel) return false;
+        if (highlightFilterSource !== "all" && h.role !== highlightFilterSource) return false;
+        return true;
+      });
+
+      if (!filtered.length) {
+        highlightsEmptyEl.textContent = "אין נקודות שמתאימות למסנן הנוכחי.";
         highlightsEmptyEl.style.display = "block";
         return;
       }
 
       highlightsEmptyEl.style.display = "none";
 
-      highlights.forEach((h) => {
+      filtered.forEach((h) => {
         const item = document.createElement("div");
         item.className = "highlight-item level-" + (h.level || "low");
         item.dataset.expanded = "false";
 
         const meta = document.createElement("div");
         meta.className = "highlight-meta";
+
+        if (h.tag) {
+          const tagSpan = document.createElement("span");
+          tagSpan.className = "highlight-tag";
+          tagSpan.textContent = h.tag;
+          meta.appendChild(tagSpan);
+          meta.appendChild(document.createTextNode(" · "));
+        }
 
         const levelSpan = document.createElement("span");
         levelSpan.textContent = getHighlightLevelLabel(h.level);
@@ -1783,13 +1955,12 @@
       });
     }
 
-    // עדכון טקסט התזכורת בפאנל הכוכבים (פסיבי, כל כמה אינטראקציות)
     function updateHighlightsHint(force = false) {
       if (!highlightsHintEl) return;
       const highlights = getHighlightsForActiveSession();
 
       if (highlights.length > 0) {
-        highlightsHintEl.textContent = "כאן מרוכזות הנקודות שסימנת לאורך השיחה – אפשר לחזור אליהן גם בעוד כמה דקות.";
+        highlightsHintEl.textContent = "כאן מרוכזות הנקודות שסימנת לאורך השיחה – אפשר לחזור אליהן גם בעוד כמה שעות.";
         return;
       }
 
@@ -1799,7 +1970,7 @@
       }
     }
 
-    // יצירת כפתור כוכב ותפריט רמות עבור הודעה אחת
+    // כפתור כוכב + בחירת רמה + תגית
     function attachStarControlsToMessage(contentEl, text, role) {
       if (!contentEl) return;
 
@@ -1846,11 +2017,15 @@
 
         btn.addEventListener("click", (e) => {
           e.stopPropagation();
-          addHighlight(text, role, lvl.key);
+          const rawTag = window.prompt("תווית קצרה לנקודה הזו (לא חובה):", "");
+          const tag = rawTag && rawTag.trim() ? rawTag.trim() : "";
+
+          addHighlight(text, role, lvl.key, tag);
           picker.classList.remove("open");
 
           starBtn.classList.remove("star-low", "star-medium", "star-high");
           starBtn.classList.add("star-" + lvl.key);
+          starTextSpan.textContent = "מסומן";
         });
 
         picker.appendChild(btn);
@@ -1872,7 +2047,59 @@
       contentEl.appendChild(actions);
     }
 
-    // רינדור ההודעות של שיחה מסוימת (כולל כוכבים)
+    // שאלות המשך – יצירת המלצות לפי מצב שוק / תשובה
+    function generateFollowupSuggestions(answerText) {
+      const suggestions = [];
+      const text = (answerText || "").toString();
+
+      if (currentWorkMode === "stock") {
+        suggestions.push("השווה את החברה למתחרות המרכזיות בבורסה מבחינת צמיחה, רווחיות ומינוף.");
+      } else if (currentWorkMode === "bond") {
+        suggestions.push("נתח את פרופיל הסיכון של האג\"ח ביחס לאג\"ח חלופיות דומות בשוק.");
+      } else if (currentWorkMode === "sector") {
+        suggestions.push("שווה את הסקטור הזה לסקטורים קרובים מבחינת צמיחה, רווחיות וסיכון רגולטורי.");
+      }
+
+      if (/סיכון|סיכונים/.test(text)) {
+        suggestions.push("תפרט את הסיכונים המרכזיים שהיית שם בראש סדר העדיפויות למשקיע.");
+      }
+
+      if (/תזרים|מזומנים/.test(text)) {
+        suggestions.push("העמק בתזרים המזומנים: מה עלול להשתבש בתרחיש שמרני יותר?");
+      }
+
+      suggestions.push("מה היית בודק ידנית בדוחות / מצגות לפני החלטה בפועל?");
+
+      const unique = Array.from(new Set(suggestions));
+      return unique.slice(0, 3);
+    }
+
+    function attachFollowupSuggestions(contentEl, answerText) {
+      if (!contentEl) return;
+      const suggestions = generateFollowupSuggestions(answerText);
+      if (!suggestions.length) return;
+
+      const row = document.createElement("div");
+      row.className = "followups-row";
+
+      suggestions.forEach((q) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "followup-chip";
+        btn.textContent = q;
+        btn.addEventListener("click", () => {
+          if (!textarea) return;
+          textarea.value = q;
+          autoResizeTextarea(textarea);
+          textarea.focus();
+        });
+        row.appendChild(btn);
+      });
+
+      contentEl.appendChild(row);
+    }
+
+    // רינדור הודעות לשיחה מסוימת
     function renderMessagesForSession(session, options = {}) {
       const { scroll = true } = options;
       if (!messages) return;
@@ -1881,7 +2108,10 @@
       rows.forEach(r => r.remove());
 
       if (!session || !Array.isArray(session.messages)) {
-        if (scroll) messages.scrollTop = 0;
+        if (scroll) {
+          messages.scrollTop = 0;
+          updateScrollShadows();
+        }
         return;
       }
 
@@ -1889,13 +2119,15 @@
         appendMessage(m.text, m.role, { persist: false, scroll: false })
       );
 
-      if (scroll) messages.scrollTop = 0;
+      if (scroll) {
+        messages.scrollTop = 0;
+      }
 
+      updateScrollShadows();
       renderHighlights();
       updateHighlightsHint(true);
     }
 
-    // רינדור דרופ-דאון מובייל לשיחות
     function renderMobileSessionSelect() {
       if (!mobileSessionSelect) return;
       mobileSessionSelect.innerHTML = "";
@@ -1913,7 +2145,7 @@
       }
     }
 
-    // רינדור רשימת השיחות בצד + בחירת שיחה
+    // רינדור רשימת השיחות + כפתור "מה השתנה מאז"
     function renderSessionList() {
       if (!sessionListEl) return;
       sessionListEl.innerHTML = "";
@@ -1937,6 +2169,18 @@
           renderSessionList();
           renderMobileSessionSelect();
           renderMessagesForSession(sess);
+        });
+
+        // כפתור "מה השתנה מאז"
+        const whatChangedBtn = document.createElement("button");
+        whatChangedBtn.type = "button";
+        whatChangedBtn.className = "session-item-menu-btn session-item-whatchanged-btn";
+        whatChangedBtn.innerHTML = "⟲";
+        whatChangedBtn.title = "עדכן את הניתוח הזה לפי מה שקרה מאז התשובה הקודמת";
+
+        whatChangedBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          triggerWhatChangedForSession(sess.id);
         });
 
         const menuBtnSession = document.createElement("button");
@@ -1977,6 +2221,7 @@
         });
 
         wrapper.appendChild(mainBtn);
+        wrapper.appendChild(whatChangedBtn);
         wrapper.appendChild(menuBtnSession);
         wrapper.appendChild(menu);
 
@@ -1986,7 +2231,6 @@
       renderMobileSessionSelect();
     }
 
-    // יצירת שיחה חדשה (ריקה) + איפוס כוכבים לשיחה
     function createNewSession() {
       const id = "s_" + Date.now();
       const session = { id, title: "שיחה חדשה", createdAt: Date.now(), messages: [], highlights: [] };
@@ -2004,7 +2248,6 @@
       }
     }
 
-    // מיגרציה מאחסון ישן (גרסה v1)
     function migrateOldHistoryIfNeeded() {
       try {
         const raw = localStorage.getItem(OLD_STORAGE_KEY);
@@ -2023,7 +2266,6 @@
       } catch (e) { }
     }
 
-    // טעינת היסטוריית השיחות מהאחסון המקומי
     function loadSessions() {
       try {
         const raw = localStorage.getItem(SESSIONS_KEY);
@@ -2089,6 +2331,10 @@
 
       attachStarControlsToMessage(content, text, role);
 
+      if (role === "assistant") {
+        attachFollowupSuggestions(content, text);
+      }
+
       if (scroll) {
         if (role === "assistant") {
           messages.scrollTop = row.offsetTop;
@@ -2096,6 +2342,8 @@
           messages.scrollTop = messages.scrollHeight;
         }
       }
+
+      updateScrollShadows();
 
       if (persist) {
         const session = getActiveSession();
@@ -2113,24 +2361,25 @@
       }
     }
 
-    // בועת "חושב..." בזמן המתנה לשרת
+    // בועת "חושב..."
     function appendThinking() {
       const row = document.createElement("div");
       row.className = "message-row assistant";
       const content = document.createElement("div");
       content.className = "message-content";
       content.innerHTML =
-        `<div class="thinking-dots">
-           <span class="thinking-dot"></span>
-           <span class="thinking-dot"></span>
-           <span class="thinking-dot"></span>
-         </div>`;
+        '<div class="thinking-dots">' +
+        '<span class="thinking-dot"></span>' +
+        '<span class="thinking-dot"></span>' +
+        '<span class="thinking-dot"></span>' +
+        '</div>';
       row.appendChild(content);
       messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+      updateScrollShadows();
       return row;
     }
 
-    // קריאה לשרת /chat עם הטקסט המעובד
     async function callApi(query) {
       const response = await fetch("/chat", {
         method: "POST",
@@ -2153,7 +2402,6 @@
       return data.answer ?? "";
     }
 
-    // יצוא השיחה בפורמט טקסט (לשיתוף / העתקה) – מתעלמת מטקסטי הכפתורים
     function getConversationPlainText() {
       const session = getActiveSession();
       if (session && Array.isArray(session.messages) && session.messages.length > 0) {
@@ -2176,14 +2424,12 @@
       return parts.join("\n\n");
     }
 
-    // כפתור הדפסה
     if (printBtn) {
       printBtn.addEventListener("click", () => {
         window.print();
       });
     }
 
-    // כפתור שיתוף – שיתוף מערכת / העתקה ללוח
     if (shareBtn) {
       shareBtn.addEventListener("click", async () => {
         const text = getConversationPlainText() || "DRAFFIQ – שיחה ריקה.";
@@ -2204,7 +2450,6 @@
       });
     }
 
-    // כניסה מהמסך הראשוני
     if (landingCta) {
       landingCta.addEventListener("click", () => {
         landingOverlay.classList.add("hidden");
@@ -2214,7 +2459,6 @@
       });
     }
 
-    // כפתורי פתיחת שיחה חדשה (למעלה, בצד, ובמובייל)
     function handleNewChatClick() {
       createNewSession();
       if (menuDropdown) menuDropdown.classList.remove("open");
@@ -2224,7 +2468,6 @@
     if (sidebarNewBtn) sidebarNewBtn.addEventListener("click", handleNewChatClick);
     if (mobileNewSessionBtn) mobileNewSessionBtn.addEventListener("click", handleNewChatClick);
 
-    // תפריט ראשי (☰)
     if (menuBtn) {
       menuBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -2248,7 +2491,6 @@
       });
     }
 
-    // פתיחה/סגירה של תפריט המחקר
     if (researchBtn && researchDropdown) {
       researchBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -2256,7 +2498,6 @@
       });
     }
 
-    // סגירת תפריטים + תפריטי שיחות + תפריטי כוכבים בלחיצה מחוץ
     document.addEventListener("click", (e) => {
       const target = e.target;
 
@@ -2281,7 +2522,6 @@
       }
     });
 
-    // שינוי שיחה אקטיבית מדרופ-דאון מובייל
     if (mobileSessionSelect) {
       mobileSessionSelect.addEventListener("change", () => {
         const newId = mobileSessionSelect.value;
@@ -2294,7 +2534,6 @@
       });
     }
 
-    // רינדור כפתורי הדוגמאות מתחת לאינפוט
     function renderPromptExamples() {
       const container = document.getElementById("promptExamplesContainer");
       if (!container || !textarea) return;
@@ -2314,7 +2553,6 @@
       });
     }
 
-    // בורר מצב Deep Dive
     function setupModeToggle() {
       if (!deepModeBtn) return;
       deepModeBtn.addEventListener("click", () => {
@@ -2329,7 +2567,6 @@
       });
     }
 
-    // בחירת מצב עבודה (מניות / אג"ח / סקטורים)
     function setupWorkModes() {
       const buttons = document.querySelectorAll(".work-mode-option");
       if (!buttons.length) return;
@@ -2343,20 +2580,169 @@
       });
     }
 
-    // אתחול ראשוני של המסך
+    // תיק דמי – לוגיקה
+    function normalizeTicker(value) {
+      return (value || "").trim().toUpperCase().replace(/\s+/g, "");
+    }
+
+    function renderPaperPortfolioChips() {
+      if (!paperPortfolioChipsEl) return;
+      if (!paperPortfolioTickers.length) {
+        paperPortfolioChipsEl.innerHTML = '<span class="paper-portfolio-empty">לא נבחרו עדיין ניירות.</span>';
+        return;
+      }
+      paperPortfolioChipsEl.innerHTML = paperPortfolioTickers
+        .map(ticker =>
+          `<div class="paper-portfolio-chip" data-ticker="${ticker}">
+             <span>${ticker}</span>
+             <button type="button" class="paper-portfolio-chip-remove" title="הסרה">✕</button>
+           </div>`
+        )
+        .join("");
+    }
+
+    function setupPaperPortfolioControls() {
+      if (!paperPortfolioToggle || !paperPortfolioBody || !paperPortfolioInput || !paperPortfolioChipsEl) return;
+
+      paperPortfolioToggle.addEventListener("click", () => {
+        paperPortfolioEnabled = !paperPortfolioEnabled;
+        if (paperPortfolioEnabled) {
+          paperPortfolioToggle.classList.add("active");
+          paperPortfolioBody.classList.add("open");
+          paperPortfolioInput.focus();
+        } else {
+          paperPortfolioToggle.classList.remove("active");
+          paperPortfolioBody.classList.remove("open");
+        }
+      });
+
+      function addTickerFromInput() {
+        const raw = paperPortfolioInput.value;
+        const ticker = normalizeTicker(raw);
+        if (!ticker) return;
+        if (!paperPortfolioTickers.includes(ticker)) {
+          paperPortfolioTickers.push(ticker);
+          renderPaperPortfolioChips();
+        }
+        paperPortfolioInput.value = "";
+      }
+
+      if (paperPortfolioAddBtn) {
+        paperPortfolioAddBtn.addEventListener("click", addTickerFromInput);
+      }
+
+      paperPortfolioInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addTickerFromInput();
+        }
+      });
+
+      paperPortfolioChipsEl.addEventListener("click", (e) => {
+        const removeBtn = e.target.closest(".paper-portfolio-chip-remove");
+        if (!removeBtn) return;
+        const chip = removeBtn.closest(".paper-portfolio-chip");
+        if (!chip) return;
+        const ticker = chip.getAttribute("data-ticker");
+        paperPortfolioTickers = paperPortfolioTickers.filter(t => t !== ticker);
+        renderPaperPortfolioChips();
+      });
+
+      renderPaperPortfolioChips();
+    }
+
+    // "מה השתנה מאז" – הרצה על שיחה קיימת
+    async function triggerWhatChangedForSession(sessionId) {
+      const session = sessions.find(s => s.id === sessionId);
+      if (!session) return;
+
+      activeSessionId = sessionId;
+      saveSessions();
+      renderSessionList();
+      renderMessagesForSession(session);
+
+      if (!session.messages || !session.messages.length) {
+        alert("אין עדיין תוכן בשיחה הזו לעדכן.");
+        return;
+      }
+
+      const userLabel = "עדכן את הניתוח הזה לפי מה שקרה מאז התשובה הקודמת.";
+      appendMessage(userLabel, "user");
+
+      interactionCount++;
+      updateHighlightsHint(false);
+
+      const historyText = session.messages
+        .map(m => (m.role === "user" ? "USER" : "ASSISTANT") + ":\n" + m.text)
+        .join("\n\n");
+
+      const metaParts = [];
+      if (currentWorkMode) metaParts.push(`WORK_MODE=${currentWorkMode}`);
+      if (assetTypeSelect && assetTypeSelect.value) metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
+      if (paperPortfolioEnabled && paperPortfolioTickers.length > 0) {
+        metaParts.push(`PAPER_PORTFOLIO=${paperPortfolioTickers.join(",")}`);
+      }
+      metaParts.push("WHAT_CHANGED=1");
+
+      const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
+
+      const queryForApi =
+        metaPrefix +
+        "WHAT_CHANGED_SINCE_LAST_ANSWER:\n\n" +
+        "CONTEXT (FULL_CONVERSATION_HISTORY):\n" +
+        historyText;
+
+      if (sendBtn) sendBtn.disabled = true;
+      const thinking = appendThinking();
+
+      try {
+        const ans = await callApi(queryForApi);
+        thinking.remove();
+        const safeAnswer = ans || "לא התקבלה תשובה מהשרת.";
+        appendMessage(safeAnswer, "assistant");
+      } catch (err) {
+        thinking.remove();
+        appendMessage("שגיאה בתקשורת עם השרת: " + (err.message || "שגיאה לא ידועה."), "assistant");
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+      }
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       setViewportHeight();
+
       loadSessions();
       renderSessionList();
       renderMessagesForSession(getActiveSession(), { scroll: false });
+
       renderPromptExamples();
       setupModeToggle();
       setupWorkModes();
+      setupPaperPortfolioControls();
+
       renderHighlights();
       updateHighlightsHint(true);
+
+      if (messages) {
+        messages.addEventListener("scroll", updateScrollShadows);
+        updateScrollShadows();
+      }
+
+      if (highlightsFilterLevelEl) {
+        highlightsFilterLevelEl.addEventListener("change", () => {
+          highlightFilterLevel = highlightsFilterLevelEl.value || "all";
+          renderHighlights();
+        });
+      }
+
+      if (highlightsFilterSourceEl) {
+        highlightsFilterSourceEl.addEventListener("change", () => {
+          highlightFilterSource = highlightsFilterSourceEl.value || "all";
+          renderHighlights();
+        });
+      }
     });
 
-    // שליחת השאלה לצ'אט
     if (form) {
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -2375,13 +2761,16 @@
         if (assetTypeSelect && assetTypeSelect.value) {
           metaParts.push(`ASSET_TYPE=${assetTypeSelect.value}`);
         }
+        if (paperPortfolioEnabled && paperPortfolioTickers.length > 0) {
+          metaParts.push(`PAPER_PORTFOLIO=${paperPortfolioTickers.join(",")}`);
+        }
+
+        const modeMarker = currentMode === "deep" ? "DEEP_DIVE" : "NORMAL";
+        metaParts.push(`MODE=${modeMarker}`);
 
         const metaPrefix = metaParts.length ? "[" + metaParts.join("; ") + "] " : "";
 
-        const queryForApi =
-          currentMode === "deep"
-            ? metaPrefix + "DEEP_DIVE: " + raw
-            : metaPrefix + raw;
+        const queryForApi = metaPrefix + raw;
 
         if (textarea) {
           textarea.value = "";
