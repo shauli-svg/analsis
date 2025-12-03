@@ -476,7 +476,7 @@ body {
       width: 260px;
       flex-shrink: 0;
       background: var(--bg-panel);
-      border-radius: var(--radius-lg);
+      border-radius: 0;
       border: 1px solid rgba(0, 0, 0, 0.04);
       display: flex;
       flex-direction: column;
@@ -519,13 +519,14 @@ body {
       color: #4b5563;
     }
 
-    .session-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    /* רשימת שיחות בלי גלילה פנימית ובלי Flex שמתוח לגובה */
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 auto;      /* לא "תמתח לגובה" בכוח */
+  overflow-y: visible; /* גלילה תהיה רק של כל הדף, לא בתוך העמודה */
+}
 
     /* Sidebar mobile dropdown */
     .sidebar-mobile {
@@ -708,6 +709,17 @@ body {
     .chat-panel.has-scroll-bottom::after {
       opacity: 1;
     }
+
+    /* דסקטופ: הדשבורד והצ'אט נראים כמו כרטיס אחד מחולק לשניים */
+@media (min-width: 900px) {
+  .sidebar {
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg); /* מעוגל רק בצד החיצוני */
+  }
+
+  .chat-panel {
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0; /* מעוגל רק בצד החיצוני */
+  }
+}
 
     /* Messages area */
     #messages {
@@ -1037,10 +1049,28 @@ body {
       font-size: 0.8rem;
     }
 
-    .system-about-cta a {
-      color: #2563eb;
-      text-decoration: none;
-    }
+    /* בקופסת "מי עומד מאחורי DRAFFIQ?" – להציג רק אייקון אטב במקום טקסט המייל */
+.system-about-cta a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #eff6ff;
+  color: #1d4ed8;
+  text-decoration: none;
+  font-size: 0; /* מעלים את הטקסט (info@...) */
+  vertical-align: middle;
+}
+
+/* האייקון עצמו */
+.system-about-cta a::before {
+  content: "📎";      /* אם אתה מעדיף 🔗 – פשוט שנה פה */
+  font-size: 0.8rem;
+}
 
     .system-about-cta a:hover {
       text-decoration: underline;
