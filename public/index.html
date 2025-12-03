@@ -50,22 +50,23 @@
       outline: none;
     }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      /* ביטול נעילת הגלילה – דף יכול לגלול כרגיל */
-      /* overflow: hidden; */
-    }
+   html,
+body {
+  margin: 0;
+  padding: 0;
+  /* חשוב: לא נועלים יותר גובה ל־100% */
+  /* height: 100%; */
+  overflow-x: hidden; /* אופציונלי – למנוע גלילה אופקית מיותרת */
+}
 
-    body {
-      font-family: 'Heebo', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background-color: var(--bg-app);
-      color: var(--primary);
-      display: flex;
-      flex-direction: column;
-    }
+body {
+  font-family: 'Heebo', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: var(--bg-app);
+  color: var(--primary);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* הדף יכול לגדול מעבר למסך ויהיה scroll טבעי */
+}
 
     /* Scrollbar */
     ::-webkit-scrollbar {
@@ -446,15 +447,15 @@
     }
 
     /* ===== Main Layout ===== */
-    .app-shell {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      /* לפני כן height: calc(100vh - 64px) + overflow:hidden – זה חתך את המסך */
-      min-height: calc(var(--vh, 1vh) * 100 - 64px);
-      overflow: visible;
-    }
+    ..app-shell {
+  /* כבר לא צריך להיות "מתוח" בכוח על גובה מסך אחד */
+  flex: 1 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  min-height: calc(var(--vh, 1vh) * 100 - 64px);
+  overflow: visible;
+}
 
     .app-container {
       width: 100%;
